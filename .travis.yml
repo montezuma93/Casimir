@@ -10,7 +10,7 @@ addons:
   sonarcloud:
     organization: "montezuma93-github" # the key of the org you chose at step #3
     token:
-      secure: "CasimirToken" # encrypted value of your token
+      secure: "SONAR_TOKEN" # encrypted value of your token
 # command to run tests
 script:
   - python -m unittest discover
