@@ -14,6 +14,6 @@ addons:
       secure: "6d0ff832ee5d97268bf61f151dfa6dc1957b3dac" # encrypted value of your token
 # command to run tests
 script:
-  - python -m unittest
+  - python tests/test_all_of_the_units.py
   # other script steps might be done before running the actual analysis
   - sonar-scanner
