@@ -9,7 +9,7 @@ install:
   - pip install coverage
 addons:
   sonarcloud:
-    organization: "sonarcloud" # the key of the org you chose at step #3
+    organization: "montezuma93-github" # the key of the org you chose at step #3
     token:
       secure: "SONAR_TOKEN" # encrypted value of your token
 # command to run tests
