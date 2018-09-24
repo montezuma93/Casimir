@@ -8,4 +8,4 @@ install:
   - pip install pytest
 # command to run tests
 script:
-  - pytest
+  - python -m unittest discover
