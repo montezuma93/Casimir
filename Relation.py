@@ -10,7 +10,7 @@ class CategoryRelation(Relation):
     def __init__(self, category_name):
         super().__init__(category_name)
 
-class ConcreteRelation(Relation):
+class ConcreteRelation(CategoryRelation):
 
     def __init__(self, category_name, name):
         self.name = name
