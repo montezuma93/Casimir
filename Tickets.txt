@@ -1,0 +1,6 @@
+Ticket-1
+
+-Fixe Object Categories: City, Country, Continent
+-Fixe Relation Categories: Cardinal, Topological, Distance, Spatial
+-Fixe Concrete Relations: North, South, West, East (Cardinal); Part of (Topological); Close, Far (Distance); Left, Right, Up, Down (Spatial)
+-Method to add new object categories and relation categories as well as concrete relations and concrete objects
