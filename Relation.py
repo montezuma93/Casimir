@@ -1,84 +1,57 @@
 from abc import ABC
 
 class Relation(ABC):
-
     def __init__(self):
         pass
 
 class RelationCategorie(Relation):
-
-    def __init__(self, category_name, amount_of_objects):
-        self.category_name = category_name
-        self.amount_of_objects = amount_of_objects
-        super().__init__()
+    pass
 
 class CardinalRelation(RelationCategorie):
-    def __init__(self):
-        super().__init__("CardinalRelation", 2)
+    category_name = "CardinalRelation"
+    amount_of_objects = 2
 
 class NorthCardinalRelation(CardinalRelation):
-    def __init__(self):
-        self.name = "North"
-        super().__init__()
+    name = "North"
 
 class SouthCardinalRelation(CardinalRelation):
-    def __init__(self):
-        self.name = "South"
-        super().__init__()
+    name = "South"
 
 class WestCardinalRelation(CardinalRelation):
-    def __init__(self):
-        self.name = "West"
-        super().__init__()
+    name = "West"
 
 class EastCardinalRelation(CardinalRelation):
-    def __init__(self):
-        self.name = "East"
-        super().__init__()
+    name = "East"
 
 class SpatialRelation(RelationCategorie):
-    def __init__(self):
-        super().__init__("SpatialRelation", 2)
+    category_name = "SpatialRelation"
+    amount_of_objects = 2
 
 class LeftSpatialRelation(SpatialRelation):
-    def __init__(self):
-        self.name = "Left"
-        super().__init__()    
+    name = "Left" 
 
 class RightSpatialRelation(SpatialRelation):
-    def __init__(self):
-        self.name = "Right"
-        super().__init__()
+    name = "Right" 
 
 class UpSpatialRelation(SpatialRelation):
-    def __init__(self):
-        self.name = "Up"
-        super().__init__()
+    name = "Up"
 
 class DownSpatialRelation(SpatialRelation):
-    def __init__(self):
-        self.name = "Down"
-        super().__init__()    
+    name = "Down"
 
 class TopologicalRelation(RelationCategorie):
-    def __init__(self):
-        super().__init__("TopologicalRelation", 2)
+    category_name = "TopologicalRelation"
+    amount_of_objects = 2
 
 class PartOfTopologicalRelation(TopologicalRelation):
-    def __init__(self):
-        self.name = "PartOf"
-        super().__init__()    
+    name = "PartOf"   
 
 class DistanceRelation(RelationCategorie):
-    def __init__(self):
-        super().__init__("DistanceRelation", 2)
+    category_name = "DistanceRelation"
+    amount_of_objects = 2
 
 class FarSpatialRelation(DistanceRelation):
-    def __init__(self):
-        self.name = "Far"
-        super().__init__()    
+    name = "Far"
 
 class CloseSpatialRelation(DistanceRelation):
-    def __init__(self):
-        self.name = "Clase"
-        super().__init__()    
+    name = "Close"
