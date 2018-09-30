@@ -7,9 +7,9 @@ class Relation(ABC):
 
 class RelationCategorie(Relation):
 
-    def __init__(self, category_name, amountOfObjects):
+    def __init__(self, category_name, amount_of_objects):
         self.category_name = category_name
-        self.amountOfObjects = amountOfObjects
+        self.amount_of_objects = amount_of_objects
         super().__init__()
 
 class CardinalRelation(RelationCategorie):
