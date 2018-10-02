@@ -56,7 +56,4 @@ class FarSpatialRelation(DistanceRelation):
 class CloseSpatialRelation(DistanceRelation):
     name = "Close"
 
-class RelationObject:
-    def __init__(self, relation, object_list):
-        self.relation = relation
-        self.object_list = object_list
+
