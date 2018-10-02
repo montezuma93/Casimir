@@ -4,10 +4,10 @@ class Relation(ABC):
     def __init__(self):
         pass
 
-class RelationCategorie(Relation):
+class RelationCategory(Relation):
     pass
 
-class CardinalRelation(RelationCategorie):
+class CardinalRelation(RelationCategory):
     category_name = "CardinalRelation"
     amount_of_objects = 2
 
@@ -23,7 +23,7 @@ class WestCardinalRelation(CardinalRelation):
 class EastCardinalRelation(CardinalRelation):
     name = "East"
 
-class SpatialRelation(RelationCategorie):
+class SpatialRelation(RelationCategory):
     category_name = "SpatialRelation"
     amount_of_objects = 2
 
@@ -39,14 +39,14 @@ class UpSpatialRelation(SpatialRelation):
 class DownSpatialRelation(SpatialRelation):
     name = "Down"
 
-class TopologicalRelation(RelationCategorie):
+class TopologicalRelation(RelationCategory):
     category_name = "TopologicalRelation"
     amount_of_objects = 2
 
 class PartOfTopologicalRelation(TopologicalRelation):
     name = "PartOf"   
 
-class DistanceRelation(RelationCategorie):
+class DistanceRelation(RelationCategory):
     category_name = "DistanceRelation"
     amount_of_objects = 2
 
@@ -55,3 +55,8 @@ class FarSpatialRelation(DistanceRelation):
 
 class CloseSpatialRelation(DistanceRelation):
     name = "Close"
+
+class RelationObject:
+    def __init__(self, relation, objectList):
+        self.relation = relation
+        self.objectList = objectList

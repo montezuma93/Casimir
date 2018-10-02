@@ -1,30 +1,28 @@
 from abc import ABC
 
 class Object(ABC):
-
     def __init__(self):
         pass
 
 class ObjectCategorie(Object):
 
-    def __init__(self, category_name):
-        self.category_name = category_name
-        super().__init__()
+    def __init__(self, name):
+        self.name = name
 
 class CityObject(ObjectCategorie):
+    category_name = "City"
 
     def __init__(self, name):
-        self.name = name
-        super().__init__("City")
+        super().__init__(name)
 
 class CountryObject(ObjectCategorie):
+    category_name = "Country"
 
     def __init__(self, name):
-        self.name = name
-        super().__init__("Country")
+        super().__init__(name)
 
 class ContinentObject(ObjectCategorie):
+    category_name = "Continent"
 
     def __init__(self, name):
-        self.name = name
-        super().__init__("Continent")
+        super().__init__(name)
