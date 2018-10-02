@@ -1,15 +1,14 @@
 from collections import OrderedDict
-from Relation import RelationCategory, RelationObject
 
 class LongTermMemory:
 
     def __init__(self):
-        self.storedRelations = OrderedDict()
+        self.stored_relations = OrderedDict()
 
-    def save(self, relationObject):
-        if (self.storedRelations.__contains__(relationObject.relation.category_name)):
-            self.storedRelations.get(relationObject.relation.category_name).append(relationObject)
+    def save(self, relation_object):
+        if (self.stored_relations.__contains__(relation_object.relation.category_name)):
+            self.stored_relations.get(relation_object.relation.category_name).append(relation_object)
         else:
-            self.storedRelations[relationObject.relation.category_name] = [relationObject]
+            self.stored_relations[relation_object.relation.category_name] = [relation_object]
 
 

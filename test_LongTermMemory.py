@@ -1,56 +1,56 @@
 import unittest
-from LongTermMemory import LongTermMemory, RelationObject
-from Relation import NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory
+from LongTermMemory import LongTermMemory
+from Relation import NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory, RelationObject
 from Object import CityObject, CountryObject
 
 class TestLongTermMemory(unittest.TestCase):
 
     def test_long_term_memory_can_save_one_relation_correctly(self):
-        longTermMemory = LongTermMemory()
-        parisCityObject = CityObject("Paris")
-        londonCityObject = CityObject("London")
-        northCardinalRelation = NorthCardinalRelation()
-        relationObject = RelationObject(northCardinalRelation, [londonCityObject, parisCityObject])
+        long_term_memory = LongTermMemory()
+        paris_city_object = CityObject("Paris")
+        london_city_object = CityObject("London")
+        north_cardinal_relation = NorthCardinalRelation()
+        relation_object_1 = RelationObject(north_cardinal_relation, [london_city_object, paris_city_object])
 
-        longTermMemory.save(relationObject)
+        long_term_memory.save(relation_object_1)
 
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0].relation.name, "North")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0].objectList[0].name, "London")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0].objectList[1].name, "Paris")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0].relation.name, "North")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0].object_list[0].name, "London")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0].object_list[1].name, "Paris")
 
     def test_long_term_memory_can_save_multiple_relation_correctly(self):
-        longTermMemory = LongTermMemory()
-        parisCityObject = CityObject("Paris")
-        londonCityObject = CityObject("London")
-        northCardinalRelation = NorthCardinalRelation()
-        relationObject1 = RelationObject(northCardinalRelation, [londonCityObject, parisCityObject])
+        long_term_memory = LongTermMemory()
+        paris_city_object = CityObject("Paris")
+        london_city_object = CityObject("London")
+        north_cardinal_relation = NorthCardinalRelation()
+        relation_object_1 = RelationObject(north_cardinal_relation, [london_city_object, paris_city_object])
         kairoCityObject = CityObject("Kairo")
-        southCardinalRelation = SouthCardinalRelation()
-        relationObject2 = RelationObject(southCardinalRelation, [kairoCityObject, parisCityObject])
+        south_cardinal_relation = SouthCardinalRelation()
+        relation_object_2 = RelationObject(south_cardinal_relation, [kairoCityObject, paris_city_object])
 
-        longTermMemory.save(relationObject1)
-        longTermMemory.save(relationObject2)
+        long_term_memory.save(relation_object_1)
+        long_term_memory.save(relation_object_2)
 
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0].relation.name, "North")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0].objectList[0].name, "London")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0].objectList[1].name, "Paris")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][1].relation.name, "South")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][1].objectList[0].name, "Kairo")
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][1].objectList[1].name, "Paris")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0].relation.name, "North")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0].object_list[0].name, "London")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0].object_list[1].name, "Paris")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][1].relation.name, "South")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][1].object_list[0].name, "Kairo")
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][1].object_list[1].name, "Paris")
 
     def test_long_term_memory_can_save_multiple_relation_categories_correctly(self):
-        longTermMemory = LongTermMemory()
-        parisCityObject = CityObject("Paris")
-        londonCityObject = CityObject("London")
-        northCardinalRelation = NorthCardinalRelation()
-        relationObject1 = RelationObject(northCardinalRelation, [londonCityObject, parisCityObject])
+        long_term_memory = LongTermMemory()
+        paris_city_object = CityObject("Paris")
+        london_city_object = CityObject("London")
+        north_cardinal_relation = NorthCardinalRelation()
+        relation_object_1 = RelationObject(north_cardinal_relation, [london_city_object, paris_city_object])
 
-        franceCountryObject = CountryObject("France")
-        partOfTopologicalRelation = PartOfTopologicalRelation()
-        relationObject2 = RelationObject(partOfTopologicalRelation, [parisCityObject, franceCountryObject])
+        france_country_object = CountryObject("France")
+        part_of_topological_relation = PartOfTopologicalRelation()
+        relation_object_2 = RelationObject(part_of_topological_relation, [paris_city_object, france_country_object])
 
-        longTermMemory.save(relationObject1)
-        longTermMemory.save(relationObject2)
+        long_term_memory.save(relation_object_1)
+        long_term_memory.save(relation_object_2)
 
-        self.assertEqual(longTermMemory.storedRelations["CardinalRelation"][0], relationObject1)
-        self.assertEqual(longTermMemory.storedRelations["TopologicalRelation"][0], relationObject2)
+        self.assertEqual(long_term_memory.stored_relations["CardinalRelation"][0], relation_object_1)
+        self.assertEqual(long_term_memory.stored_relations["TopologicalRelation"][0], relation_object_2)
