@@ -25,9 +25,9 @@ class TestLongTermMemory(unittest.TestCase):
         london_city_object = CityObject("London")
         north_cardinal_relation = NorthCardinalRelation()
         relation_to_object_mapping_1 = RelationToObjectsMapping(north_cardinal_relation, [london_city_object, paris_city_object])
-        kairoCityObject = CityObject("Kairo")
+        kairo_city_object = CityObject("Kairo")
         south_cardinal_relation = SouthCardinalRelation()
-        relation_to_object_mapping_2 = RelationToObjectsMapping(south_cardinal_relation, [kairoCityObject, paris_city_object])
+        relation_to_object_mapping_2 = RelationToObjectsMapping(south_cardinal_relation, [kairo_city_object, paris_city_object])
 
         long_term_memory.save_relation_object_mapping(relation_to_object_mapping_1)
         long_term_memory.save_relation_object_mapping(relation_to_object_mapping_2)
