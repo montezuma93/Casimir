@@ -42,7 +42,7 @@ class LongTermMemory:
     def _spread_activation(self, intial_relation_type, initial_object1, initial_object2):
         self._set_initial_activation(intial_relation_type, initial_object1, initial_object2)
         while(self._firing_node_exists()):
-            return "true"
+            return True
 
     def _set_initial_activation(self, intial_relation_type, initial_object1, initial_object2):
         for relation_type, relation_to_objects_mappings in self.stored_relations.items():
@@ -53,13 +53,21 @@ class LongTermMemory:
                     relation_to_objects_mapping.activation = self.INITIAL_ACTIVATION_OFF
         for object_name, object_to_relation_mappings in self.stored_objects.items():
             for object_to_relation_mapping in object_to_relation_mappings:
-                if(object_name == initial_object1.name or object_name == initial_object2.name):
+                if (object_name == initial_object1.name or object_name == initial_object2.name):
                     object_to_relation_mapping.activation = self.INITIAL_ACTIVATION_ON
                 else:
                     object_to_relation_mapping.activation = self.INITIAL_ACTIVATION_OFF
     
     def _firing_node_exists(self):
-        return "true"
+        for relation_to_objects_mappings in self.stored_relations.values():
+            for relation_to_objects_mapping in relation_to_objects_mappings:
+                if (relation_to_objects_mapping.activation >= self.FIRING_THRESHOLD):
+                    return True
+        for object_to_relation_mappings in self.stored_objects.values():
+            for object_to_relation_mapping in object_to_relation_mappings:
+                if (object_to_relation_mapping.activation >= self.FIRING_THRESHOLD):
+                    return True
+        return False
     
     def _get_most_activated_fragments(self):
         return "true"
