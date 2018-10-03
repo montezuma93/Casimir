@@ -1,59 +1,83 @@
 from abc import ABC
+from enum import Enum
+
+class RelationType(Enum):
+    CardinalRelation = 1
+    SpatialRelation = 2
+    TopologicalRelation = 3
+    DistanceRelation = 4
+
+class CardinalRelationName(Enum):
+    North = 1
+    South = 2
+    West = 3
+    East = 4
+
+class SpatialRelationName(Enum):
+    Left = 1
+    Right = 2
+    Up = 3
+    Down = 4
+
+class TopologicalRelationName(Enum):
+    PartOf = 1
+
+class DistanceRelationName(Enum):
+    Far = 1
+    Close = 2
 
 class Relation(ABC):
-    def __init__(self):
-        pass
+    pass
 
 class RelationCategory(Relation):
     pass
 
 class CardinalRelation(RelationCategory):
-    category_name = "CardinalRelation"
+    relation_type = RelationType.CardinalRelation
     amount_of_objects = 2
 
 class NorthCardinalRelation(CardinalRelation):
-    name = "North"
+    name = CardinalRelationName.North
 
 class SouthCardinalRelation(CardinalRelation):
-    name = "South"
+    name = CardinalRelationName.South
 
 class WestCardinalRelation(CardinalRelation):
-    name = "West"
+    name = CardinalRelationName.West
 
 class EastCardinalRelation(CardinalRelation):
-    name = "East"
+    name = CardinalRelationName.East
 
 class SpatialRelation(RelationCategory):
-    category_name = "SpatialRelation"
+    relation_type = RelationType.SpatialRelation
     amount_of_objects = 2
 
 class LeftSpatialRelation(SpatialRelation):
-    name = "Left" 
+    name = SpatialRelationName.Left
 
 class RightSpatialRelation(SpatialRelation):
-    name = "Right" 
+    name = SpatialRelationName.Right
 
 class UpSpatialRelation(SpatialRelation):
-    name = "Up"
+    name = SpatialRelationName.Up
 
 class DownSpatialRelation(SpatialRelation):
-    name = "Down"
+    name = SpatialRelationName.Down
 
 class TopologicalRelation(RelationCategory):
-    category_name = "TopologicalRelation"
+    relation_type = RelationType.TopologicalRelation
     amount_of_objects = 2
 
 class PartOfTopologicalRelation(TopologicalRelation):
-    name = "PartOf"   
+    name = TopologicalRelationName.PartOf  
 
 class DistanceRelation(RelationCategory):
-    category_name = "DistanceRelation"
+    relation_type = RelationType.DistanceRelation
     amount_of_objects = 2
 
 class FarSpatialRelation(DistanceRelation):
-    name = "Far"
+    name = DistanceRelationName.Far
 
 class CloseSpatialRelation(DistanceRelation):
-    name = "Close"
-
+    name = DistanceRelationName.Close
 

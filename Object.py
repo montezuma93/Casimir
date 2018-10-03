@@ -1,6 +1,13 @@
 from abc import ABC
+from enum import Enum
+
+class ObjectType(Enum):
+    City = 1
+    Country = 2
+    Continent = 3
 
 class Object(ABC):
+
     def __init__(self):
         pass
 
@@ -10,19 +17,19 @@ class ObjectCategorie(Object):
         self.name = name
 
 class CityObject(ObjectCategorie):
-    category_name = "City"
+    object_type = ObjectType.City
 
     def __init__(self, name):
         super().__init__(name)
 
 class CountryObject(ObjectCategorie):
-    category_name = "Country"
+    object_type = ObjectType.Country
 
     def __init__(self, name):
         super().__init__(name)
 
 class ContinentObject(ObjectCategorie):
-    category_name = "Continent"
+    object_type = ObjectType.Continent
 
     def __init__(self, name):
         super().__init__(name)
