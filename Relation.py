@@ -75,9 +75,9 @@ class DistanceRelation(RelationCategory):
     relation_type = RelationType.DistanceRelation
     amount_of_objects = 2
 
-class FarSpatialRelation(DistanceRelation):
+class FarDistanceRelation(DistanceRelation):
     name = DistanceRelationName.Far
 
-class CloseSpatialRelation(DistanceRelation):
+class CloseDistanceRelation(DistanceRelation):
     name = DistanceRelationName.Close
 
