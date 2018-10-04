@@ -8,6 +8,7 @@ class LongTermMemory:
     FIRING_THRESHOLD = 0.5
     INITIAL_ACTIVATION_ON = 1
     INITIAL_ACTIVATION_OFF = 0
+    RETRIEVAL_ACTIVATION_THRESHOLD = 0.7
 
 
     def __init__(self):
@@ -105,7 +106,20 @@ class LongTermMemory:
         return False
     
     def _get_most_activated_fragments(self):
-        return True
+        fragment_list = []
+        for relation_to_objects_mappings in self.stored_relations.values():
+            for relation_to_objects_mapping in relation_to_objects_mappings:
+                if(relation_to_objects_mapping.activation >= self.RETRIEVAL_ACTIVATION_THRESHOLD):
+                    fragment_list.append(relation_to_objects_mapping)
+        for object_to_relation_mappings in self.stored_objects.values():
+            for object_to_relation_mapping in object_to_relation_mappings:
+                if(object_to_relation_mapping.activation >= self.RETRIEVAL_ACTIVATION_THRESHOLD):
+                    fragment_list.append(object_to_relation_mapping)
+        fragment_list.sort(key=lambda fragment: fragment.activation, reverse=False)
+        return fragment_list
+
+
+
 
 class RelationToObjectsMapping:
     def __init__(self, relation, object_list):

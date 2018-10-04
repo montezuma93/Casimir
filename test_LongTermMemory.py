@@ -120,8 +120,12 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory.FIRING_THRESHOLD = 0.75
         long_term_memory.RELATION_OBJECT_LINK_WEIGHT = 0.5
         long_term_memory.OBJECT_RELATION_LINK_WEIGHT = 0.25
+        long_term_memory.RETRIEVAL_ACTIVATION_THRESHOLD = 0.6
+
         long_term_memory._spread_activation(part_of_topological_relation.relation_type, london_city_object, aberdeen_city_object)
         
+        self.assertEqual(long_term_memory.stored_objects["France"][0].activation, 0.65625)
+        self.assertEqual(long_term_memory.stored_objects["London"][0].activation, 0.5625)
         self.assertEqual(long_term_memory.stored_objects["Paris"][0].activation, 0.65625)
         self.assertEqual(long_term_memory.stored_objects["Paris"][1].activation, 0.65625)
         self.assertEqual(long_term_memory.stored_objects["Paris"][2].activation, 0.65625)
@@ -129,3 +133,10 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation, 0.328125)
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation, 0.0)
        
+        most_activated_fragments = long_term_memory._get_most_activated_fragments()
+
+        self.assertEqual(len(most_activated_fragments), 4)
+
+        self.assertEqual(most_activated_fragments[0].stored_object, paris_city_object)
+        self.assertEqual(most_activated_fragments[0].relation_type, RelationType.CardinalRelation)
+        self.assertEqual(most_activated_fragments[0].reference_number, 0)
