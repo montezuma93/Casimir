@@ -1,3 +1,6 @@
+Ticket-0
+-Einrichten von Sonar, Travis-Ci, Github, IDE
+
 Ticket-1
 
 -Fixe Object Categories: City, Country, Continent
