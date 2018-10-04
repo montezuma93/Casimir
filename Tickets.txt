@@ -22,15 +22,15 @@ Ticket-4
 -Save and Retrieve Relation as in the Example in the paper
 
 Ticket-5
--Refactor code and tests -> 0 code smells and increate test coverage
+-Refactor code and tests -> 0 code smells and increate readability
 
 Ticket-6
--Read conversion to active representation
--Understand conversion
+-Read construction of active representation
+-Understand construction
 -How to implement it -> Create exmaple, diagram
 
 Ticket-7
--Implement conversion
+-Implement construction
 -Add tests
 
 Ticket-8
