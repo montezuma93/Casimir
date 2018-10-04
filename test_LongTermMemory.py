@@ -88,7 +88,6 @@ class TestLongTermMemory(unittest.TestCase):
         relation_to_objects_mapping_3 = RelationToObjectsMapping(part_of_topological_relation, [paris_city_object, france_country_object])
 
         aberdeen_city_object = CityObject("Aberdeen")
-        relation_to_objects_mapping_4 = RelationToObjectsMapping(north_cardinal_relation, [aberdeen_city_object, london_city_object])
 
         long_term_memory.save_relation_object_mapping(relation_to_objects_mapping_1)
         long_term_memory.save_relation_object_mapping(relation_to_objects_mapping_2)
