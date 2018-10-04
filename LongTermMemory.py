@@ -11,7 +11,6 @@ class LongTermMemory:
     RETRIEVAL_ACTIVATION_THRESHOLD = 0.7
     MAXIMUM_AMOUNT_OF_ITERATION_STEPS = 10
 
-
     def __init__(self):
         self.stored_relations = OrderedDict()
         self.stored_objects = OrderedDict()

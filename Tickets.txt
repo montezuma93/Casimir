@@ -30,12 +30,9 @@ Ticket-6
 -How to implement it -> Create exmaple, diagram
 
 Ticket-7
--Write Email with Github and Conversion Implementation idea
-
-Ticket-8
 -Implement conversion
 -Add tests
 
-Ticket-9
+Ticket-8
 -Think about how to create SMM
 -Create diagram and example about implementation idea
