@@ -1,6 +1,6 @@
 import unittest
 from LongTermMemory import LongTermMemory, RelationToObjectsMapping, ObjectToRelationMapping
-from Relation import NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName, RelationType
+from Relation import EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName, RelationType, TopologicalRelationName
 from Object import CityObject, CountryObject
 
 class TestLongTermMemory(unittest.TestCase):
@@ -119,7 +119,7 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory.FIRING_THRESHOLD = 0.75
         long_term_memory.RELATION_OBJECT_LINK_WEIGHT = 0.5
         long_term_memory.OBJECT_RELATION_LINK_WEIGHT = 0.25
-        long_term_memory.RETRIEVAL_ACTIVATION_THRESHOLD = 0.6
+        long_term_memory.RETRIEVAL_ACTIVATION_THRESHOLD = 0.5
 
         long_term_memory._spread_activation(part_of_topological_relation.relation_type, london_city_object, aberdeen_city_object)
         
@@ -129,13 +129,58 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_objects["Paris"][1].activation, 0.65625)
         self.assertEqual(long_term_memory.stored_objects["Paris"][2].activation, 0.65625)
         self.assertEqual(long_term_memory.stored_objects["Kairo"][0].activation, 0)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].activation, 0.5625)
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation, 0.328125)
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation, 0.0)
        
         most_activated_fragments = long_term_memory._get_most_activated_fragments()
 
-        self.assertEqual(len(most_activated_fragments), 4)
+        self.assertEqual(len(most_activated_fragments), 1)
 
-        self.assertEqual(most_activated_fragments[0].stored_object, paris_city_object)
-        self.assertEqual(most_activated_fragments[0].relation_type, RelationType.CardinalRelation)
-        self.assertEqual(most_activated_fragments[0].reference_number, 0)
+        self.assertEqual(most_activated_fragments[0].relation.name, TopologicalRelationName.PartOf)
+        self.assertEqual(most_activated_fragments[0].object_list, [paris_city_object, france_country_object])
+
+    def test_save_and_recieve_knowledge_fragment_based_on_papers_example(self):
+        long_term_memory = LongTermMemory()
+        
+        long_term_memory.DECAY = 0.75
+        long_term_memory.FIRING_THRESHOLD = 0.9
+        long_term_memory.RELATION_OBJECT_LINK_WEIGHT = 0.75
+        long_term_memory.OBJECT_RELATION_LINK_WEIGHT = 0.05
+        long_term_memory.RETRIEVAL_ACTIVATION_THRESHOLD = 0.9
+        long_term_memory.MAXIMUM_AMOUNT_OF_ITERATION_STEPS = 10
+
+        paris_city_object = CityObject("Paris")
+        prague_city_object = CityObject("Pargue")
+        london_city_object = CityObject("London")
+        france_country_object = CountryObject("France")
+        england_country_object = CountryObject("England")
+        south_cardinal_relation = SouthCardinalRelation()
+        east_cardinal_relation = EastCardinalRelation()
+        part_of_topological_relation = PartOfTopologicalRelation()
+
+        relation_to_objects_mapping_1 = RelationToObjectsMapping(east_cardinal_relation, [prague_city_object, paris_city_object])
+        relation_to_objects_mapping_2 = RelationToObjectsMapping(south_cardinal_relation, [paris_city_object, london_city_object])
+        relation_to_objects_mapping_3 = RelationToObjectsMapping(part_of_topological_relation, [paris_city_object, france_country_object])
+        relation_to_objects_mapping_4 = RelationToObjectsMapping(part_of_topological_relation, [london_city_object, england_country_object])
+
+        long_term_memory.save_relation_object_mapping(relation_to_objects_mapping_1)
+        long_term_memory.save_relation_object_mapping(relation_to_objects_mapping_2)
+        long_term_memory.save_relation_object_mapping(relation_to_objects_mapping_3)
+        long_term_memory.save_relation_object_mapping(relation_to_objects_mapping_4)
+
+        most_activated_fragments = long_term_memory.receive_knowledge_fragments(RelationType.CardinalRelation, paris_city_object, london_city_object)
+
+        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].activation, 0.4125)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation, 0.4125)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation, 1)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation, 1)
+
+        self.assertEqual(len(most_activated_fragments), 2)
+
+        self.assertEqual(most_activated_fragments[0].relation.name, CardinalRelationName.East)
+        self.assertEqual(most_activated_fragments[0].object_list, [prague_city_object, paris_city_object])
+        self.assertEqual(most_activated_fragments[1].relation.name, CardinalRelationName.South)
+        self.assertEqual(most_activated_fragments[1].object_list, [paris_city_object, london_city_object])
+
+        

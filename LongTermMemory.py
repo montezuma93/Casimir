@@ -9,6 +9,7 @@ class LongTermMemory:
     INITIAL_ACTIVATION_ON = 1
     INITIAL_ACTIVATION_OFF = 0
     RETRIEVAL_ACTIVATION_THRESHOLD = 0.7
+    MAXIMUM_AMOUNT_OF_ITERATION_STEPS = 10
 
 
     def __init__(self):
@@ -37,12 +38,13 @@ class LongTermMemory:
 
     def receive_knowledge_fragments(self, relation_type, object1, object2):
         self._spread_activation(relation_type, object1, object2)
-        self._get_most_activated_fragments()
+        return self._get_most_activated_fragments()
         
     
     def _spread_activation(self, intial_relation_type, initial_object1, initial_object2):
         self._set_initial_activation(intial_relation_type, initial_object1, initial_object2)
-        while(self._firing_node_exists()):
+        iteration_steps = 0
+        while(self._firing_node_exists() and iteration_steps <= self.MAXIMUM_AMOUNT_OF_ITERATION_STEPS):
             for relation_to_objects_mappings in self.stored_relations.values():
                 for relation_to_objects_mapping in relation_to_objects_mappings:
                     if (relation_to_objects_mapping.activation >= self.FIRING_THRESHOLD):
@@ -52,6 +54,7 @@ class LongTermMemory:
                     if (object_to_relation_mapping.activation >= self.FIRING_THRESHOLD):
                         self._update_linked_activation_for_object(object_to_relation_mapping)
             self._update_unchanged_activation_mappings()
+            iteration_steps = iteration_steps + 1
 
     def _set_initial_activation(self, intial_relation_type, initial_object1, initial_object2):
         for relation_type, relation_to_objects_mappings in self.stored_relations.items():
@@ -111,10 +114,6 @@ class LongTermMemory:
             for relation_to_objects_mapping in relation_to_objects_mappings:
                 if(relation_to_objects_mapping.activation >= self.RETRIEVAL_ACTIVATION_THRESHOLD):
                     fragment_list.append(relation_to_objects_mapping)
-        for object_to_relation_mappings in self.stored_objects.values():
-            for object_to_relation_mapping in object_to_relation_mappings:
-                if(object_to_relation_mapping.activation >= self.RETRIEVAL_ACTIVATION_THRESHOLD):
-                    fragment_list.append(object_to_relation_mapping)
         fragment_list.sort(key=lambda fragment: fragment.activation, reverse=False)
         return fragment_list
 

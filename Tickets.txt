@@ -11,3 +11,28 @@ Ticket-2
 -Paris is part of France
 -Kairo is south of Paris
 -London is north of Paris
+
+Ticket-3
+-Retrieve Relation
+
+Ticket-4
+-Save and Retrieve Relation as in the Example in the paper
+
+Ticket-5
+-Refactor code and tests -> 0 code smells and increate test coverage
+
+Ticket-6
+-Read conversion to active representation
+-Understand conversion
+-How to implement it -> Create exmaple, diagram
+
+Ticket-7
+-Write Email with Github and Conversion Implementation idea
+
+Ticket-8
+-Implement conversion
+-Add tests
+
+Ticket-9
+-Think about how to create SMM
+-Create diagram and example about implementation idea
