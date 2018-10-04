@@ -42,22 +42,57 @@ class LongTermMemory:
     def _spread_activation(self, intial_relation_type, initial_object1, initial_object2):
         self._set_initial_activation(intial_relation_type, initial_object1, initial_object2)
         while(self._firing_node_exists()):
-            return True
+            for relation_to_objects_mappings in self.stored_relations.values():
+                for relation_to_objects_mapping in relation_to_objects_mappings:
+                    if (relation_to_objects_mapping.activation >= self.FIRING_THRESHOLD):
+                        self._update_linked_activation_for_relation(relation_to_objects_mapping)
+            for object_to_relation_mappings in self.stored_objects.values():
+                for object_to_relation_mapping in object_to_relation_mappings:
+                    if (object_to_relation_mapping.activation >= self.FIRING_THRESHOLD):
+                        self._update_linked_activation_for_object(object_to_relation_mapping)
+            self._update_unchanged_activation_mappings()
 
     def _set_initial_activation(self, intial_relation_type, initial_object1, initial_object2):
         for relation_type, relation_to_objects_mappings in self.stored_relations.items():
             for relation_to_objects_mapping in relation_to_objects_mappings:
+                relation_to_objects_mapping.activation_was_updated = False
                 if (relation_type == intial_relation_type):
                     relation_to_objects_mapping.activation = self.INITIAL_ACTIVATION_ON
                 else:
                     relation_to_objects_mapping.activation = self.INITIAL_ACTIVATION_OFF
         for object_name, object_to_relation_mappings in self.stored_objects.items():
             for object_to_relation_mapping in object_to_relation_mappings:
+                object_to_relation_mapping.activation_was_updated = False
                 if (object_name == initial_object1.name or object_name == initial_object2.name):
                     object_to_relation_mapping.activation = self.INITIAL_ACTIVATION_ON
                 else:
                     object_to_relation_mapping.activation = self.INITIAL_ACTIVATION_OFF
     
+    def _update_linked_activation_for_relation(self, relation_to_objects_mapping):
+        for object_to_update in relation_to_objects_mapping.object_list:
+            for object_to_relation_mapping in self.stored_objects[object_to_update.name]:
+                object_to_relation_mapping.activation = object_to_relation_mapping.activation + (relation_to_objects_mapping.activation*self.DECAY*self.RELATION_OBJECT_LINK_WEIGHT)
+                object_to_relation_mapping.activation_was_updated = True
+                if(object_to_relation_mapping.activation > 1):
+                    object_to_relation_mapping.activation = 1
+
+    def _update_linked_activation_for_object(self, object_to_relation_mapping):
+        relation_to_update = self.stored_relations[object_to_relation_mapping.relation_type][object_to_relation_mapping.reference_number]
+        relation_to_update.activation = relation_to_update.activation + (object_to_relation_mapping.activation*self.DECAY*self.OBJECT_RELATION_LINK_WEIGHT)
+        relation_to_update.activation_was_updated = True
+        if (relation_to_update.activation > 1):
+            relation_to_update.activation = 1
+
+    def _update_unchanged_activation_mappings(self):
+        for relation_to_objects_mappings in self.stored_relations.values():
+            for relation_to_objects_mapping in relation_to_objects_mappings:
+                if(relation_to_objects_mapping.activation_was_updated != True):
+                    relation_to_objects_mapping.activation = relation_to_objects_mapping.activation * self.DECAY
+        for object_to_relation_mappings in self.stored_objects.values():
+            for object_to_relation_mapping in object_to_relation_mappings:
+                if (object_to_relation_mapping.activation_was_updated != True):
+                    object_to_relation_mapping.activation = object_to_relation_mapping.activation * self.DECAY
+
     def _firing_node_exists(self):
         for relation_to_objects_mappings in self.stored_relations.values():
             for relation_to_objects_mapping in relation_to_objects_mappings:
@@ -70,10 +105,7 @@ class LongTermMemory:
         return False
     
     def _get_most_activated_fragments(self):
-        return "true"
-
-
-
+        return True
 
 class RelationToObjectsMapping:
     def __init__(self, relation, object_list):
