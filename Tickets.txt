@@ -22,6 +22,7 @@ Ticket-4
 -Save and Retrieve Relation as in the Example in the paper
 
 Ticket-5
+-Refactor LTM, correct activation spreading
 -Refactor code and tests -> 0 code smells and increate readability
 
 Ticket-6
