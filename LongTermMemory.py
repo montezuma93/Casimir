@@ -45,6 +45,8 @@ class LongTermMemory:
             self.firing_threshold = len(context_array) * 0.0001
         self.spread_activation(context_array)
         retrieval_threshold = self._calculate_retrieval_threshold()
+        print("THRESHOLD-THRESHOLD-THRESHOLD")
+        print(retrieval_threshold)
         return self._get_most_activated_knowledge_subnet(retrieval_threshold)        
     
     def spread_activation(self, context_array):
@@ -126,19 +128,17 @@ class LongTermMemory:
     def _update_activation_values(self):
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
+                stored_relation.activation += stored_relation.activation_to_update
                 print("relation")
-                print(stored_relation.relation.relation_type.value)
+                print(stored_relation.relation.name)
                 print(stored_relation.objects[0])
                 print(stored_relation.objects[1])
                 print(stored_relation.activation)
-                print(stored_relation.activation_to_update)
-                stored_relation.activation += stored_relation.activation_to_update
         for stored_object in self.stored_objects.values():
+            stored_object.activation += stored_object.activation_to_update
             print("object")
             print(stored_object.stored_object.name)
             print(stored_object.activation)
-            print(stored_object.activation_to_update)
-            stored_object.activation += stored_object.activation_to_update
 
     def _calculate_retrieval_threshold(self):
         amount_of_nodes = 0
@@ -149,7 +149,7 @@ class LongTermMemory:
                 retrieval_threshold += stored_relation.activation
         for stored_object in self.stored_objects.values():
             amount_of_nodes += 1
-            retrieval_threshold = stored_object.activation
+            retrieval_threshold += stored_object.activation
         return retrieval_threshold / amount_of_nodes
 
     def _get_knowledge_subnets(self, retrieval_threshold):
@@ -188,7 +188,7 @@ class LongTermMemory:
                             knowledege_subnet.amount_of_activated_nodes += 1
                             something_got_added = True
                     else:
-                        relation.objets.remove(object_name)
+                        relation.objects.remove(object_name)
         return something_got_added
 
     def _add_active_relations_for_object(self, knowledege_subnet, retrieval_threshold):
@@ -197,15 +197,17 @@ class LongTermMemory:
             for relation_link in objects.relation_links:
                 stored_relation = self.stored_relations[relation_link[0]][relation_link[1]]
                 if(stored_relation.activation > retrieval_threshold):
-                    knowledege_subnet.amount_of_activated_nodes += 1
-                    knowledege_subnet.activation_value += stored_relation.activation
                     if (knowledege_subnet.relations.__contains__(stored_relation.relation.relation_type)):
                         if(not knowledege_subnet.relations[stored_relation.relation.relation_type].__contains__(stored_relation)):
                             knowledege_subnet.relations.get(stored_relation.relation.relation_type).append(stored_relation)
                             something_got_added = True
+                            knowledege_subnet.amount_of_activated_nodes += 1
+                            knowledege_subnet.activation_value += stored_relation.activation
                     else:
                         knowledege_subnet.relations[stored_relation.relation.relation_type] = [stored_relation]
-                        something_got_added = True     
+                        something_got_added = True
+                        knowledege_subnet.amount_of_activated_nodes += 1
+                        knowledege_subnet.activation_value += stored_relation.activation
         return something_got_added
 
     def _get_most_activated_knowledge_subnet(self, retrieval_threshold):
