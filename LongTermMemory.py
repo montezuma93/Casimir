@@ -6,6 +6,7 @@ class LongTermMemory:
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
+    DYNAMIC_FIRING_THRESHOLD = False
 
 
     def __init__(self):
@@ -40,9 +41,11 @@ class LongTermMemory:
 
     def receive_knowledge_fragments(self, context_array):
         self.time_since_initialization += 1
+        if(self.DYNAMIC_FIRING_THRESHOLD):
+            self.firing_threshold = len(context_array) * 0.0001
         self.spread_activation(context_array)
         retrieval_threshold = self._calculate_retrieval_threshold()
-        return self._get_most_activated_knowledge_subnet(retrieval_threshold)
+        return self._get_most_activated_knowledge_subnet(retrieval_threshold)        
     
     def spread_activation(self, context_array):
         initial_activation_value = self.INITIAL_ACTIVATION_VALUE / len(context_array)
