@@ -78,23 +78,9 @@ class TestLongTermMemory(unittest.TestCase):
         
     def test_save_and_spread_activation_based_on_papers_example_without_dynamic_firing_threshold(self):
         
-        long_term_memory = LongTermMemory()
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
-        paris_city_object = CityObject("Paris")
-        prague_city_object = CityObject("Prague")
-        london_city_object = CityObject("London")
-        france_country_object = CountryObject("France")
-        england_country_object = CountryObject("England")
-        south_cardinal_relation = SouthCardinalRelation()
-        east_cardinal_relation = EastCardinalRelation()
-        part_of_topological_relation = PartOfTopologicalRelation()
-
-        long_term_memory.save_knowledge_fragment(east_cardinal_relation, [prague_city_object, paris_city_object])
-        long_term_memory.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
-        long_term_memory.save_knowledge_fragment(part_of_topological_relation, [paris_city_object, france_country_object])
-        long_term_memory.save_knowledge_fragment(part_of_topological_relation, [london_city_object, england_country_object])
-
-        retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, paris_city_object, london_city_object])
+        retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
         
         self.assertEqual(long_term_memory.stored_objects["France"].activation, 0.061599999999999995)
         self.assertEqual(long_term_memory.stored_objects["England"].activation, 0.05999999999999999)
@@ -112,44 +98,50 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(len(retrieved_fragments.relations[RelationType.CardinalRelation]), 2)
 
         self.assertFalse(retrieved_fragments.relations.__contains__(RelationType.TopologicalRelation))
-        self.assertFalse(retrieved_fragments.objects.__contains__(france_country_object))
-        self.assertFalse(retrieved_fragments.objects.__contains__(england_country_object))
+        self.assertFalse(retrieved_fragments.objects.__contains__(long_term_memory.france_country_object))
+        self.assertFalse(retrieved_fragments.objects.__contains__(long_term_memory.england_country_object))
 
-        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][0].relation, south_cardinal_relation)
-        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][1].relation, east_cardinal_relation)
-        self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, paris_city_object)
-        self.assertEqual(retrieved_fragments.objects["London"].stored_object, london_city_object)
-        self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, prague_city_object)
+        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][0].relation, long_term_memory.south_cardinal_relation)
+        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][1].relation, long_term_memory.east_cardinal_relation)
+        self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
+        self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
+        self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
 
 
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
         
-        long_term_memory = LongTermMemory()
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.DYNAMIC_FIRING_THRESHOLD = True
 
-        paris_city_object = CityObject("Paris")
-        prague_city_object = CityObject("Prague")
-        london_city_object = CityObject("London")
-        france_country_object = CountryObject("France")
-        england_country_object = CountryObject("England")
-        south_cardinal_relation = SouthCardinalRelation()
-        east_cardinal_relation = EastCardinalRelation()
-        part_of_topological_relation = PartOfTopologicalRelation()
-
-        long_term_memory.save_knowledge_fragment(east_cardinal_relation, [prague_city_object, paris_city_object])
-        long_term_memory.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
-        long_term_memory.save_knowledge_fragment(part_of_topological_relation, [paris_city_object, france_country_object])
-        long_term_memory.save_knowledge_fragment(part_of_topological_relation, [london_city_object, england_country_object])
-
-        retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, paris_city_object, london_city_object])
+        retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
 
         self.assertEqual(len(retrieved_fragments.objects), 3)
         self.assertEqual(len(retrieved_fragments.relations[RelationType.CardinalRelation]), 2)
-        self.assertFalse(retrieved_fragments.objects.__contains__(france_country_object))
-        self.assertFalse(retrieved_fragments.objects.__contains__(england_country_object))
+        self.assertFalse(retrieved_fragments.objects.__contains__(long_term_memory.france_country_object))
+        self.assertFalse(retrieved_fragments.objects.__contains__(long_term_memory.england_country_object))
         self.assertFalse(retrieved_fragments.relations.__contains__(RelationType.TopologicalRelation))
-        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][0].relation, south_cardinal_relation)
-        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][1].relation, east_cardinal_relation)
-        self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, paris_city_object)
-        self.assertEqual(retrieved_fragments.objects["London"].stored_object, london_city_object)
-        self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, prague_city_object)
+        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][0].relation, long_term_memory.south_cardinal_relation)
+        self.assertEqual(retrieved_fragments.relations[RelationType.CardinalRelation][1].relation, long_term_memory.east_cardinal_relation)
+        self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
+        self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
+        self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
+
+    def create_long_term_memory_based_on_papers_example(self):
+
+        long_term_memory = LongTermMemory()
+
+        long_term_memory.paris_city_object = CityObject("Paris")
+        long_term_memory.prague_city_object = CityObject("Prague")
+        long_term_memory.london_city_object = CityObject("London")
+        long_term_memory.france_country_object = CountryObject("France")
+        long_term_memory.england_country_object = CountryObject("England")
+        long_term_memory.south_cardinal_relation = SouthCardinalRelation()
+        long_term_memory.east_cardinal_relation = EastCardinalRelation()
+        long_term_memory.part_of_topological_relation = PartOfTopologicalRelation()
+
+        long_term_memory.save_knowledge_fragment(long_term_memory.east_cardinal_relation, [long_term_memory.prague_city_object, long_term_memory.paris_city_object])
+        long_term_memory.save_knowledge_fragment(long_term_memory.south_cardinal_relation, [long_term_memory.paris_city_object, long_term_memory.london_city_object])
+        long_term_memory.save_knowledge_fragment(long_term_memory.part_of_topological_relation, [long_term_memory.paris_city_object, long_term_memory.france_country_object])
+        long_term_memory.save_knowledge_fragment(long_term_memory.part_of_topological_relation, [long_term_memory.london_city_object, long_term_memory.england_country_object])
+        
+        return long_term_memory
