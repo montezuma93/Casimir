@@ -81,7 +81,7 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.DYNAMIC_FIRING_THRESHOLD = False
         retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
-        '''
+        
         self.assertEqual(long_term_memory.stored_objects["France"].activation, 0.061599999999999995)
         self.assertEqual(long_term_memory.stored_objects["England"].activation, 0.05999999999999999)
         self.assertEqual(long_term_memory.stored_objects["Prague"].activation, 0.06999999999999999)
@@ -92,7 +92,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation, 0.18466666666666665)
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation, 0.26666666666666666)
         
-
+        '''
 
         self.assertEqual(len(retrieved_fragments.objects), 3)
         self.assertEqual(len(retrieved_fragments.relations[RelationType.CardinalRelation]), 2)

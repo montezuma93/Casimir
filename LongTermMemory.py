@@ -3,6 +3,7 @@ from Relation import RelationType
 
 class LongTermMemory:
 
+    INITIAL_ACTIVATION_VALUE_SPREAD_TO_RELATIONS_THROUGH_CATEGORY = True
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
@@ -47,7 +48,9 @@ class LongTermMemory:
         retrieval_threshold = self._calculate_retrieval_threshold()
         print("THRESHOLD-THRESHOLD-THRESHOLD")
         print(retrieval_threshold)
-        return self._get_most_activated_knowledge_subnet(retrieval_threshold)        
+        knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
+        #self.calculate_base_activation_for_knowledge_subnets(knowledge_subnets)
+        return self.get_most_activated_knowledge_subnet(knowledge_subnets)        
     
     def spread_activation(self, context_array):
         initial_activation_value = self.INITIAL_ACTIVATION_VALUE / len(context_array)
@@ -70,7 +73,10 @@ class LongTermMemory:
             for relation_type, stored_relations in self.stored_relations.items():
                 for stored_relation in stored_relations:
                     if (relation_type == entity):
-                        stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
+                        if(self.INITIAL_ACTIVATION_VALUE_SPREAD_TO_RELATIONS_THROUGH_CATEGORY):
+                            stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
+                        else:
+                            stored_relation.activation_to_update = initial_activation_value
                         stored_relation.is_active = True
                     else:
                         stored_relation.activation_to_update = 0
@@ -129,14 +135,12 @@ class LongTermMemory:
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 stored_relation.activation += stored_relation.activation_to_update
-                print("relation")
                 print(stored_relation.relation.name)
                 print(stored_relation.objects[0])
                 print(stored_relation.objects[1])
                 print(stored_relation.activation)
         for stored_object in self.stored_objects.values():
             stored_object.activation += stored_object.activation_to_update
-            print("object")
             print(stored_object.stored_object.name)
             print(stored_object.activation)
 
@@ -152,7 +156,10 @@ class LongTermMemory:
             retrieval_threshold += stored_object.activation
         return retrieval_threshold / amount_of_nodes
 
-    def _get_knowledge_subnets(self, retrieval_threshold):
+    def calculate_base_activation_for_knowledge_subnets(self, knowledge_subnets):
+        return 0 #TODO Calculate the base amount for knowledegesubnets
+
+    def get_knowledge_subnets(self, retrieval_threshold):
         knowledge_subnets = []
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
@@ -210,8 +217,7 @@ class LongTermMemory:
                         knowledege_subnet.activation_value += stored_relation.activation
         return something_got_added
 
-    def _get_most_activated_knowledge_subnet(self, retrieval_threshold):
-        knowledge_subnets = self._get_knowledge_subnets(retrieval_threshold)
+    def get_most_activated_knowledge_subnet(self, knowledge_subnets):
         most_actived_knowldege_subnet_average_activation_value = 0
         most_actived_knowldege_subnet = None
         for knowledge_subnet in knowledge_subnets:
@@ -229,6 +235,7 @@ class KnowledgeSubnet:
         self.objects = OrderedDict()
         self.activation_value = 0
         self.amount_of_activated_nodes = 0
+        self.base_activation = 0
 
 class StoredRelation:
     def __init__(self, relation, objects, time_of_creation):
