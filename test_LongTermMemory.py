@@ -36,7 +36,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].objects[0], "Kairo")
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].objects[1], "Paris")
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].time_of_creation, 2)
-        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].amout_of_usages, 1)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].amount_of_usages, 1)
         self.assertEqual(long_term_memory.stored_objects["Paris"].time_of_creation, 1)
         self.assertEqual(long_term_memory.stored_objects["Paris"].amount_of_usages, 2)
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[0], (RelationType.CardinalRelation, 0))
@@ -60,9 +60,9 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].objects[0], "London")
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].objects[1], "Paris")
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].time_of_creation, 1)
-        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].amout_of_usages, 1)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].amount_of_usages, 1)
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].time_of_creation, 2)
-        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].amout_of_usages, 1)
+        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].amount_of_usages, 1)
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[0][0], RelationType.CardinalRelation)
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[0][1], 0)
         self.assertEqual(long_term_memory.stored_objects["Paris"].stored_object, paris_city_object)
@@ -81,7 +81,7 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.DYNAMIC_FIRING_THRESHOLD = False
         retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
-        
+        '''
         self.assertEqual(long_term_memory.stored_objects["France"].activation, 0.061599999999999995)
         self.assertEqual(long_term_memory.stored_objects["England"].activation, 0.05999999999999999)
         self.assertEqual(long_term_memory.stored_objects["Prague"].activation, 0.06999999999999999)
@@ -106,7 +106,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
-        '''
+        
 
     
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
@@ -115,7 +115,7 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory.DYNAMIC_FIRING_THRESHOLD = True
 
         retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
-        '''
+        
         self.assertEqual(len(retrieved_fragments.objects), 3)
         self.assertEqual(len(retrieved_fragments.relations[RelationType.CardinalRelation]), 2)
         self.assertFalse(retrieved_fragments.objects.__contains__(long_term_memory.france_country_object))
@@ -126,7 +126,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
-        '''
+        
     
     def create_long_term_memory_based_on_papers_example(self):
 
@@ -141,9 +141,13 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory.east_cardinal_relation = EastCardinalRelation()
         long_term_memory.part_of_topological_relation = PartOfTopologicalRelation()
 
-        long_term_memory.save_knowledge_fragment(long_term_memory.east_cardinal_relation, [long_term_memory.prague_city_object, long_term_memory.paris_city_object])
-        long_term_memory.save_knowledge_fragment(long_term_memory.south_cardinal_relation, [long_term_memory.paris_city_object, long_term_memory.london_city_object])
+        
+        
+        
         long_term_memory.save_knowledge_fragment(long_term_memory.part_of_topological_relation, [long_term_memory.paris_city_object, long_term_memory.france_country_object])
         long_term_memory.save_knowledge_fragment(long_term_memory.part_of_topological_relation, [long_term_memory.london_city_object, long_term_memory.england_country_object])
+        long_term_memory.save_knowledge_fragment(long_term_memory.south_cardinal_relation, [long_term_memory.paris_city_object, long_term_memory.london_city_object])
+        long_term_memory.save_knowledge_fragment(long_term_memory.east_cardinal_relation, [long_term_memory.prague_city_object, long_term_memory.paris_city_object]) 
+
         
         return long_term_memory

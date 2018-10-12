@@ -1,9 +1,13 @@
 from collections import OrderedDict
 from Relation import RelationType
+from numpy import log, sqrt, power
 
 class LongTermMemory:
 
-    INITIAL_ACTIVATION_VALUE_SPREAD_TO_RELATIONS_THROUGH_CATEGORY = True
+    INITIAL_ACTIVATION_VALUE__FULLY_SPREAD_TO_RELATIONS_THROUGH_CATEGORY = True
+    MAX_AMOUNT_OF_USAGES_SAVED_PER_NOTE = 2
+    APPROXIMATE_BASE_ACTIVATION = False
+    BASE_ACTIVATION_DECAY = -0.5
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
@@ -34,22 +38,22 @@ class LongTermMemory:
         for concrete_object in objects:
             if (self.stored_objects.__contains__(concrete_object.name)):
                 self.stored_objects[concrete_object.name].amount_of_usages += 1
+                self.append_usage_to_usage_array(self.stored_objects[concrete_object.name].usages)
                 self.stored_objects[concrete_object.name].relation_links.append((relation_type, relation_reference_number))
             else:
                 object_to_store = StoredObject(concrete_object, self.time_since_initialization)
                 object_to_store.relation_links.append((relation_type, relation_reference_number))
-                self.stored_objects[concrete_object.name]= object_to_store
+                self.stored_objects[concrete_object.name] = object_to_store
 
     def receive_knowledge_fragments(self, context_array):
         self.time_since_initialization += 1
         if(self.DYNAMIC_FIRING_THRESHOLD):
             self.firing_threshold = len(context_array) * 0.0001
         self.spread_activation(context_array)
+        self.calculate_base_activation()
         retrieval_threshold = self._calculate_retrieval_threshold()
-        print("THRESHOLD-THRESHOLD-THRESHOLD")
-        print(retrieval_threshold)
         knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
-        #self.calculate_base_activation_for_knowledge_subnets(knowledge_subnets)
+        
         return self.get_most_activated_knowledge_subnet(knowledge_subnets)        
     
     def spread_activation(self, context_array):
@@ -73,7 +77,7 @@ class LongTermMemory:
             for relation_type, stored_relations in self.stored_relations.items():
                 for stored_relation in stored_relations:
                     if (relation_type == entity):
-                        if(self.INITIAL_ACTIVATION_VALUE_SPREAD_TO_RELATIONS_THROUGH_CATEGORY):
+                        if(not self.INITIAL_ACTIVATION_VALUE__FULLY_SPREAD_TO_RELATIONS_THROUGH_CATEGORY):
                             stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
                         else:
                             stored_relation.activation_to_update = initial_activation_value
@@ -135,29 +139,61 @@ class LongTermMemory:
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 stored_relation.activation += stored_relation.activation_to_update
-                print(stored_relation.relation.name)
-                print(stored_relation.objects[0])
-                print(stored_relation.objects[1])
-                print(stored_relation.activation)
         for stored_object in self.stored_objects.values():
             stored_object.activation += stored_object.activation_to_update
-            print(stored_object.stored_object.name)
-            print(stored_object.activation)
 
     def _calculate_retrieval_threshold(self):
         amount_of_nodes = 0
         retrieval_threshold = 0
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
+                print(stored_relation.relation.name)
+                print(stored_relation.objects[0])
+                print(stored_relation.objects[1])
+                print(stored_relation.activation)
                 amount_of_nodes += 1
                 retrieval_threshold += stored_relation.activation
         for stored_object in self.stored_objects.values():
+            print(stored_object.stored_object.name)
+            print(stored_object.activation)
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
-        return retrieval_threshold / amount_of_nodes
+        print(retrieval_threshold / amount_of_nodes)
+        return (retrieval_threshold / amount_of_nodes)
 
-    def calculate_base_activation_for_knowledge_subnets(self, knowledge_subnets):
-        return 0 #TODO Calculate the base amount for knowledegesubnets
+    def calculate_base_activation(self):            
+        for relations in self.stored_relations.values():
+            for relation in relations:
+                print(relation.relation.name)
+                relation.activation += self._calculate_base_activation_for_node(relation)
+        for concrete_object in self.stored_objects.values():
+            print(concrete_object.stored_object.name)
+            concrete_object.activation += self._calculate_base_activation_for_node(concrete_object)
+
+    def _calculate_base_activation_for_node(self, node):
+        sum_over_usages = 0
+        print(node.usages)
+        print(node.time_of_creation)
+        print(node.amount_of_usages)
+        if(self.APPROXIMATE_BASE_ACTIVATION):
+            for usage in node.usages:
+                sum_over_usages += 1/sqrt(self.time_since_initialization - usage)
+
+            sum_to_add = ((2*(node.amount_of_usages - self.MAX_AMOUNT_OF_USAGES_SAVED_PER_NOTE)) /
+                            (sqrt(self.time_since_initialization - node.time_of_creation)  +
+                            sqrt(self.time_since_initialization -node.usages[0])))
+            if(sum_over_usages + sum_to_add != 0):
+                print(log(sum_over_usages+sum_to_add))
+                return log(sum_over_usages + sum_to_add)
+            else:
+                print (0)
+                return 0
+        else:
+            sum_over_usages = 0
+            for usage in node.usages:
+                sum_over_usages += power((self.time_since_initialization - usage),self.BASE_ACTIVATION_DECAY)
+            print (log(sum_over_usages))
+            return log(sum_over_usages)
 
     def get_knowledge_subnets(self, retrieval_threshold):
         knowledge_subnets = []
@@ -186,9 +222,13 @@ class LongTermMemory:
                     stored_object = self.stored_objects[object_name]
                     if (stored_object.activation > retrieval_threshold):
                         if (knowledege_subnet.objects.__contains__(object_name)):
-                            knowledege_subnet.objects[object_name].relation_links.append((relation_type, stored_relations.index(relation)))
+                            if(not knowledege_subnet.objects[object_name].relation_links.__contains__((relation_type, stored_relations.index(relation)))):
+                                knowledege_subnet.objects[object_name].relation_links.append((relation_type, stored_relations.index(relation)))
                         else:
-                            object_to_store = StoredObject(stored_object.stored_object, None)
+                            object_to_store = StoredObject(stored_object.stored_object, stored_object.time_of_creation)
+                            object_to_store.usages = stored_object.usages
+                            object_to_store.activation = stored_object.activation
+                            object_to_store.amount_of_usages = stored_object.amount_of_usages
                             object_to_store.relation_links.append((relation_type, stored_relations.index(relation)))
                             knowledege_subnet.objects[object_name] = object_to_store
                             knowledege_subnet.activation_value += stored_object.activation
@@ -200,8 +240,8 @@ class LongTermMemory:
 
     def _add_active_relations_for_object(self, knowledege_subnet, retrieval_threshold):
         something_got_added = False
-        for objects in knowledege_subnet.objects.values():
-            for relation_link in objects.relation_links:
+        for object_name in knowledege_subnet.objects.keys():
+            for relation_link in self.stored_objects[object_name].relation_links:
                 stored_relation = self.stored_relations[relation_link[0]][relation_link[1]]
                 if(stored_relation.activation > retrieval_threshold):
                     if (knowledege_subnet.relations.__contains__(stored_relation.relation.relation_type)):
@@ -227,6 +267,21 @@ class LongTermMemory:
                 most_actived_knowldege_subnet_average_activation_value = average_activation_value
         return most_actived_knowldege_subnet
 
+    def append_usage_to_usage_array(self, usage_array):
+        if(self.APPROXIMATE_BASE_ACTIVATION):
+            max_amount_of_usages = self.MAX_AMOUNT_OF_USAGES_SAVED_PER_NOTE
+            if(len(usage_array) == max_amount_of_usages):
+                for index_tuple in enumerate(usage_array):
+                    index = index_tuple[0]
+                    if(index == self.MAX_AMOUNT_OF_USAGES_SAVED_PER_NOTE - 1):
+                        usage_array[index] = self.time_since_initialization
+                    else:
+                        usage_array[index] = usage_array[index + 1]
+            else:
+                usage_array.append(self.time_since_initialization)
+        else:
+            usage_array.append(self.time_since_initialization)
+
 
 class KnowledgeSubnet:
     def __init__(self, relation_to_store):
@@ -235,17 +290,17 @@ class KnowledgeSubnet:
         self.objects = OrderedDict()
         self.activation_value = 0
         self.amount_of_activated_nodes = 0
-        self.base_activation = 0
 
 class StoredRelation:
     def __init__(self, relation, objects, time_of_creation):
         self.relation = relation
         self.objects = [concrete_object.name for concrete_object in objects]
         self.time_of_creation = time_of_creation
-        self.amout_of_usages = 1
+        self.amount_of_usages = 1
         self.activation = 0
         self.activation_to_update = 0
         self.is_active = False
+        self.usages = [time_of_creation]
 
 class StoredObject:
     def __init__(self, stored_object, time_of_creation):
@@ -256,3 +311,4 @@ class StoredObject:
         self.is_active = False
         self.activation = 0
         self.activation_to_update = 0
+        self.usages = [time_of_creation]
