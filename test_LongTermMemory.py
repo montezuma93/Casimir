@@ -77,11 +77,14 @@ class TestLongTermMemory(unittest.TestCase):
 
         
     def test_save_and_spread_activation_based_on_papers_example_without_dynamic_firing_threshold(self):
-        
-        long_term_memory = self.create_long_term_memory_based_on_papers_example()
-        long_term_memory.DYNAMIC_FIRING_THRESHOLD = True
-        retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
         '''
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        long_term_memory.BASE_ACTIVATION_DECAY = -0.87
+        long_term_memory.INITIAL_ACTIVATION_VALUE = 1.6
+        long_term_memory.DYNAMIC_FIRING_THRESHOLD = True
+        long_term_memory.NOISE_ON = False
+        retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
+        
         self.assertEqual(long_term_memory.stored_objects["France"].activation, 0.061599999999999995)
         self.assertEqual(long_term_memory.stored_objects["England"].activation, 0.05999999999999999)
         self.assertEqual(long_term_memory.stored_objects["Prague"].activation, 0.06999999999999999)
@@ -92,8 +95,6 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation, 0.18466666666666665)
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation, 0.26666666666666666)
         
-        '''
-
         self.assertEqual(len(retrieved_fragments.objects), 3)
         self.assertEqual(len(retrieved_fragments.relations[RelationType.CardinalRelation]), 2)
 
@@ -106,13 +107,16 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
-        
+        '''
 
     
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
        
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.DYNAMIC_FIRING_THRESHOLD = True
+        long_term_memory.BASE_ACTIVATION_DECAY = -0.87
+        long_term_memory.INITIAL_ACTIVATION_VALUE = 1.6
+        long_term_memory.NOISE_ON = False
 
         retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
         

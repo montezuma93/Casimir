@@ -1,17 +1,18 @@
 from collections import OrderedDict
 from Relation import RelationType
-from numpy import log, sqrt, power
+from numpy import log, sqrt, power, random, pi
 
 class LongTermMemory:
 
     INITIAL_ACTIVATION_VALUE__FULLY_SPREAD_TO_RELATIONS_THROUGH_CATEGORY = False
     MAX_AMOUNT_OF_USAGES_SAVED_PER_NOTE = 2
     APPROXIMATE_BASE_ACTIVATION = False
-    BASE_ACTIVATION_DECAY = -0.87
+    BASE_ACTIVATION_DECAY = -0.5
     FRACTION_OF_ACTIVATION =  0.6
-    INITIAL_ACTIVATION_VALUE = 1.6
+    INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
     DYNAMIC_FIRING_THRESHOLD = False
+    NOISE_ON = True
 
 
     def __init__(self):
@@ -44,13 +45,19 @@ class LongTermMemory:
                 object_to_store = StoredObject(concrete_object, self.time_since_initialization)
                 object_to_store.relation_links.append((relation_type, relation_reference_number))
                 self.stored_objects[concrete_object.name] = object_to_store
-
+                
     def receive_knowledge_fragments(self, context_array):
         self.time_since_initialization += 1
         if(self.DYNAMIC_FIRING_THRESHOLD):
             self.firing_threshold = len(context_array) * 0.0001
+        print("################START_LTM_RETRIEVAL_CALL#################")
+        print("##########################SPREAD_ACTIVATION##############")
         self.spread_activation(context_array)
+        print("#############BASEACTIVATION##########")
         self.calculate_base_activation()
+        if(self.NOISE_ON):
+            print("##########NOISE############")
+            self.add_noise_to_activation()
         retrieval_threshold = self._calculate_retrieval_threshold()
         knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
         
@@ -59,7 +66,6 @@ class LongTermMemory:
     def spread_activation(self, context_array):
         initial_activation_value = self.INITIAL_ACTIVATION_VALUE / len(context_array)
         for entity in context_array:
-            print("##########################")
             self._set_initial_activation_for_entity(entity, initial_activation_value)
             self._spread_activation_for_entity(entity)
             self._update_activation_values()
@@ -147,17 +153,12 @@ class LongTermMemory:
         retrieval_threshold = 0
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
-                print(stored_relation.relation.name)
-                print(stored_relation.objects[0])
-                print(stored_relation.objects[1])
-                print(stored_relation.activation)
                 amount_of_nodes += 1
                 retrieval_threshold += stored_relation.activation
         for stored_object in self.stored_objects.values():
-            print(stored_object.stored_object.name)
-            print(stored_object.activation)
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
+        print("THRESHOLD_CALCULATED")
         print(retrieval_threshold / amount_of_nodes)
         return (retrieval_threshold / amount_of_nodes)
 
@@ -165,16 +166,22 @@ class LongTermMemory:
         for relations in self.stored_relations.values():
             for relation in relations:
                 print(relation.relation.name)
+                print("SPREAD_ACTIVATION_VALUE")
+                print(relation.activation)
                 relation.activation += self._calculate_base_activation_for_node(relation)
+                print("SPREAD_ACTIVATION_VALUE_WITH_BASE_ACTIVATION")
+                print(relation.activation)
         for concrete_object in self.stored_objects.values():
             print(concrete_object.stored_object.name)
+            print("SPREAD_ACTIVATION_VALUE")
+            print(concrete_object.activation)
             concrete_object.activation += self._calculate_base_activation_for_node(concrete_object)
+            print("SPREAD_ACTIVATION_VALUE_WITH_BASE_ACTIVATION")
+            print(concrete_object.activation)
+
 
     def _calculate_base_activation_for_node(self, node):
         sum_over_usages = 0
-        print(node.usages)
-        print(node.time_of_creation)
-        print(node.amount_of_usages)
         if(self.APPROXIMATE_BASE_ACTIVATION):
             for usage in node.usages:
                 sum_over_usages += 1/sqrt(self.time_since_initialization - usage)
@@ -194,6 +201,28 @@ class LongTermMemory:
                 sum_over_usages += power((self.time_since_initialization - usage),self.BASE_ACTIVATION_DECAY)
             print (log(sum_over_usages))
             return log(sum_over_usages)
+
+    def add_noise_to_activation(self):
+        for relations in self.stored_relations.values():
+            for relation in relations:
+                print(relation.relation.name)
+                relation.activation += self._calculate_noise_for_node(relation)
+                print("#######TOTAL_ACTIVATION")
+                print(relation.activation)
+        for concrete_object in self.stored_objects.values():
+            print(concrete_object.stored_object.name)
+            concrete_object.activation += self._calculate_noise_for_node(concrete_object)
+            print("#######TOTAL_ACTIVATION")
+            print(concrete_object.activation)
+
+    def _calculate_noise_for_node(self, node):
+        loc = 0
+        scale = power(pi, 2) / 3 * power(self.NOISE,2)
+        noise = random.logistic(loc, scale)
+        print(noise)
+        return noise
+
+
 
     def get_knowledge_subnets(self, retrieval_threshold):
         knowledge_subnets = []
