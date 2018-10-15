@@ -67,17 +67,15 @@ class LongTermMemory:
 
     def _set_initial_activation_for_entity(self, entity, initial_activation_value):
         entity.activation_to_update = 0
-        if(type(entity) is RelationType):
-            for relation_type, stored_relations in self.stored_relations.items():
-                for stored_relation in stored_relations:
-                    if (relation_type == entity):
-                        stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
-                        stored_relation.is_active = True
-        else:
-            for object_name, stored_objects in self.stored_objects.items():
-                if (object_name == entity.name):
-                    stored_objects.activation_to_update = initial_activation_value
-                    stored_objects.is_active = True
+        for relation_type, stored_relations in self.stored_relations.items():
+            for stored_relation in stored_relations:
+                if (relation_type == entity):
+                    stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
+                    stored_relation.is_active = True
+        for object_name, stored_objects in self.stored_objects.items():
+            if (object_name == entity.name):
+                stored_objects.activation_to_update = initial_activation_value
+                stored_objects.is_active = True
 
     def _spread_activation_for_entity(self, entity):
         self.activation_spreading_in_progress = True
