@@ -5,7 +5,6 @@ import copy
 
 class LongTermMemory:
 
-    INITIAL_ACTIVATION_VALUE_FULLY_SPREAD_TO_RELATIONS_THROUGH_CATEGORY = False
     BASE_ACTIVATION_DECAY = -0.5
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
@@ -72,10 +71,7 @@ class LongTermMemory:
             for relation_type, stored_relations in self.stored_relations.items():
                 for stored_relation in stored_relations:
                     if (relation_type == entity):
-                        if(not self.INITIAL_ACTIVATION_VALUE_FULLY_SPREAD_TO_RELATIONS_THROUGH_CATEGORY):
-                            stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
-                        else:
-                            stored_relation.activation_to_update = initial_activation_value
+                        stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
                         stored_relation.is_active = True
         else:
             for object_name, stored_objects in self.stored_objects.items():
