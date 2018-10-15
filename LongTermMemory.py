@@ -226,14 +226,11 @@ class LongTermMemory:
         return something_got_added
 
     def _relation_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, relation):
-        if (len(knowledge_subnets) == 0 ):
+        if (len(knowledge_subnets) == 0 or
+            not len([knowledge_subnet for knowledge_subnet in knowledge_subnets if not knowledge_subnet.relations[relation.relation_type].__contains__(relation)]) > 0):
             return True
         else:
-            if (len([knowledge_subnet for knowledge_subnet in knowledge_subnets if not knowledge_subnet.relations[relation.relation_type].__contains__(relation)]) > 0):
-                return False
-            else:
-                return True
-
+            return False
 
     def get_most_activated_knowledge_subnet(self, knowledge_subnets):
         most_activated_knowledge_subnet_average_activation_value = 0
