@@ -92,22 +92,20 @@ class LongTermMemory:
             for stored_relation in stored_relations:
                 if (stored_relation.is_active):
                     objects_to_update = [object_name for object_name in stored_relation.objects if self.stored_objects[object_name].is_active == False]
-                    if(len(objects_to_update) == 0):
-                        continue
-                    activation_value_to_spread = stored_relation.activation_to_update * self.FRACTION_OF_ACTIVATION / len(objects_to_update)
-                    if(activation_value_to_spread > self.FIRING_THRESHOLD):
-                        for object_name in objects_to_update:
+                    for object_name in objects_to_update:
+                        activation_value_to_spread = stored_relation.activation_to_update * self.FRACTION_OF_ACTIVATION / len(objects_to_update)
+                        if(activation_value_to_spread > self.FIRING_THRESHOLD):
                             self.activation_spreading_in_progress = True
-                            if(not objects_to_set_active.__contains__(object_name)):
-                                objects_to_set_active.append(object_name)
+                            objects_to_set_active.append(object_name) if object_name not in objects_to_set_active else None
                             self.stored_objects[object_name].activation_to_update += activation_value_to_spread
         for object_name in objects_to_set_active:
             self.stored_objects[object_name].is_active = True
 
     def _update_linked_activation_for_object(self):
+        self.activation_spreading_in_progress = False
+        relations_to_set_active = []
         for stored_object in self.stored_objects.values():
             if(stored_object.is_active):
-                self.activation_spreading_in_progress = False
                 relations_to_update = []
                 for relation_link in stored_object.relation_links:
                     if (self.stored_relations[relation_link[0]][relation_link[1]].is_active == False):
@@ -118,8 +116,12 @@ class LongTermMemory:
                 if(activation_value_to_spread > self.FIRING_THRESHOLD):
                     for relation_to_update in relations_to_update:
                         relation_to_update.activation_to_update += activation_value_to_spread
+                        relations_to_set_active.append(relation_to_update) if relation_to_update not in relations_to_set_active else None
                         relation_to_update.is_active = True
                         self.activation_spreading_in_progress = True
+        for relation in relations_to_set_active:
+            relation.is_active = True
+
 
     def _update_activation_values(self):
         for stored_relations in self.stored_relations.values():
@@ -138,19 +140,30 @@ class LongTermMemory:
         for stored_object in self.stored_objects.values():
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
+        print(retrieval_threshold / amount_of_nodes)
         return (retrieval_threshold / amount_of_nodes)
 
     def calculate_base_activation(self):            
         for relations in self.stored_relations.values():
             for relation in relations:
+                print(relation.relation.name)
+                print("SPREAD_ACTIVATION_VALUE")
+                print(relation.activation)
                 relation.activation += self._calculate_base_activation_for_node(relation)
+                print("SPREAD_ACTIVATION_VALUE_WITH_BASE_ACTIVATION")
+                print(relation.activation)
         for concrete_object in self.stored_objects.values():
+            print(concrete_object.stored_object.name)
+            print("SPREAD_ACTIVATION_VALUE")
+            print(concrete_object.activation)
             concrete_object.activation += self._calculate_base_activation_for_node(concrete_object)
+            print("SPREAD_ACTIVATION_VALUE_WITH_BASE_ACTIVATION")
+            print(concrete_object.activation)
 
     def _calculate_base_activation_for_node(self, node):
         sum_over_usages = 0
         for usage in node.usages:
-            sum_over_usages += power((self.time_since_initialization - usage),self.BASE_ACTIVATION_DECAY)
+            sum_over_usages += power((self.time_since_initialization - usage), self.BASE_ACTIVATION_DECAY)
         return log(sum_over_usages)
 
     def add_noise_to_activation(self):

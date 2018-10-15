@@ -73,7 +73,8 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.DYNAMIC_FIRING_THRESHOLD = True
         long_term_memory.BASE_ACTIVATION_DECAY = -0.87
-        long_term_memory.INITIAL_ACTIVATION_VALUE = 1.6
+        long_term_memory.INITIAL_ACTIVATION_VALUE = 1.7
+
         long_term_memory.NOISE_ON = False
 
         retrieved_fragments = long_term_memory.receive_knowledge_fragments([RelationType.CardinalRelation, long_term_memory.paris_city_object, long_term_memory.london_city_object])
@@ -88,7 +89,6 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
-   
     
     def create_long_term_memory_based_on_papers_example(self):
 
