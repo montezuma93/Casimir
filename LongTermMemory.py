@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from Relation import RelationType
 from numpy import log, sqrt, power, random, pi
+import copy
 
 class LongTermMemory:
 
@@ -50,17 +51,12 @@ class LongTermMemory:
         self.time_since_initialization += 1
         if(self.DYNAMIC_FIRING_THRESHOLD):
             self.firing_threshold = len(context_array) * 0.0001
-        print("################START_LTM_RETRIEVAL_CALL#################")
-        print("##########################SPREAD_ACTIVATION##############")
         self.spread_activation(context_array)
-        print("#############BASEACTIVATION##########")
         self.calculate_base_activation()
         if(self.NOISE_ON):
-            print("##########NOISE############")
             self.add_noise_to_activation()
         retrieval_threshold = self._calculate_retrieval_threshold()
         knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
-        
         return self.get_most_activated_knowledge_subnet(knowledge_subnets)        
     
     def spread_activation(self, context_array):
@@ -158,7 +154,6 @@ class LongTermMemory:
         for stored_object in self.stored_objects.values():
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
-        print("THRESHOLD_CALCULATED")
         print(retrieval_threshold / amount_of_nodes)
         return (retrieval_threshold / amount_of_nodes)
 
@@ -254,11 +249,9 @@ class LongTermMemory:
                             if(not knowledege_subnet.objects[object_name].relation_links.__contains__((relation_type, stored_relations.index(relation)))):
                                 knowledege_subnet.objects[object_name].relation_links.append((relation_type, stored_relations.index(relation)))
                         else:
-                            object_to_store = StoredObject(stored_object.stored_object, stored_object.time_of_creation)
-                            object_to_store.usages = stored_object.usages
-                            object_to_store.activation = stored_object.activation
-                            object_to_store.amount_of_usages = stored_object.amount_of_usages
-                            object_to_store.relation_links.append((relation_type, stored_relations.index(relation)))
+                            object_to_store = copy.copy(stored_object)
+                            object_to_store.relation_links = [(relation_type, stored_relations.index(relation))]
+                            print(object_to_store.relation_links)
                             knowledege_subnet.objects[object_name] = object_to_store
                             knowledege_subnet.activation_value += stored_object.activation
                             knowledege_subnet.amount_of_activated_nodes += 1
