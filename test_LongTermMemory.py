@@ -1,4 +1,6 @@
 import unittest
+from unittest import mock
+from mock import call, patch
 from LongTermMemory import LongTermMemory, KnowledgeSubnet
 from Relation import EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName, RelationType, TopologicalRelationName
 from Object import CityObject, CountryObject
@@ -68,6 +70,18 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[2][0], RelationType.CardinalRelation)
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[2][1], 1)
     
+    @patch('LongTermMemory.LongTermMemory._set_initial_activation_for_entity')
+    @patch('LongTermMemory.LongTermMemory._update_activation_values')
+    @patch('LongTermMemory.LongTermMemory._spread_activation_for_entity')
+    def test_spread_activation_should_call_the_correct_methods(self, mock_spread_activation_for_entity, mock_update_activation_values, mock_set_initial_activation_for_entity):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        long_term_memory.DYNAMIC_FIRINGHOLD = True
+        long_term_memory.spread_activation([long_term_memory.paris_city_object, long_term_memory.london_city_object])
+        mock_set_initial_activation_for_entity.assert_has_calls([call(long_term_memory.paris_city_object, 0.5), call(long_term_memory.london_city_object, 0.5)])
+        mock_spread_activation_for_entity.assert_has_calls([call(long_term_memory.paris_city_object), call(long_term_memory.london_city_object)])
+        self.assertEqual(mock_update_activation_values.call_count, 2)
+        self.assertEqual(mock_spread_activation_for_entity.call_count, 2)
+
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
        
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
@@ -89,7 +103,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
-    
+
     def create_long_term_memory_based_on_papers_example(self):
 
         long_term_memory = LongTermMemory()
@@ -102,9 +116,6 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory.south_cardinal_relation = SouthCardinalRelation()
         long_term_memory.east_cardinal_relation = EastCardinalRelation()
         long_term_memory.part_of_topological_relation = PartOfTopologicalRelation()
-
-        
-        
         
         long_term_memory.save_knowledge_fragment(long_term_memory.part_of_topological_relation, [long_term_memory.paris_city_object, long_term_memory.france_country_object])
         long_term_memory.save_knowledge_fragment(long_term_memory.part_of_topological_relation, [long_term_memory.london_city_object, long_term_memory.england_country_object])
