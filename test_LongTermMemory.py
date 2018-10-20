@@ -285,6 +285,38 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory.add_noise_to_activation()
         self.assertAlmostEqual(long_term_memory.stored_objects["Paris"].activation, 0.3)
 
+    def test_relation_not_yet_used_in_knowledge_subnet_for_empty_knowledge_subnet_list(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        self.assertTrue(long_term_memory._relation_not_yet_used_in_knowledge_subnet([],long_term_memory.stored_relations[RelationType.CardinalRelation][0]))
+
+    def test_relation_not_yet_used_in_knowledge_subnet_for_unused_relation(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        knowledge_subnet1 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
+        knowledge_subnet2 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.TopologicalRelation][0])
+        knowledge_subnet2.relations[RelationType.TopologicalRelation].append(long_term_memory.stored_relations[RelationType.TopologicalRelation][1])
+        knowledge_subnets = [knowledge_subnet1,knowledge_subnet2]
+
+        self.assertTrue(long_term_memory._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets,
+         long_term_memory.stored_relations[RelationType.CardinalRelation][0]))
+    
+    def test_relation_not_yet_used_in_knowledge_subnet_for_used_relation(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        knowledge_subnet1 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
+        knowledge_subnet2 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.TopologicalRelation][0])
+        knowledge_subnet2.relations[RelationType.TopologicalRelation].append(long_term_memory.stored_relations[RelationType.TopologicalRelation][1])
+        knowledge_subnets = [knowledge_subnet1,knowledge_subnet2]
+
+        self.assertFalse(long_term_memory._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets,
+         long_term_memory.stored_relations[RelationType.TopologicalRelation][1]))
+
+    @patch('LongTermMemory.LongTermMemory._add_active_relations_for_object')
+    @patch('LongTermMemory.LongTermMemory._add_active_objects_for_relation')
+    def test_get_knowledge_subnets_should_call_sub_methods_correct_amount_of_times(self, mock_add_active_objects_for_relation, mock_add_active_relations_for_object):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+
+        long_term_memory.get_knowledge_subnets()
+
+
 
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
        
