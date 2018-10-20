@@ -62,11 +62,11 @@ class LongTermMemory:
         initial_activation_value = self.INITIAL_ACTIVATION_VALUE / len(context_array)
         for entity in context_array:
             self._set_initial_activation_for_entity(entity, initial_activation_value)
-            self._spread_activation_for_entity(entity)
+            self._spread_activation_for_entity()
             self._update_activation_values()
 
     def _set_initial_activation_for_entity(self, entity, initial_activation_value):
-        entity.activation_to_update = 0
+        self._clean_up_activation_value_for_entities()
         for relation_type, stored_relations in self.stored_relations.items():
             for stored_relation in stored_relations:
                 if (relation_type == entity):
@@ -77,30 +77,40 @@ class LongTermMemory:
                 stored_objects.activation_to_update = initial_activation_value
                 stored_objects.is_active = True
 
-    def _spread_activation_for_entity(self, entity):
+    def _clean_up_activation_value_for_entities(self):
+        for stored_relations in self.stored_relations.values():
+            for stored_relation in stored_relations:
+                stored_relation.activation_to_update = 0
+                stored_relation.is_active = False
+        for stored_object in self.stored_objects.values():
+            stored_object.activation_to_update = 0
+            stored_object.is_active = False
+
+    def _spread_activation_for_entity(self):
         self.activation_spreading_in_progress = True
         while(self.activation_spreading_in_progress):
             self._update_linked_activation_for_relation()
             self._update_linked_activation_for_object()
 
     def _update_linked_activation_for_relation(self):
-        self.activation_spreading_in_progress = False
         objects_to_set_active = []
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
-                if (stored_relation.is_active):
+                if(stored_relation.is_active):
                     objects_to_update = [object_name for object_name in stored_relation.objects if self.stored_objects[object_name].is_active == False]
                     for object_name in objects_to_update:
                         activation_value_to_spread = stored_relation.activation_to_update * self.FRACTION_OF_ACTIVATION / len(objects_to_update)
                         if(activation_value_to_spread > self.FIRING_THRESHOLD):
-                            self.activation_spreading_in_progress = True
-                            objects_to_set_active.append(object_name) if object_name not in objects_to_set_active else None
                             self.stored_objects[object_name].activation_to_update += activation_value_to_spread
+                            objects_to_set_active.append(object_name) if object_name not in objects_to_set_active else None
+        if(len(objects_to_set_active) > 0):
+            self.activation_spreading_in_progress = True
+        else:
+            self.activation_spreading_in_progress = False
         for object_name in objects_to_set_active:
             self.stored_objects[object_name].is_active = True
 
-    def _update_linked_activation_for_object(self):
-        self.activation_spreading_in_progress = False
+    def _update_linked_activation_for_object(self):       
         relations_to_set_active = []
         for stored_object in self.stored_objects.values():
             if(stored_object.is_active):
@@ -108,15 +118,15 @@ class LongTermMemory:
                 for relation_link in stored_object.relation_links:
                     if (self.stored_relations[relation_link[0]][relation_link[1]].is_active == False):
                         relations_to_update.append(self.stored_relations[relation_link[0]][relation_link[1]])
-                if(len(relations_to_update)==0):
-                    return
-                activation_value_to_spread = stored_object.activation_to_update * self.FRACTION_OF_ACTIVATION / len(relations_to_update)
-                if(activation_value_to_spread > self.FIRING_THRESHOLD):
-                    for relation_to_update in relations_to_update:
+                for relation_to_update in relations_to_update:
+                    activation_value_to_spread = stored_object.activation_to_update * self.FRACTION_OF_ACTIVATION / len(relations_to_update)
+                    if(activation_value_to_spread > self.FIRING_THRESHOLD):
                         relation_to_update.activation_to_update += activation_value_to_spread
                         relations_to_set_active.append(relation_to_update) if relation_to_update not in relations_to_set_active else None
-                        relation_to_update.is_active = True
-                        self.activation_spreading_in_progress = True
+        if(len(relations_to_set_active) > 0):
+            self.activation_spreading_in_progress = True
+        else:
+            self.activation_spreading_in_progress = False
         for relation in relations_to_set_active:
             relation.is_active = True
 
