@@ -97,18 +97,13 @@ class LongTermMemory:
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 if(stored_relation.is_active):
-                    objects_to_update = [object_name for object_name in stored_relation.objects if self.stored_objects[object_name].is_active == False]
-                    for object_name in objects_to_update:
+                    objects_to_update = [self.stored_objects[object_name] for object_name in stored_relation.objects if self.stored_objects[object_name].is_active == False]
+                    for object_to_update in objects_to_update:
                         activation_value_to_spread = stored_relation.activation_to_update * self.FRACTION_OF_ACTIVATION / len(objects_to_update)
                         if(activation_value_to_spread > self.FIRING_THRESHOLD):
-                            self.stored_objects[object_name].activation_to_update += activation_value_to_spread
-                            objects_to_set_active.append(object_name) if object_name not in objects_to_set_active else None
-        if(len(objects_to_set_active) > 0):
-            self.activation_spreading_in_progress = True
-        else:
-            self.activation_spreading_in_progress = False
-        for object_name in objects_to_set_active:
-            self.stored_objects[object_name].is_active = True
+                            object_to_update.activation_to_update += activation_value_to_spread
+                            objects_to_set_active.append(object_to_update)
+        self._set_nodes_active(objects_to_set_active)
 
     def _update_linked_activation_for_object(self):       
         relations_to_set_active = []
@@ -122,13 +117,16 @@ class LongTermMemory:
                     activation_value_to_spread = stored_object.activation_to_update * self.FRACTION_OF_ACTIVATION / len(relations_to_update)
                     if(activation_value_to_spread > self.FIRING_THRESHOLD):
                         relation_to_update.activation_to_update += activation_value_to_spread
-                        relations_to_set_active.append(relation_to_update) if relation_to_update not in relations_to_set_active else None
-        if(len(relations_to_set_active) > 0):
+                        relations_to_set_active.append(relation_to_update)
+        self._set_nodes_active(relations_to_set_active)
+
+    def _set_nodes_active(self, nodes_to_set_active):
+        if(len(nodes_to_set_active) > 0):
             self.activation_spreading_in_progress = True
         else:
             self.activation_spreading_in_progress = False
-        for relation in relations_to_set_active:
-            relation.is_active = True
+        for node in nodes_to_set_active:
+            node.is_active = True
 
 
     def _update_activation_values(self):
