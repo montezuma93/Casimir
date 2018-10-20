@@ -314,7 +314,7 @@ class TestLongTermMemory(unittest.TestCase):
     def test_get_knowledge_subnets_should_call_sub_methods_correct_amount_of_times(self, mock_add_active_objects_for_relation, mock_add_active_relations_for_object):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
-        long_term_memory.get_knowledge_subnets()
+        long_term_memory.get_knowledge_subnets(0.1)
 
 
 
