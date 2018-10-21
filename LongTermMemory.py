@@ -132,25 +132,12 @@ class LongTermMemory:
         for node in nodes_to_set_active:
             node.is_active = True
 
-
     def _update_activation_values(self):
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 stored_relation.activation += stored_relation.activation_to_update
         for stored_object in self.stored_objects.values():
             stored_object.activation += stored_object.activation_to_update
-
-    def _calculate_retrieval_threshold(self):
-        amount_of_nodes = 0
-        retrieval_threshold = 0
-        for stored_relations in self.stored_relations.values():
-            for stored_relation in stored_relations:
-                amount_of_nodes += 1
-                retrieval_threshold += stored_relation.activation
-        for stored_object in self.stored_objects.values():
-            amount_of_nodes += 1
-            retrieval_threshold += stored_object.activation
-        return (retrieval_threshold / amount_of_nodes)
 
     def calculate_base_activation(self):            
         for relations in self.stored_relations.values():
@@ -177,6 +164,19 @@ class LongTermMemory:
         scale = power(pi, 2) / 3 * power(self.NOISE,2)
         noise = random.logistic(loc, scale)
         return noise
+    
+    def _calculate_retrieval_threshold(self):
+        amount_of_nodes = 0
+        retrieval_threshold = 0
+        for stored_relations in self.stored_relations.values():
+            for stored_relation in stored_relations:
+                amount_of_nodes += 1
+                retrieval_threshold += stored_relation.activation
+        for stored_object in self.stored_objects.values():
+            amount_of_nodes += 1
+            retrieval_threshold += stored_object.activation
+        return (retrieval_threshold / amount_of_nodes)
+
 
     def get_knowledge_subnets(self, retrieval_threshold):
         knowledge_subnets = []
@@ -189,6 +189,19 @@ class LongTermMemory:
                 knowledge_subnets.append(self.create_knowledge_subnet_for_object(stored_object, retrieval_threshold))  
         return knowledge_subnets
     
+    def _relation_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, stored_relation):
+        for knowledge_subnet in knowledge_subnets:
+            for relations in knowledge_subnet.relations.values():
+                if(relations.__contains__(stored_relation)):
+                    return False
+        return True
+
+    def _object_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, object_name):
+        for knowledge_subnet in knowledge_subnets:
+            if(object_name in knowledge_subnet.objects):
+                return False
+        return True
+
     def create_knowledge_subnet_for_relation(self, stored_relation, retrieval_threshold):
         knowledge_subnet = KnowledgeSubnet(stored_relation)
         self.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, retrieval_threshold)
@@ -206,20 +219,6 @@ class LongTermMemory:
         while(self.receive_knowledge_fragments_in_progress):
             self._check_objects_in_relations_can_be_added(knowledge_subnet, retrieval_threshold)
             self._check_relation_in_objects_can_be_added(knowledge_subnet, retrieval_threshold)
-
-    def _relation_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, stored_relation):
-        for knowledge_subnet in knowledge_subnets:
-            for relations in knowledge_subnet.relations.values():
-                if(relations.__contains__(stored_relation)):
-                    return False
-        return True
-
-    def _object_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, object_name):
-        for knowledge_subnet in knowledge_subnets:
-            if(object_name in knowledge_subnet.objects):
-                return False
-        return True
-
 
     def _check_objects_in_relations_can_be_added(self, knowledge_subnet, retrieval_threshold):
         self.receive_knowledge_fragments_in_progress = False
@@ -283,7 +282,6 @@ class LongTermMemory:
                     relation.is_complete = False
                 else:
                     relation.is_complete = True
-
 
 class KnowledgeSubnet:
     def __init__(self, node_to_store):
