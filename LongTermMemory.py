@@ -113,16 +113,15 @@ class LongTermMemory:
     def _update_linked_activation_for_object(self):       
         relations_to_set_active = []
         for stored_object in self.stored_objects.values():
-            if(stored_object.is_active):
-                relations_to_update = []
-                for relation_link in stored_object.relation_links:
-                    if (self.stored_relations[relation_link[0]][relation_link[1]].is_active == False):
-                        relations_to_update.append(self.stored_relations[relation_link[0]][relation_link[1]])
-                for relation_to_update in relations_to_update:
-                    activation_value_to_spread = stored_object.activation_to_update * self.FRACTION_OF_ACTIVATION / len(relations_to_update)
-                    if(activation_value_to_spread > self.FIRING_THRESHOLD):
-                        relation_to_update.activation_to_update += activation_value_to_spread
-                        relations_to_set_active.append(relation_to_update)
+            relations_to_update = []
+            for relation_link in stored_object.relation_links:
+                if (stored_object.is_active and self.stored_relations[relation_link[0]][relation_link[1]].is_active == False):
+                    relations_to_update.append(self.stored_relations[relation_link[0]][relation_link[1]])
+            for relation_to_update in relations_to_update:
+                activation_value_to_spread = stored_object.activation_to_update * self.FRACTION_OF_ACTIVATION / len(relations_to_update)
+                if(activation_value_to_spread > self.FIRING_THRESHOLD):
+                    relation_to_update.activation_to_update += activation_value_to_spread
+                    relations_to_set_active.append(relation_to_update)
         self._set_nodes_active(relations_to_set_active)
 
     def _set_nodes_active(self, nodes_to_set_active):
