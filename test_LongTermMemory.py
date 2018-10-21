@@ -309,20 +309,59 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertFalse(long_term_memory._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets,
          long_term_memory.stored_relations[RelationType.TopologicalRelation][1]))
 
-    '''
-    @patch('LongTermMemory.LongTermMemory._check_objects_in_relations_can_be_added')
-    @patch('LongTermMemory.LongTermMemory._check_relation_in_objects_can_be_added')
-    def test_get_knowledge_subnets_should_call_sub_methods_correct_amount_of_times(self, mock_check_relation_in_objects_can_be_added, mock_check_objects_in_relations_can_be_added):
+    def test_object_not_yet_used_in_knowledge_subnet_for_unused_object(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        knowledge_subnet1 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
+        knowledge_subnet2 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.TopologicalRelation][0])
+        knowledge_subnets = [knowledge_subnet1,knowledge_subnet2]
+
+        self.assertTrue(long_term_memory._object_not_yet_used_in_knowledge_subnet(knowledge_subnets,
+         long_term_memory.stored_objects["London"].stored_object.name))
+
+    def test_object_not_yet_used_in_knowledge_subnet_for_used_object(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        knowledge_subnet1 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
+        knowledge_subnet2 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.TopologicalRelation][0])
+        knowledge_subnets = [knowledge_subnet1,knowledge_subnet2]
+
+        self.assertTrue(long_term_memory._object_not_yet_used_in_knowledge_subnet(knowledge_subnets,
+         long_term_memory.stored_objects["Paris"].stored_object.name))
+    
+    def test_retrieve_activated_nodes_through_knowledge_subnet_should_be_called_correct_amount_of_times(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        knowledge_subnet = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
         long_term_memory.stored_objects["Paris"].activation = 1
         long_term_memory.stored_objects["London"].activation = 1
         long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation = 1
-        long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation = 0
-        self.assertEqual(mock_check_relation_in_objects_can_be_added.call_count, 1)
-        long_term_memory.get_knowledge_subnets(0.1)
-    '''
+        long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation = 0
 
+        long_term_memory.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, 0.5)
 
+        self.assertTrue(knowledge_subnet.relations[RelationType.CardinalRelation][0].objects.__contains__("Paris"))
+        self.assertFalse(knowledge_subnet.relations[RelationType.CardinalRelation][0].objects.__contains__("London"))
+    
+    def test_get_knowledge_subnets_returns_the_correct_subnets(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        long_term_memory.stored_objects["Paris"].activation = 1
+        long_term_memory.stored_objects["London"].activation = 1
+        long_term_memory.stored_objects["Prague"].activation = 1
+        long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation = 1
+        long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation = 0
+        long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation = 1
+        long_term_memory.stored_relations[RelationType.TopologicalRelation][0].activation = 1
+
+        actual_knowledge_subnets = long_term_memory.get_knowledge_subnets(0.5)
+
+        self.assertEqual(len(actual_knowledge_subnets), 2)
+        self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.CardinalRelation]), 1)
+        self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.TopologicalRelation]), 2)
+        self.assertEqual(len(actual_knowledge_subnets[0].objects), 2)
+
+        self.assertFalse(actual_knowledge_subnets[1].relations.__contains__(RelationType.CardinalRelation))
+        self.assertFalse(actual_knowledge_subnets[1].relations.__contains__(RelationType.TopologicalRelation))
+        self.assertEqual(len(actual_knowledge_subnets[1].objects), 1)
+
+    
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
        
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
@@ -344,6 +383,8 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
+    
+
 
     def create_long_term_memory_based_on_papers_example(self):
 

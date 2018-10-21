@@ -147,25 +147,14 @@ class LongTermMemory:
         for stored_object in self.stored_objects.values():
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
-        print(retrieval_threshold / amount_of_nodes)
         return (retrieval_threshold / amount_of_nodes)
 
     def calculate_base_activation(self):            
         for relations in self.stored_relations.values():
             for relation in relations:
-                print(relation.relation.name)
-                print("SPREAD_ACTIVATION_VALUE")
-                print(relation.activation)
                 relation.activation += self._calculate_base_activation_for_node(relation)
-                print("SPREAD_ACTIVATION_VALUE_WITH_BASE_ACTIVATION")
-                print(relation.activation)
         for concrete_object in self.stored_objects.values():
-            print(concrete_object.stored_object.name)
-            print("SPREAD_ACTIVATION_VALUE")
-            print(concrete_object.activation)
             concrete_object.activation += self._calculate_base_activation_for_node(concrete_object)
-            print("SPREAD_ACTIVATION_VALUE_WITH_BASE_ACTIVATION")
-            print(concrete_object.activation)
 
     def _calculate_base_activation_for_node(self, node):
         sum_over_usages = 0
@@ -193,7 +182,7 @@ class LongTermMemory:
                 if(stored_relation.activation > retrieval_threshold and self._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets, stored_relation)):
                     knowledge_subnets.append(self.create_knowledge_subnet_for_relation(stored_relation, retrieval_threshold))
         for object_name, stored_object in self.stored_objects.items():
-            if(stored_relation.activation > retrieval_threshold and self._object_not_yet_used_in_knowledge_subnet(knowledge_subnets, object_name)):
+            if(stored_object.activation > retrieval_threshold and self._object_not_yet_used_in_knowledge_subnet(knowledge_subnets, object_name)):
                 knowledge_subnets.append(self.create_knowledge_subnet_for_object(stored_object, retrieval_threshold))  
         return knowledge_subnets
     
@@ -203,7 +192,9 @@ class LongTermMemory:
         return knowledge_subnet
     
     def create_knowledge_subnet_for_object(self, stored_object, retrieval_threshold):
-        knowledge_subnet = KnowledgeSubnet(stored_object)
+        object_to_store = copy.copy(stored_object)
+        object_to_store.relation_links = []
+        knowledge_subnet = KnowledgeSubnet(object_to_store)
         self.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, retrieval_threshold)
         return knowledge_subnet
     
@@ -223,7 +214,7 @@ class LongTermMemory:
     def _object_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, object_name):
         for knowledge_subnet in knowledge_subnets:
             if(object_name in knowledge_subnet.objects):
-                    return False
+                return False
         return True
 
 
