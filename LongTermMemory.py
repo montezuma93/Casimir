@@ -12,6 +12,7 @@ class LongTermMemory:
     DYNAMIC_FIRING_THRESHOLD = False
     FIRING_THRESHOLD = 0.01667
     NOISE_ON = True
+    RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = True
 
     def __init__(self):
         self.activation_spreading_in_progress = False
@@ -49,7 +50,10 @@ class LongTermMemory:
         self.calculate_activation(context_array)
         retrieval_threshold = self._calculate_retrieval_threshold()
         knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
-        return self.get_most_activated_knowledge_subnet(knowledge_subnets)        
+        most_activated_knowledge_fragment = self.get_most_activated_knowledge_subnet(knowledge_subnets)
+        if(self.RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS):
+            self.mark_incomplete_knowledge_fragments(most_activated_knowledge_fragment)
+        return most_activated_knowledge_fragment
     
     def calculate_activation(self, context_array):
         self.spread_activation(context_array)
@@ -272,6 +276,15 @@ class LongTermMemory:
                 most_activated_knowledge_subnet = knowledge_subnet
                 most_activated_knowledge_subnet_average_activation_value = average_activation_value
         return most_activated_knowledge_subnet
+
+    def mark_incomplete_knowledge_fragments(self, knowledge_subnet):
+        for relations in knowledge_subnet.relations.values():
+            for relation in relations:
+                if(len(relation.objects) < relation.relation.amount_of_objects):
+                    relation.is_complete = False
+                else:
+                    relation.is_complete = True
+
 
 class KnowledgeSubnet:
     def __init__(self, node_to_store):

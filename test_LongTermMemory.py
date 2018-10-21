@@ -360,7 +360,24 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertFalse(actual_knowledge_subnets[1].relations.__contains__(RelationType.CardinalRelation))
         self.assertFalse(actual_knowledge_subnets[1].relations.__contains__(RelationType.TopologicalRelation))
         self.assertEqual(len(actual_knowledge_subnets[1].objects), 1)
+    
+    def test_get_most_activated_knowledge_subnet_and_mark_incomplete_subnets(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        long_term_memory.stored_objects["Paris"].activation = 1
+        long_term_memory.stored_objects["London"].activation = 1
+        long_term_memory.stored_objects["Prague"].activation = 1
+        long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation = 1
+        long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation = 0
+        long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation = 1
+        long_term_memory.stored_relations[RelationType.TopologicalRelation][0].activation = 1
 
+        actual_knowledge_subnets = long_term_memory.get_knowledge_subnets(0.5)
+        most_activated_knowledge_subnet = long_term_memory.get_most_activated_knowledge_subnet(actual_knowledge_subnets)
+        long_term_memory.mark_incomplete_knowledge_fragments(most_activated_knowledge_subnet)
+
+        self.assertTrue(most_activated_knowledge_subnet.relations[RelationType.CardinalRelation][0].is_complete)
+        self.assertFalse(most_activated_knowledge_subnet.relations[RelationType.TopologicalRelation][0].is_complete)
+        self.assertFalse(most_activated_knowledge_subnet.relations[RelationType.TopologicalRelation][1].is_complete)
     
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self):
        
