@@ -4,7 +4,6 @@ from Relation import *
 from Object import CityObject, ObjectType, CountryObject, ContinentObject
 from flask import Flask, request, json, jsonify
 from flask_restplus import Resource, Api, reqparse, Swagger,fields
-from flask.views import View
 
 app = Flask(__name__)
 api = Api(app)

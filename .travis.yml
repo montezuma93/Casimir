@@ -6,6 +6,7 @@ python:
 install:
   - pip install coverage
   - pip install flask
+  - pip install flask_restplus
 addons:
   sonarcloud:
     organization: "montezuma93-github" # the key of the org you chose at step #3
