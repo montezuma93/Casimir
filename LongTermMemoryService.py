@@ -2,8 +2,9 @@ from collections import OrderedDict
 from Relation import RelationType
 from numpy import log, sqrt, power, random, pi
 import copy
+import json
 
-class LongTermMemory:
+class LongTermMemoryService:
 
     BASE_ACTIVATION_DECAY = -0.5
     FRACTION_OF_ACTIVATION =  0.6
@@ -283,20 +284,45 @@ class LongTermMemory:
                 else:
                     relation.is_complete = True
 
-class KnowledgeSubnet:
+import json
+class KnowledgeSubnet():
     def __init__(self, node_to_store):
         if(type(node_to_store) is StoredRelation):
+            self.objects = OrderedDict()
             self.relations = OrderedDict()
             self.relations[node_to_store.relation.relation_type] = [node_to_store]
-            self.objects = OrderedDict()
         else:
-            self.relations = OrderedDict()
             self.objects = OrderedDict()
             self.objects[node_to_store.stored_object.name] = node_to_store
+            self.relations = OrderedDict()
         self.activation_value = node_to_store.activation
         self.amount_of_activated_nodes = 1
+    
+    def toJson(self):
+        object_list = []
+        relation_list = []
+        for concrete_object in self.objects.values():
+            object_for_list = {"name":concrete_object.stored_object.name,
+             "activation": concrete_object.activation}
+            object_list.append(object_for_list)
+        for stored_relations in self.relations.values():
+            for stored_relation in stored_relations:
+                relation_for_list = {"category": stored_relation.relation.relation_type.value, 
+                "name": stored_relation.relation.name.value, 
+                "activation": stored_relation.activation, 
+                "objects": None}
+                object_of_relation_list = []
+                for concrete_object in stored_relation.objects:
+                    object_for_relation_list = {"name":concrete_object}
+                    object_of_relation_list.append(object_for_relation_list)
+                relation_for_list["objects"] = object_of_relation_list
+            relation_list.append(relation_for_list)    
+        return{
+            "objects": object_list,
+            "relations": relation_list
+        }
 
-class StoredRelation:
+class StoredRelation():
     def __init__(self, relation, objects, time_of_creation):
         self.relation = relation
         self.objects = [concrete_object.name for concrete_object in objects]
@@ -306,8 +332,9 @@ class StoredRelation:
         self.activation_to_update = 0
         self.is_active = False
         self.usages = [time_of_creation]
+        self.is_complete = None
 
-class StoredObject:
+class StoredObject():
     def __init__(self, stored_object, time_of_creation):
         self.relation_links = []
         self.stored_object = stored_object
@@ -317,3 +344,4 @@ class StoredObject:
         self.activation = 0
         self.activation_to_update = 0
         self.usages = [time_of_creation]
+

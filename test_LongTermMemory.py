@@ -1,14 +1,14 @@
 import unittest
 from unittest import mock
 from mock import call, patch
-from LongTermMemory import LongTermMemory, KnowledgeSubnet
+from LongTermMemoryService import LongTermMemoryService, KnowledgeSubnet
 from Relation import EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName, RelationType, TopologicalRelationName
 from Object import CityObject, CountryObject
 
 class TestLongTermMemory(unittest.TestCase):
 
     def test_long_term_memory_can_save_multiple_relations_with_equal_category_correctly(self):
-        long_term_memory = LongTermMemory()
+        long_term_memory = LongTermMemoryService()
         paris_city_object = CityObject("Paris")
         london_city_object = CityObject("London")
         north_cardinal_relation = NorthCardinalRelation()
@@ -34,7 +34,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[1], (RelationType.CardinalRelation, 1))
 
     def test_long_term_memory_can_save_multiple_relations_with_different_categories_correctly(self):
-        long_term_memory = LongTermMemory()
+        long_term_memory = LongTermMemoryService()
         paris_city_object = CityObject("Paris")
         london_city_object = CityObject("London")
         north_cardinal_relation = NorthCardinalRelation()      
@@ -69,9 +69,9 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[2][0], RelationType.CardinalRelation)
         self.assertEqual(long_term_memory.stored_objects["Paris"].relation_links[2][1], 1)
     
-    @patch('LongTermMemory.LongTermMemory._set_initial_activation_for_entity')
-    @patch('LongTermMemory.LongTermMemory._update_activation_values')
-    @patch('LongTermMemory.LongTermMemory._spread_activation_for_entity')
+    @patch('LongTermMemoryService.LongTermMemoryService._set_initial_activation_for_entity')
+    @patch('LongTermMemoryService.LongTermMemoryService._update_activation_values')
+    @patch('LongTermMemoryService.LongTermMemoryService._spread_activation_for_entity')
     def test_spread_activation_should_call_the_correct_methods(self, mock_spread_activation_for_entity, mock_update_activation_values, mock_set_initial_activation_for_entity):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
@@ -81,9 +81,9 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(mock_update_activation_values.call_count, 2)
         self.assertEqual(mock_spread_activation_for_entity.call_count, 2)
 
-    @patch('LongTermMemory.LongTermMemory.spread_activation')
-    @patch('LongTermMemory.LongTermMemory.calculate_base_activation')
-    @patch('LongTermMemory.LongTermMemory.add_noise_to_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService.spread_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService.calculate_base_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService.add_noise_to_activation')
     def test_calculate_activation_should_call_the_correct_methods_with_noise_off(self, mock_add_noise_to_activation, mock_calculate_base_activation, mock_spread_activation):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.NOISE_ON = False
@@ -94,9 +94,9 @@ class TestLongTermMemory(unittest.TestCase):
         mock_spread_activation.assert_has_calls([call([long_term_memory.paris_city_object, long_term_memory.london_city_object])])
         self.assertEqual(mock_add_noise_to_activation.call_count, 0)
 
-    @patch('LongTermMemory.LongTermMemory.spread_activation')
-    @patch('LongTermMemory.LongTermMemory.calculate_base_activation')
-    @patch('LongTermMemory.LongTermMemory.add_noise_to_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService.spread_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService.calculate_base_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService.add_noise_to_activation')
     def test_calculate_activation_should_call_the_correct_methods_with_noise_on(self, mock_add_noise_to_activation, mock_calculate_base_activation, mock_spread_activation):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.NOISE_ON = True
@@ -115,7 +115,7 @@ class TestLongTermMemory(unittest.TestCase):
 
         self.assertEqual(long_term_memory.FIRING_THRESHOLD, 0.0002)
 
-    @patch('LongTermMemory.LongTermMemory._clean_up_activation_value_for_entities')
+    @patch('LongTermMemoryService.LongTermMemoryService._clean_up_activation_value_for_entities')
     def test_set_initial_activation_should_set_activation_value_for_object_entity(self, mock_clean_up_activation_value_for_entities):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
@@ -137,7 +137,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation_to_update, 0)
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].is_active, False)
     
-    @patch('LongTermMemory.LongTermMemory._clean_up_activation_value_for_entities')
+    @patch('LongTermMemoryService.LongTermMemoryService._clean_up_activation_value_for_entities')
     def test_set_initial_activation_should_set_activation_value_for_relation_entity(self, mock_clean_up_activation_value_for_entities):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
@@ -238,10 +238,10 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation, 0)
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation, 0.4)
 
-    @patch('LongTermMemory.LongTermMemory.calculate_activation')
-    @patch('LongTermMemory.LongTermMemory._calculate_retrieval_threshold')
-    @patch('LongTermMemory.LongTermMemory.get_knowledge_subnets')
-    @patch('LongTermMemory.LongTermMemory.get_most_activated_knowledge_subnet')
+    @patch('LongTermMemoryService.LongTermMemoryService.calculate_activation')
+    @patch('LongTermMemoryService.LongTermMemoryService._calculate_retrieval_threshold')
+    @patch('LongTermMemoryService.LongTermMemoryService.get_knowledge_subnets')
+    @patch('LongTermMemoryService.LongTermMemoryService.get_most_activated_knowledge_subnet')
     def test_receive_knowledge_fragments_should_call_the_right_methods(self, mock_get_most_activated_knowledge_subnet, mock_get_knowledge_subnets, mock_calculate_retrieval_threshold, mock_calculate_activation):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         mock_calculate_retrieval_threshold.return_value = 0.1
@@ -255,7 +255,7 @@ class TestLongTermMemory(unittest.TestCase):
         mock_get_knowledge_subnets.assert_has_calls([call(0.1)])   
         mock_get_most_activated_knowledge_subnet.assert_has_calls([call(expected_knowledge_subnets)])
 
-    @patch('LongTermMemory.LongTermMemory._calculate_base_activation_for_node')
+    @patch('LongTermMemoryService.LongTermMemoryService._calculate_base_activation_for_node')
     def test_calculate_base_activation_for_node_should_be_called_correct_amount_of_times(self, mock_calculate_base_activation_for_node):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         
@@ -279,7 +279,7 @@ class TestLongTermMemory(unittest.TestCase):
 
         self.assertAlmostEqual(long_term_memory._calculate_base_activation_for_node(long_term_memory.stored_objects["Paris"]), -0.34657359028)
 
-    @patch('LongTermMemory.LongTermMemory._calculate_noise_for_node')
+    @patch('LongTermMemoryService.LongTermMemoryService._calculate_noise_for_node')
     def test_calculate_noise(self, mock_calculate_noise_for_node):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         mock_calculate_noise_for_node.return_value = 0.1
@@ -404,7 +404,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
 
     def create_long_term_memory_based_on_papers_example(self):
-        long_term_memory = LongTermMemory()
+        long_term_memory = LongTermMemoryService()
 
         long_term_memory.paris_city_object = CityObject("Paris")
         long_term_memory.prague_city_object = CityObject("Prague")
