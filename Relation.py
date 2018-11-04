@@ -2,29 +2,29 @@ from abc import ABC
 from enum import Enum
 
 class RelationType(Enum):
-    CardinalRelation = 1
-    SpatialRelation = 2
-    TopologicalRelation = 3
-    DistanceRelation = 4
+    CardinalRelation = "CardinalRelation"
+    SpatialRelation = "SpatialRelation"
+    TopologicalRelation = "TopologicalRelation"
+    DistanceRelation = "DistanceRelation"
 
 class CardinalRelationName(Enum):
-    North = 1
-    South = 2
-    West = 3
-    East = 4
+    North = "North"
+    South = "South"
+    West = "West"
+    East = "East"
 
 class SpatialRelationName(Enum):
-    Left = 1
-    Right = 2
-    Up = 3
-    Down = 4
+    Left = "Left"
+    Right = "Right"
+    Up = "Up"
+    Down = "Down"
 
 class TopologicalRelationName(Enum):
-    PartOf = 1
+    PartOf = "PartOf"
 
 class DistanceRelationName(Enum):
-    Far = 1
-    Close = 2
+    Far = "Far"
+    Close = "Close"
 
 class Relation(ABC):
     pass

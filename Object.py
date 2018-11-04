@@ -2,9 +2,9 @@ from abc import ABC
 from enum import Enum
 
 class ObjectType(Enum):
-    City = 1
-    Country = 2
-    Continent = 3
+    City = "City"
+    Country = "Country"
+    Continent = "Continent"
 
 class Object(ABC):
 
