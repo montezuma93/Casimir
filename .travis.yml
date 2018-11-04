@@ -5,6 +5,7 @@ python:
   - "3.7-dev"  # 3.7 development branch
 install:
   - pip install coverage
+  - pip install flask
 addons:
   sonarcloud:
     organization: "montezuma93-github" # the key of the org you chose at step #3
