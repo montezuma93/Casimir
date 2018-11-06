@@ -10,10 +10,14 @@ class LongTermMemoryService:
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
+    #false
     DYNAMIC_FIRING_THRESHOLD = False
     FIRING_THRESHOLD = 0.01667
+    #True
     NOISE_ON = True
     RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = True
+    #BASE_ACTIVATION_DECAY = -0.86
+    #INITIAL_ACTIVATION_VALUE = 1.8
 
     def __init__(self):
         self.activation_spreading_in_progress = False
@@ -277,6 +281,8 @@ class LongTermMemoryService:
         return most_activated_knowledge_subnet
 
     def mark_incomplete_knowledge_fragments(self, knowledge_subnet):
+        if not knowledge_subnet.relations:
+            return
         for relations in knowledge_subnet.relations.values():
             for relation in relations:
                 if(len(relation.objects) < relation.relation.amount_of_objects):
@@ -284,7 +290,6 @@ class LongTermMemoryService:
                 else:
                     relation.is_complete = True
 
-import json
 class KnowledgeSubnet():
     def __init__(self, node_to_store):
         if(type(node_to_store) is StoredRelation):
@@ -316,7 +321,7 @@ class KnowledgeSubnet():
                     object_for_relation_list = {"name":concrete_object}
                     object_of_relation_list.append(object_for_relation_list)
                 relation_for_list["objects"] = object_of_relation_list
-            relation_list.append(relation_for_list)    
+                relation_list.append(relation_for_list)    
         return{
             "objects": object_list,
             "relations": relation_list
