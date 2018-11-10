@@ -15,7 +15,8 @@ addons:
 after_success: coverage report
 # command to run tests
 script:
-  - coverage run -m unittest
+  
+  - coverage run --source=main/ -m unittest
   - coverage xml
   # other script steps might be done before running the actual analysis
   - sonar-scanner
