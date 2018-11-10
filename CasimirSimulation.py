@@ -13,12 +13,16 @@ class CasimirSimulation(Resource):
         self.long_term_memory_controller = LongTermMemoryController()
         self.working_memory_controller = WorkingMemoryController()
 
-    def create_smm(self, knowledge_fragements):
-        return casimirSimulation.working_memory_controller.create_smm(knowledge_fragements)
+    def save_knowledge_fragment(self, relation, objects):
+        self.long_term_memory_controller.save_knowledge_fragment(relation, objects)
 
-  
-        
-casimirSimulation = CasimirSimulation(app)
+    def show_all_knowledge_fragments(self):
+        return self.long_term_memory_controller.show_all_knowledge_fragments()
+
+    def receive_knowledge_fragments(self, context_array):
+        knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
+        return self.working_memory_controller.create_smm(knowledge_subnet)
+
 
 @app.route("/post", methods=['POST'])
 def post():      
@@ -29,7 +33,7 @@ def post():
     objects = req_data['objects']
     for concrete_object in objects:
         casted_objects.append(cast_object(concrete_object["type"], concrete_object["name"]))
-    casimirSimulation.long_term_memory_controller.save_knowledge_fragment(casted_relation, casted_objects)
+    casimirSimulation.save_knowledge_fragment(casted_relation, casted_objects)
     return 'saved'
 
 @app.route("/get", methods=['GET'])
@@ -48,11 +52,8 @@ def put():
             casted_context_array.append(cast_relation_category(context["type"]))
         elif context["category"] == "Object":
             casted_context_array.append(cast_object(context["type"], context["name"]))
-    knowledge_fragements = casimirSimulation.long_term_memory_controller.receive_knowledge_fragments(casted_context_array)
-
-    smm = casimirSimulation.create_smm(knowledge_fragements)
+    smm = casimirSimulation.receive_knowledge_fragments(casted_context_array)
     return jsonify(smm)
-    #return knowledge_fragements.toJson()
 
 def cast_relation(relation):
     dictionary = {'North':NorthCardinalRelation(), 'South':SouthCardinalRelation(), 'West':WestCardinalRelation(), 'East': EastCardinalRelation(),
@@ -79,6 +80,8 @@ def create_country(name):
 
 def create_continent(name):
     return ContinentObject(name)
+
+casimirSimulation = CasimirSimulation(app)
 
 if __name__ == '__main__':
     app.run()
