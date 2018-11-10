@@ -314,24 +314,6 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertFalse(long_term_memory._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets,
          long_term_memory.stored_relations[RelationType.TopologicalRelation][1]))
 
-    def test_object_not_yet_used_in_knowledge_subnet_for_unused_object(self):
-        long_term_memory = self.create_long_term_memory_based_on_papers_example()
-        knowledge_subnet1 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
-        knowledge_subnet2 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.TopologicalRelation][0])
-        knowledge_subnets = [knowledge_subnet1,knowledge_subnet2]
-
-        self.assertTrue(long_term_memory._object_not_yet_used_in_knowledge_subnet(knowledge_subnets,
-         long_term_memory.stored_objects["London"].stored_object.name))
-
-    def test_object_not_yet_used_in_knowledge_subnet_for_used_object(self):
-        long_term_memory = self.create_long_term_memory_based_on_papers_example()
-        knowledge_subnet1 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
-        knowledge_subnet2 = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.TopologicalRelation][0])
-        knowledge_subnets = [knowledge_subnet1,knowledge_subnet2]
-
-        self.assertTrue(long_term_memory._object_not_yet_used_in_knowledge_subnet(knowledge_subnets,
-         long_term_memory.stored_objects["Paris"].stored_object.name))
-    
     def test_retrieve_activated_nodes_through_knowledge_subnet_should_be_called_correct_amount_of_times(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         knowledge_subnet = KnowledgeSubnet(long_term_memory.stored_relations[RelationType.CardinalRelation][1])
@@ -357,15 +339,12 @@ class TestLongTermMemory(unittest.TestCase):
 
         actual_knowledge_subnets = long_term_memory.get_knowledge_subnets(0.5)
 
-        self.assertEqual(len(actual_knowledge_subnets), 2)
+        self.assertEqual(len(actual_knowledge_subnets), 1)
         self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.CardinalRelation]), 1)
         self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.TopologicalRelation]), 2)
         self.assertEqual(len(actual_knowledge_subnets[0].objects), 2)
-        self.assertFalse(actual_knowledge_subnets[1].relations.__contains__(RelationType.CardinalRelation))
-        self.assertFalse(actual_knowledge_subnets[1].relations.__contains__(RelationType.TopologicalRelation))
-        self.assertEqual(len(actual_knowledge_subnets[1].objects), 1)
     
-    def test_get_most_activated_knowledge_subnet_and_mark_incomplete_subnets(self):
+    def test_get_most_activated_knowledge_subnet(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.stored_objects["Paris"].activation = 1
         long_term_memory.stored_objects["London"].activation = 1
@@ -377,11 +356,10 @@ class TestLongTermMemory(unittest.TestCase):
 
         actual_knowledge_subnets = long_term_memory.get_knowledge_subnets(0.5)
         most_activated_knowledge_subnet = long_term_memory.get_most_activated_knowledge_subnet(actual_knowledge_subnets)
-        long_term_memory.mark_incomplete_knowledge_fragments(most_activated_knowledge_subnet)
 
-        self.assertTrue(most_activated_knowledge_subnet.relations[RelationType.CardinalRelation][0].is_complete)
-        self.assertFalse(most_activated_knowledge_subnet.relations[RelationType.TopologicalRelation][0].is_complete)
-        self.assertFalse(most_activated_knowledge_subnet.relations[RelationType.TopologicalRelation][1].is_complete)
+        self.assertEquals(most_activated_knowledge_subnet.relations[RelationType.CardinalRelation][0], long_term_memory.stored_relations[RelationType.CardinalRelation][0])
+        self.assertEquals(most_activated_knowledge_subnet.objects["Paris"].stored_object.name, "Paris")
+        self.assertEquals(most_activated_knowledge_subnet.objects["London"].stored_object.name, "London")
     
     def test_save_and_spread_activation_based_on_papers_example_with_dynamic_firing_threshold(self): 
         long_term_memory = self.create_long_term_memory_based_on_papers_example()

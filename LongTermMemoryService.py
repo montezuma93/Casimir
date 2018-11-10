@@ -11,11 +11,11 @@ class LongTermMemoryService:
     INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
     #false
-    DYNAMIC_FIRING_THRESHOLD = False
+    DYNAMIC_FIRING_THRESHOLD = True
     FIRING_THRESHOLD = 0.01667
     #True
-    NOISE_ON = True
-    RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = True
+    NOISE_ON = False
+    #RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = True
     #BASE_ACTIVATION_DECAY = -0.86
     #INITIAL_ACTIVATION_VALUE = 1.8
 
@@ -33,7 +33,7 @@ class LongTermMemoryService:
         self._save_objects_for_relation(objects, relation.relation_type, relation_reference_number)
    
     def _save_relation(self, relation, objects):
-        relation_to_store = StoredRelation(relation, objects, self.time_since_initialization)
+        relation_to_store = StoredRelation(relation, [concrete_object.name for concrete_object in objects], self.time_since_initialization)
         if (self.stored_relations.__contains__(relation.relation_type)):
             self.stored_relations.get(relation.relation_type).append(relation_to_store)
         else:
@@ -55,9 +55,10 @@ class LongTermMemoryService:
         self.calculate_activation(context_array)
         retrieval_threshold = self._calculate_retrieval_threshold()
         knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
-        most_activated_knowledge_fragment = self.get_most_activated_knowledge_subnet(knowledge_subnets)
-        if(self.RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS):
-            self.mark_incomplete_knowledge_fragments(most_activated_knowledge_fragment)
+        if not knowledge_subnets:
+            print("none know")
+            return None
+        most_activated_knowledge_fragment = self.get_most_activated_knowledge_subnet(knowledge_subnets)       
         return most_activated_knowledge_fragment
     
     def calculate_activation(self, context_array):
@@ -81,6 +82,7 @@ class LongTermMemoryService:
             for stored_relation in stored_relations:
                 if (relation_type == entity):
                     stored_relation.activation_to_update = initial_activation_value * self.FRACTION_OF_ACTIVATION / len(stored_relations)
+                    #stored_relation.activation_to_update = initial_activation_value
                     stored_relation.is_active = True
         for object_name, stored_objects in self.stored_objects.items():
             if (object_name == entity.name):
@@ -180,7 +182,10 @@ class LongTermMemoryService:
         for stored_object in self.stored_objects.values():
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
+        if amount_of_nodes == 0:
+            return None
         return (retrieval_threshold / amount_of_nodes)
+
 
 
     def get_knowledge_subnets(self, retrieval_threshold):
@@ -189,33 +194,19 @@ class LongTermMemoryService:
             for stored_relation in stored_relations:
                 if(stored_relation.activation > retrieval_threshold and self._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets, stored_relation)):
                     knowledge_subnets.append(self.create_knowledge_subnet_for_relation(stored_relation, retrieval_threshold))
-        for object_name, stored_object in self.stored_objects.items():
-            if(stored_object.activation > retrieval_threshold and self._object_not_yet_used_in_knowledge_subnet(knowledge_subnets, object_name)):
-                knowledge_subnets.append(self.create_knowledge_subnet_for_object(stored_object, retrieval_threshold))  
         return knowledge_subnets
     
     def _relation_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, stored_relation):
         for knowledge_subnet in knowledge_subnets:
             for relations in knowledge_subnet.relations.values():
-                if(relations.__contains__(stored_relation)):
-                    return False
-        return True
-
-    def _object_not_yet_used_in_knowledge_subnet(self, knowledge_subnets, object_name):
-        for knowledge_subnet in knowledge_subnets:
-            if(object_name in knowledge_subnet.objects):
-                return False
+                for relation in relations:
+                    if relation.relation.name == stored_relation.relation.name and relation.objects == stored_relation.objects:
+                      return False
         return True
 
     def create_knowledge_subnet_for_relation(self, stored_relation, retrieval_threshold):
-        knowledge_subnet = KnowledgeSubnet(stored_relation)
-        self.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, retrieval_threshold)
-        return knowledge_subnet
-    
-    def create_knowledge_subnet_for_object(self, stored_object, retrieval_threshold):
-        object_to_store = copy.copy(stored_object)
-        object_to_store.relation_links = []
-        knowledge_subnet = KnowledgeSubnet(object_to_store)
+        relation_to_store = StoredRelation(stored_relation.relation, stored_relation.objects, stored_relation.time_of_creation)
+        knowledge_subnet = KnowledgeSubnet(relation_to_store)
         self.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, retrieval_threshold)
         return knowledge_subnet
     
@@ -230,18 +221,21 @@ class LongTermMemoryService:
         for relation_type, stored_relations in knowledge_subnet.relations.items():
             for relation in stored_relations:
                 for object_name in relation.objects:
-                    object_to_add_eventually = self.stored_objects[object_name]
-                    if (object_to_add_eventually.activation > retrieval_threshold):
-                        self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
-                    else:
-                        relation.objects.remove(object_name)
+                    if object_name != None:
+                        object_to_add_eventually = self.stored_objects[object_name]
+                        if (object_to_add_eventually.activation > retrieval_threshold):
+                            self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
+                        else:
+                            index = relation.objects.index(object_name)
+                            relation.objects[index] = None
 
     def _add_object_to_knowledge_subnet(self, object_to_add, knowledge_subnet, relation_link):
         if (knowledge_subnet.objects.__contains__(object_to_add.stored_object.name)):
             if(not knowledge_subnet.objects[object_to_add.stored_object.name].relation_links.__contains__(relation_link)):
                 knowledge_subnet.objects[object_to_add.stored_object.name].relation_links.append(relation_link)
         else:
-            object_to_store = copy.copy(object_to_add)
+            object_to_store = StoredObject(object_to_add.stored_object, object_to_add.time_of_creation)
+            object_to_store.activation = object_to_add.activation
             object_to_store.relation_links = [relation_link]
             knowledge_subnet.objects[object_to_add.stored_object.name] = object_to_store
             knowledge_subnet.activation_value += object_to_store.activation
@@ -256,7 +250,9 @@ class LongTermMemoryService:
                 if(relation_to_add_eventually.activation > retrieval_threshold):
                     self._add_relations_to_knowledge_subnet(relation_to_add_eventually, knowledge_subnet)
 
-    def _add_relations_to_knowledge_subnet(self, relation_to_add, knowledge_subnet):
+    def _add_relations_to_knowledge_subnet(self, relation, knowledge_subnet):
+        relation_to_add = StoredRelation(relation.relation, relation.objects, relation.time_of_creation)
+        relation_to_add.activation = relation.activation
         if (knowledge_subnet.relations.__contains__(relation_to_add.relation.relation_type)):
             if(not knowledge_subnet.relations[relation_to_add.relation.relation_type].__contains__(relation_to_add)):
                 knowledge_subnet.relations.get(relation_to_add.relation.relation_type).append(relation_to_add)
@@ -269,7 +265,6 @@ class LongTermMemoryService:
             knowledge_subnet.activation_value += relation_to_add.activation
             self.receive_knowledge_fragments_in_progress = True
 
-
     def get_most_activated_knowledge_subnet(self, knowledge_subnets):
         most_activated_knowledge_subnet_average_activation_value = 0
         most_activated_knowledge_subnet = None
@@ -280,37 +275,14 @@ class LongTermMemoryService:
                 most_activated_knowledge_subnet_average_activation_value = average_activation_value
         return most_activated_knowledge_subnet
 
-    def mark_incomplete_knowledge_fragments(self, knowledge_subnet):
-        if not knowledge_subnet.relations:
-            return
-        for relations in knowledge_subnet.relations.values():
-            for relation in relations:
-                if(len(relation.objects) < relation.relation.amount_of_objects):
-                    relation.is_complete = False
-                else:
-                    relation.is_complete = True
-
-class KnowledgeSubnet():
-    def __init__(self, node_to_store):
-        if(type(node_to_store) is StoredRelation):
-            self.objects = OrderedDict()
-            self.relations = OrderedDict()
-            self.relations[node_to_store.relation.relation_type] = [node_to_store]
-        else:
-            self.objects = OrderedDict()
-            self.objects[node_to_store.stored_object.name] = node_to_store
-            self.relations = OrderedDict()
-        self.activation_value = node_to_store.activation
-        self.amount_of_activated_nodes = 1
-    
-    def toJson(self):
+    def show_all_knowledge_fragments(self):
         object_list = []
         relation_list = []
-        for concrete_object in self.objects.values():
+        for concrete_object in self.stored_objects.values():
             object_for_list = {"name":concrete_object.stored_object.name,
              "activation": concrete_object.activation}
             object_list.append(object_for_list)
-        for stored_relations in self.relations.values():
+        for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 relation_for_list = {"category": stored_relation.relation.relation_type.value, 
                 "name": stored_relation.relation.name.value, 
@@ -323,14 +295,29 @@ class KnowledgeSubnet():
                 relation_for_list["objects"] = object_of_relation_list
                 relation_list.append(relation_for_list)    
         return{
+            "retrival-threshold": self._calculate_retrieval_threshold(),
             "objects": object_list,
             "relations": relation_list
         }
 
+
+class KnowledgeSubnet():
+    def __init__(self, node_to_store):
+        if(type(node_to_store) is StoredRelation):
+            self.objects = OrderedDict()
+            self.relations = OrderedDict()
+            self.relations[node_to_store.relation.relation_type] = [node_to_store]
+        else: 
+            self.objects = OrderedDict()
+            self.objects[node_to_store.stored_object.name] = node_to_store
+            self.relations = OrderedDict()
+        self.activation_value = node_to_store.activation
+        self.amount_of_activated_nodes = 1
+
 class StoredRelation():
     def __init__(self, relation, objects, time_of_creation):
         self.relation = relation
-        self.objects = [concrete_object.name for concrete_object in objects]
+        self.objects = objects
         self.time_of_creation = time_of_creation
         self.amount_of_usages = 1
         self.activation = 0
@@ -338,6 +325,12 @@ class StoredRelation():
         self.is_active = False
         self.usages = [time_of_creation]
         self.is_complete = None
+
+    def __eq__(self, other):
+        if self.relation.name == other.relation.name and self.objects == other.objects:
+            return True
+        else:
+            return False
 
 class StoredObject():
     def __init__(self, stored_object, time_of_creation):
