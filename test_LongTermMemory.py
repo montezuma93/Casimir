@@ -380,10 +380,14 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(retrieved_fragments.objects["Paris"].stored_object, long_term_memory.paris_city_object)
         self.assertEqual(retrieved_fragments.objects["London"].stored_object, long_term_memory.london_city_object)
         self.assertEqual(retrieved_fragments.objects["Prague"].stored_object, long_term_memory.prague_city_object)
+        self.assertEqual(long_term_memory.stored_objects["Paris"].usages, [1,3,4,5])
+        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][0].usages, [3,5])
+        self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].usages, [4,5])
+        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].usages, [1])
+        self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].usages, [2])
 
     def create_long_term_memory_based_on_papers_example(self):
         long_term_memory = LongTermMemoryService()
-
         long_term_memory.paris_city_object = CityObject("Paris")
         long_term_memory.prague_city_object = CityObject("Prague")
         long_term_memory.london_city_object = CityObject("London")

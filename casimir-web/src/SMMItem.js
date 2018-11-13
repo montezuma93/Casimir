@@ -35,7 +35,7 @@ class SMMItem extends React.Component {
                         fontWeight: 'bold',
                         color: 'black',
                         position: 'relative',
-                        top: 0,
+                        top: 125,
                         left: 250
                     }}
                 >
@@ -46,7 +46,7 @@ class SMMItem extends React.Component {
                         fontWeight: 'bold',
                         color: 'black',
                         position: 'relative',
-                        top: 450, 
+                        top: 375, 
                         left: 250
                     }}
                 >
@@ -58,7 +58,7 @@ class SMMItem extends React.Component {
                         color: 'black',
                         position: 'relative',
                         top: 250,
-                        left: 0
+                        left: 125
                     }}
                 >
                     {this.state.innerWest}
@@ -69,7 +69,7 @@ class SMMItem extends React.Component {
                         color: 'black',
                         position: 'relative', 
                         top: 250, 
-                        left: 500
+                        left: 350
                     }}
                 >
                     {this.state.innerEast}
@@ -79,8 +79,8 @@ class SMMItem extends React.Component {
                         fontWeight: 'bold',
                         color: 'black',
                         position: 'relative',
-                        top: 250,
-                        left: 250
+                        top: 225,
+                        left: 225
                     }}
                 >
                     {this.state.middle}

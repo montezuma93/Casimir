@@ -21,7 +21,7 @@ class CasimirSimulation(Resource):
 
     def receive_knowledge_fragments(self, context_array):
         knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
-        return self.working_memory_controller.create_smm(knowledge_subnet)
+        return self.working_memory_controller.create_smm(knowledge_subnet, context_array)
 
 
 @app.route("/post", methods=['POST'])

@@ -3,6 +3,7 @@ from Relation import RelationType
 from numpy import log, sqrt, power, random, pi
 import copy
 import json
+import logging
 
 class LongTermMemoryService:
 
@@ -16,23 +17,31 @@ class LongTermMemoryService:
     #True
     NOISE_ON = False
     #RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = True
-    #BASE_ACTIVATION_DECAY = -0.86
-    #INITIAL_ACTIVATION_VALUE = 1.8
+    BASE_ACTIVATION_DECAY = -0.86
+    INITIAL_ACTIVATION_VALUE = 1.8
 
     def __init__(self):
+        self.logger = logging.getLogger('LongTermMemory')  # root logger
+        self.logger.setLevel(logging.INFO)
+        stream_handler = logging.StreamHandler()
+        self.logger.addHandler(stream_handler)
+
         self.activation_spreading_in_progress = False
         self.receive_knowledge_fragments_in_progress = False
         self.time_since_initialization = 0
         self.stored_relations = OrderedDict()
         self.stored_objects = OrderedDict()
 
+
     def save_knowledge_fragment(self, relation, objects):
+        self.logger.info('Got save request')
         self.time_since_initialization += 1
         self._save_relation(relation, objects)
         relation_reference_number = len(self.stored_relations[relation.relation_type]) -1
         self._save_objects_for_relation(objects, relation.relation_type, relation_reference_number)
    
     def _save_relation(self, relation, objects):
+        self.logger.info('Save relation for type: %s, and name: %s', relation.relation_type, relation.name)
         relation_to_store = StoredRelation(relation, [concrete_object.name for concrete_object in objects], self.time_since_initialization)
         if (self.stored_relations.__contains__(relation.relation_type)):
             self.stored_relations.get(relation.relation_type).append(relation_to_store)
@@ -40,7 +49,9 @@ class LongTermMemoryService:
             self.stored_relations[relation.relation_type] = [relation_to_store]
 
     def _save_objects_for_relation(self, objects, relation_type, relation_reference_number):
+        
         for concrete_object in objects:
+            self.logger.info('Save object with name: %s', concrete_object.name)
             if (self.stored_objects.__contains__(concrete_object.name)):
                 self.stored_objects[concrete_object.name].amount_of_usages += 1
                 self.stored_objects[concrete_object.name].usages.append(self.time_since_initialization)
@@ -56,9 +67,9 @@ class LongTermMemoryService:
         retrieval_threshold = self._calculate_retrieval_threshold()
         knowledge_subnets = self.get_knowledge_subnets(retrieval_threshold)
         if not knowledge_subnets:
-            print("none know")
             return None
-        most_activated_knowledge_fragment = self.get_most_activated_knowledge_subnet(knowledge_subnets)       
+        most_activated_knowledge_fragment = self.get_most_activated_knowledge_subnet(knowledge_subnets)
+        self.add_usage_for_activated_knowledge_fragments(most_activated_knowledge_fragment)
         return most_activated_knowledge_fragment
     
     def calculate_activation(self, context_array):
@@ -186,8 +197,6 @@ class LongTermMemoryService:
             return None
         return (retrieval_threshold / amount_of_nodes)
 
-
-
     def get_knowledge_subnets(self, retrieval_threshold):
         knowledge_subnets = []
         for stored_relations in self.stored_relations.values():
@@ -206,6 +215,7 @@ class LongTermMemoryService:
 
     def create_knowledge_subnet_for_relation(self, stored_relation, retrieval_threshold):
         relation_to_store = StoredRelation(stored_relation.relation, stored_relation.objects, stored_relation.time_of_creation)
+        relation_to_store.id_for_linked_relation = id(stored_relation)
         knowledge_subnet = KnowledgeSubnet(relation_to_store)
         self.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, retrieval_threshold)
         return knowledge_subnet
@@ -252,6 +262,7 @@ class LongTermMemoryService:
 
     def _add_relations_to_knowledge_subnet(self, relation, knowledge_subnet):
         relation_to_add = StoredRelation(relation.relation, relation.objects, relation.time_of_creation)
+        relation_to_add.id_for_linked_relation = id(relation)
         relation_to_add.activation = relation.activation
         if (knowledge_subnet.relations.__contains__(relation_to_add.relation.relation_type)):
             if(not knowledge_subnet.relations[relation_to_add.relation.relation_type].__contains__(relation_to_add)):
@@ -274,6 +285,25 @@ class LongTermMemoryService:
                 most_activated_knowledge_subnet = knowledge_subnet
                 most_activated_knowledge_subnet_average_activation_value = average_activation_value
         return most_activated_knowledge_subnet
+    
+    def add_usage_for_activated_knowledge_fragments(self, knowledge_subnet):
+        if not knowledge_subnet:
+            return
+        relation_ids_to_add_usage = []
+        for relations in knowledge_subnet.relations.values():
+            for relation in relations:
+                relation_ids_to_add_usage.append(relation.id_for_linked_relation)
+        for relation_id in relation_ids_to_add_usage:
+            relation = self._get_relation_for_id(relation_id)
+            relation.usages.append(self.time_since_initialization)
+        for object_name in knowledge_subnet.objects.keys():
+            self.stored_objects[object_name].usages.append(self.time_since_initialization)
+
+    def _get_relation_for_id(self, relation_id):
+        for relations in self.stored_relations.values():
+            for relation in relations:
+                if id(relation) == relation_id:
+                    return relation
 
     def show_all_knowledge_fragments(self):
         object_list = []
@@ -325,6 +355,7 @@ class StoredRelation():
         self.is_active = False
         self.usages = [time_of_creation]
         self.is_complete = None
+        self.id_for_linked_relation = None
 
     def __eq__(self, other):
         if self.relation.name == other.relation.name and self.objects == other.objects:

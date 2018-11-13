@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import SMMItem from './SMMItem'
+import SMMItem from './SMMItem';
+import SMMTItem from './SMMTItem';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -110,9 +111,16 @@ class Simulation extends React.Component {
   }
 
   mapToSMMComponent(singleSmm, id) {
-    return (
-      <SMMItem key={id} smm={singleSmm} />
-    );
+    if (singleSmm.outerPart) {
+      return (
+        <SMMTItem key={id} smm={singleSmm} />
+      );
+    } else {
+      return (
+        <SMMItem key={id} smm={singleSmm} />
+      );
+    }
+
   }
 }
 
