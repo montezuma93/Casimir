@@ -19,7 +19,7 @@ class Simulation extends React.Component {
     };
   }
   static defaultProps = {
-    relationCategories: ['Cardinal', 'Topological'],
+    relationCategories: ['Cardinal', 'Topological', 'Distance'],
     objectCategories: ['City', 'Country', 'Continent']
   }
 
@@ -80,7 +80,7 @@ class Simulation extends React.Component {
     e.preventDefault();
     const { relationCategory, objectCategory1, objectName1, objectCategory2, objectName2, objects, relations } = this.state;
     console.log("here")
-    return fetch('http://127.0.0.1:5000/put', {
+    return fetch('http://127.0.0.1:5000/create_mental_image', {
       method: 'PUT',
       headers: {
         'Accept': 'application/json',

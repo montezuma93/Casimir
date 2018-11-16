@@ -19,67 +19,59 @@ class CasimirSimulation(Resource):
     def show_all_knowledge_fragments(self):
         return self.long_term_memory_controller.show_all_knowledge_fragments()
 
-    def receive_knowledge_fragments(self, context_array):
+    def create_mental_image(self, context_array):
         knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
         return self.working_memory_controller.construction(knowledge_subnet, context_array)
 
-
-@app.route("/post", methods=['POST'])
-def post():      
+@app.route("/save_knowledge_fragment", methods=['POST'])
+def save_knowledge_fragment():     
     req_data = request.get_json()
     relation = req_data['relation']
+    objects = req_data['objects']
     casted_relation = cast_relation(relation)
     casted_objects = []
-    objects = req_data['objects']
     for concrete_object in objects:
         casted_objects.append(cast_object(concrete_object["type"], concrete_object["name"]))
+
     casimirSimulation.save_knowledge_fragment(casted_relation, casted_objects)
     return 'saved'
 
-@app.route("/get", methods=['GET'])
-def get():
-    print("getall")
+@app.route("/show_all_knowledge_fragments", methods=['GET'])
+def show_all_knowledge_fragments():
     all_fragments = casimirSimulation.long_term_memory_controller.show_all_knowledge_fragments()
     return jsonify(all_fragments)
 
-@app.route("/put" , methods=['PUT'])   
-def put():
+@app.route("/create_mental_image" , methods=['PUT'])   
+def create_mental_image():
     req_data = request.get_json()
-    casted_context_array = []
     context_array = req_data['context']
+    casted_context_array = []
     for context in context_array:
         if context["category"] == "RelationCategory":
             casted_context_array.append(cast_relation_category(context["type"]))
         elif context["category"] == "Object":
             casted_context_array.append(cast_object(context["type"], context["name"]))
-    smm = casimirSimulation.receive_knowledge_fragments(casted_context_array)
-    return jsonify(smm)
+
+    mental_image = casimirSimulation.create_mental_image(casted_context_array)
+    return jsonify(mental_image)
 
 def cast_relation(relation):
     dictionary = {'North':NorthCardinalRelation(), 'South':SouthCardinalRelation(), 'West':WestCardinalRelation(), 'East': EastCardinalRelation(),
-        "PartOf": PartOfTopologicalRelation()}
-    return dictionary.get(relation,'Not Found')
+        "PartOf": PartOfTopologicalRelation(), 'NorthEast': NorthEastCardinalRelation(), 'NorthWest': NorthWestCardinalRelation(), 
+        'SouthEast': SouthEastCardinalRelation(), 'SouthWest': SouthWestCardinalRelation(), 'Far': FarDistanceRelation(), 'Close': CloseDistanceRelation()}
+    return dictionary.get(relation,'Relation Not Found')
 
 def cast_relation_category(relation_category):
     dictionary = {'Cardinal':RelationType.CardinalRelation, 'Topological':RelationType.TopologicalRelation, 'Distance':RelationType.DistanceRelation}
-    return dictionary.get(relation_category,'Not Found')
+    return dictionary.get(relation_category,'Relation Category Not Found')
 
 def cast_object(object_type, name):
     if object_type == "City":
-        return create_city(name)
+        return CityObject(name)
     elif object_type == "Country":
-        return create_country(name)
+        return CountryObject(name)
     elif object_type == "Continent":
-        return create_continent(name)
-
-def create_city(name):
-    return CityObject(name)
-
-def create_country(name):
-    return CountryObject(name)
-
-def create_continent(name):
-    return ContinentObject(name)
+        return ContinentObject(name)
 
 casimirSimulation = CasimirSimulation(app)
 

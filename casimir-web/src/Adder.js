@@ -18,7 +18,7 @@ class Adder extends React.Component {
   }
 
   static defaultProps = {
-    relations: ['South', 'North', 'East', 'West', 'PartOf'],
+    relations: ['South', 'North', 'East', 'West', 'NorthWest', 'NorthEast', 'SouthWest', 'SouthEast', 'PartOf', 'Far', 'Close' ],
     objectCategories: ['City', 'Country', 'Continent']
   }
 
@@ -65,7 +65,7 @@ class Adder extends React.Component {
   getAllData = (e) => {
     e.preventDefault();
     const { objects, relations } = this.state;
-    return fetch('http://127.0.0.1:5000/get', {
+    return fetch('http://127.0.0.1:5000/show_all_knowledge_fragments', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -82,7 +82,7 @@ class Adder extends React.Component {
   onClick = (e) => {
     const { relationName, objectCategory1, objectName1, objectCategory2, objectName2 } = this.state;
     console.log("submit")
-    return fetch('http://127.0.0.1:5000/post', {
+    return fetch('http://127.0.0.1:5000/save_knowledge_fragment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

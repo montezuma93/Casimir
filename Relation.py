@@ -12,12 +12,10 @@ class CardinalRelationName(Enum):
     South = "South"
     West = "West"
     East = "East"
-
-class SpatialRelationName(Enum):
-    Left = "Left"
-    Right = "Right"
-    Up = "Up"
-    Down = "Down"
+    NorthEast = "NorthEast"
+    NorthWest = "NorthWest"
+    SouthEast = "SouthEast"
+    SouthWest = "SouthWest"
 
 class TopologicalRelationName(Enum):
     PartOf = "PartOf"
@@ -48,21 +46,17 @@ class WestCardinalRelation(CardinalRelation):
 class EastCardinalRelation(CardinalRelation):
     name = CardinalRelationName.East
 
-class SpatialRelation(RelationCategory):
-    relation_type = RelationType.SpatialRelation
-    amount_of_objects = 2
+class NorthEastCardinalRelation(CardinalRelation):
+    name = CardinalRelationName.NorthEast
 
-class LeftSpatialRelation(SpatialRelation):
-    name = SpatialRelationName.Left
+class NorthWestCardinalRelation(CardinalRelation):
+    name = CardinalRelationName.NorthWest
 
-class RightSpatialRelation(SpatialRelation):
-    name = SpatialRelationName.Right
+class SouthEastCardinalRelation(CardinalRelation):
+    name = CardinalRelationName.SouthEast
 
-class UpSpatialRelation(SpatialRelation):
-    name = SpatialRelationName.Up
-
-class DownSpatialRelation(SpatialRelation):
-    name = SpatialRelationName.Down
+class SouthWestCardinalRelation(CardinalRelation):
+    name = CardinalRelationName.SouthWest
 
 class TopologicalRelation(RelationCategory):
     relation_type = RelationType.TopologicalRelation

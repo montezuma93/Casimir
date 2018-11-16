@@ -7,6 +7,7 @@ import logging
 
 class LongTermMemoryService:
 
+    #Should be default values
     BASE_ACTIVATION_DECAY = -0.5
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
@@ -17,11 +18,11 @@ class LongTermMemoryService:
     #True
     NOISE_ON = False
     #RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = True
-    BASE_ACTIVATION_DECAY = -0.86
-    INITIAL_ACTIVATION_VALUE = 1.8
+    #BASE_ACTIVATION_DECAY = -0.86
+    #INITIAL_ACTIVATION_VALUE = 1.8
 
     def __init__(self):
-        self.logger = logging.getLogger('LongTermMemory')  # root logger
+        self.logger = logging.getLogger('LongTermMemory')
         self.logger.setLevel(logging.INFO)
         stream_handler = logging.StreamHandler()
         self.logger.addHandler(stream_handler)
@@ -31,7 +32,6 @@ class LongTermMemoryService:
         self.time_since_initialization = 0
         self.stored_relations = OrderedDict()
         self.stored_objects = OrderedDict()
-
 
     def save_knowledge_fragment(self, relation, objects):
         self.logger.info('Got save request')
@@ -49,7 +49,6 @@ class LongTermMemoryService:
             self.stored_relations[relation.relation_type] = [relation_to_store]
 
     def _save_objects_for_relation(self, objects, relation_type, relation_reference_number):
-        
         for concrete_object in objects:
             self.logger.info('Save object with name: %s', concrete_object.name)
             if (self.stored_objects.__contains__(concrete_object.name)):
