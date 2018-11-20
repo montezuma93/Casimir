@@ -19,7 +19,7 @@ class Simulation extends React.Component {
     };
   }
   static defaultProps = {
-    relationCategories: ['Cardinal', 'Topological', 'Distance'],
+    relationCategories: ['Cardinal', 'Topological'],
     objectCategories: ['City', 'Country', 'Continent']
   }
 

@@ -18,7 +18,7 @@ class Adder extends React.Component {
   }
 
   static defaultProps = {
-    relations: ['South', 'North', 'East', 'West', 'NorthWest', 'NorthEast', 'SouthWest', 'SouthEast', 'PartOf', 'Far', 'Close' ],
+    relations: ['South', 'North', 'East', 'West', 'NorthWest', 'NorthEast', 'SouthWest', 'SouthEast', 'PartOf'],
     objectCategories: ['City', 'Country', 'Continent']
   }
 
