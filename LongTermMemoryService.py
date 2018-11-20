@@ -108,6 +108,7 @@ class LongTermMemoryService:
         List of Relations or Object to receive knowledge_subnet for and spread activation before
     """        
     def receive_knowledge_fragments(self, context_array):
+        self.logger.info('Receive Knowledge Fragments request for context array: %s', context_array)
         self.time_since_initialization += 1
         self.calculate_activation(context_array)
         retrieval_threshold = self._calculate_retrieval_threshold()
@@ -141,6 +142,7 @@ class LongTermMemoryService:
         List of Relations or Object to spread activation
     """    
     def spread_activation(self, context_array):
+        self.logger.info('Spread activation for context array: %s', context_array)
         if(self.DYNAMIC_FIRING_THRESHOLD):
             self.FIRING_THRESHOLD = len(context_array) * 0.0001
         initial_activation_value = self.INITIAL_ACTIVATION_VALUE / len(context_array)
@@ -329,14 +331,20 @@ class LongTermMemoryService:
         retrieval_threshold = 0
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
+                self.logger.info('Activation value of relation for type: %s, and name: %s is %s',
+                 stored_relation.relation.relation_type, stored_relation.relation.name, stored_relation.activation)
                 amount_of_nodes += 1
                 retrieval_threshold += stored_relation.activation
-        for stored_object in self.stored_objects.values():
+        for object_name, stored_object in self.stored_objects.items():
+            self.logger.info('Activation value of object with name: %s is %s',
+                 object_name, stored_object.activation)
             amount_of_nodes += 1
             retrieval_threshold += stored_object.activation
         if amount_of_nodes == 0:
             return None
-        return (retrieval_threshold / amount_of_nodes)
+        threshold = (retrieval_threshold / amount_of_nodes)
+        self.logger.info('Retrieval Threshold is: %s', threshold)
+        return threshold
 
 
     """
@@ -352,12 +360,14 @@ class LongTermMemoryService:
     List of KnowledgeSubnet, can be empty
     """
     def get_knowledge_subnets(self, retrieval_threshold):
+        
         knowledge_subnets = []
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 if(stored_relation.activation > retrieval_threshold and self._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets, stored_relation)):
                     self._clean_up_retrieved_mark()
                     knowledge_subnets.append(self.create_knowledge_subnet_for_relation(stored_relation, retrieval_threshold))
+        self.logger.info('Found %s knowledge subnets', len(knowledge_subnets))
         return knowledge_subnets
     
     def _clean_up_retrieved_mark(self):
@@ -543,6 +553,7 @@ class LongTermMemoryService:
             if(average_activation_value > most_activated_knowledge_subnet_average_activation_value):
                 most_activated_knowledge_subnet = knowledge_subnet
                 most_activated_knowledge_subnet_average_activation_value = average_activation_value
+        self.logger.info('Found most activated knowledge subnets')
         return most_activated_knowledge_subnet
     
 
