@@ -31,8 +31,10 @@ class WorkingMemoryService:
             for stored_relation in stored_relations:
                 if not stored_relation.relation.name.value == "PartOf":
                     opposite_relation = copy.deepcopy(stored_relation)
-                    opposite_relation.objects[0] = stored_relation.objects[1]
-                    opposite_relation.objects[1] = stored_relation.objects[0]
+                    if opposite_relation.objects_received[1] == True:
+                        opposite_relation.objects[0] = stored_relation.objects[1]
+                    if opposite_relation.objects_received[0] == True:
+                        opposite_relation.objects[1] = stored_relation.objects[0]
                     if(stored_relation.relation.name.value == "North"):
                         opposite_relation.relation.name = CardinalRelationName.South
                     elif(stored_relation.relation.name.value == "South"):
@@ -47,8 +49,10 @@ class WorkingMemoryService:
     def create_opposite(self, relation):
         if not relation.relation.name.value == "PartOf":
             opposite_relation = copy.deepcopy(relation)
-            opposite_relation.objects[0] = relation.objects[1]
-            opposite_relation.objects[1] = relation.objects[0]
+            if opposite_relation.objects_received[1] == True:
+                opposite_relation.objects[0] = relation.objects[1]
+            if opposite_relation.objects_received[0] == True:
+                opposite_relation.objects[1] = relation.objects[0]
             if(relation.relation.name.value == "North"):
                 opposite_relation.relation.name = CardinalRelationName.South
             elif(relation.relation.name.value == "South"):
@@ -70,6 +74,7 @@ class WorkingMemoryService:
             for relations in knowledge_subnet.relations.values():
                 for relation in relations:
                     self.create_smm(relation)
+                    #remove not received object
                     opposite_smm = self.create_opposite(relation)
                     if opposite_smm:
                         self.create_smm(opposite_smm)

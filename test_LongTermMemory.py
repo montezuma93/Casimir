@@ -7,6 +7,7 @@ from Object import CityObject, CountryObject
 
 class TestLongTermMemory(unittest.TestCase):
 
+    
     def test_long_term_memory_can_save_multiple_relations_with_equal_category_correctly(self):
         long_term_memory = LongTermMemoryService()
         paris_city_object = CityObject("Paris")
@@ -115,13 +116,13 @@ class TestLongTermMemory(unittest.TestCase):
 
         self.assertEqual(long_term_memory.FIRING_THRESHOLD, 0.0002)
 
-    @patch('LongTermMemoryService.LongTermMemoryService._clean_up_activation_value_for_entities')
-    def test_set_initial_activation_should_set_activation_value_for_object_entity(self, mock_clean_up_activation_value_for_entities):
+    @patch('LongTermMemoryService.LongTermMemoryService._clean_up_activation_values')
+    def test_set_initial_activation_should_set_activation_value_for_object_entity(self, mock__clean_up_activation_values):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
         long_term_memory._set_initial_activation_for_entity(long_term_memory.paris_city_object, 1)
 
-        self.assertEqual(mock_clean_up_activation_value_for_entities.call_count, 1)
+        self.assertEqual(mock__clean_up_activation_values.call_count, 1)
         self.assertEqual(long_term_memory.stored_objects["Paris"].is_active, True)
         self.assertEqual(long_term_memory.stored_objects["Paris"].activation_to_update, 1)
         self.assertEqual(long_term_memory.stored_objects["London"].is_active, False)
@@ -137,13 +138,13 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation_to_update, 0)
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].is_active, False)
     
-    @patch('LongTermMemoryService.LongTermMemoryService._clean_up_activation_value_for_entities')
-    def test_set_initial_activation_should_set_activation_value_for_relation_entity(self, mock_clean_up_activation_value_for_entities):
+    @patch('LongTermMemoryService.LongTermMemoryService._clean_up_activation_values')
+    def test_set_initial_activation_should_set_activation_value_for_relation_entity(self, mock_clean_up_activation_values):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
 
         long_term_memory._set_initial_activation_for_entity(RelationType.CardinalRelation, 1)
 
-        self.assertEqual(mock_clean_up_activation_value_for_entities.call_count, 1)
+        self.assertEqual(mock_clean_up_activation_values.call_count, 1)
         self.assertEqual(long_term_memory.stored_objects["Paris"].is_active, False)
         self.assertEqual(long_term_memory.stored_objects["Paris"].activation_to_update, 0)
         self.assertEqual(long_term_memory.stored_objects["London"].is_active, False)
@@ -163,7 +164,7 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.FIRING_THRESHOLD = 0.1
         long_term_memory.NOISE_ON = False
-        long_term_memory._clean_up_activation_value_for_entities()
+        long_term_memory._clean_up_activation_values()
         long_term_memory.stored_objects["Paris"].is_active = True
         long_term_memory.stored_objects["Paris"].activation_to_update = 1
 
@@ -192,7 +193,7 @@ class TestLongTermMemory(unittest.TestCase):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.FIRING_THRESHOLD = 0.05
         long_term_memory.NOISE_ON = False
-        long_term_memory._clean_up_activation_value_for_entities()
+        long_term_memory._clean_up_activation_values()
         long_term_memory.stored_relations[RelationType.CardinalRelation][0].is_active = True
         long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation_to_update = 0.2
         long_term_memory.stored_relations[RelationType.CardinalRelation][1].is_active = True
@@ -221,7 +222,7 @@ class TestLongTermMemory(unittest.TestCase):
 
     def test_update_activation_values_correctly_updates_values_for_entities(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
-        long_term_memory._clean_up_activation_value_for_entities()
+        long_term_memory._clean_up_activation_values()
         long_term_memory.stored_objects["Paris"].activation = 0.1
         long_term_memory.stored_objects["Paris"].activation_to_update = 0.1
         long_term_memory.stored_objects["London"].activation_to_update = 0.2
@@ -327,7 +328,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertTrue(knowledge_subnet.relations[RelationType.CardinalRelation][0].objects.__contains__("Paris"))
         self.assertFalse(knowledge_subnet.relations[RelationType.CardinalRelation][0].objects.__contains__("London"))
     
-    def test_get_knowledge_subnets_returns_the_correct_subnets(self):
+    def test_get_knowledge_subnets_returns_the_correct_subnet(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.stored_objects["Paris"].activation = 1
         long_term_memory.stored_objects["London"].activation = 1
@@ -343,7 +344,28 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.CardinalRelation]), 1)
         self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.TopologicalRelation]), 2)
         self.assertEqual(len(actual_knowledge_subnets[0].objects), 2)
-    
+
+    def test_get_knowledge_subnets_returns_the_correct_subnets(self):
+        long_term_memory = self.create_long_term_memory_based_on_papers_example()
+        long_term_memory.stored_objects["London"].activation = 1
+        long_term_memory.stored_objects["Prague"].activation = 1
+        long_term_memory.stored_objects["England"].activation = 1
+        long_term_memory.stored_objects["France"].activation = 1
+        long_term_memory.stored_relations[RelationType.CardinalRelation][0].activation = 0
+        long_term_memory.stored_relations[RelationType.CardinalRelation][1].activation = 1
+        long_term_memory.stored_relations[RelationType.TopologicalRelation][1].activation = 1
+        long_term_memory.stored_relations[RelationType.TopologicalRelation][0].activation = 1
+
+        actual_knowledge_subnets = long_term_memory.get_knowledge_subnets(0.5)
+
+        self.assertEqual(len(actual_knowledge_subnets), 3)
+        self.assertEqual(len(actual_knowledge_subnets[0].relations[RelationType.TopologicalRelation]), 1)
+        self.assertEqual(len(actual_knowledge_subnets[0].objects), 1)
+        self.assertEqual(len(actual_knowledge_subnets[1].relations[RelationType.TopologicalRelation]), 1)
+        self.assertEqual(len(actual_knowledge_subnets[1].objects), 2)
+        self.assertEqual(len(actual_knowledge_subnets[2].relations[RelationType.CardinalRelation]), 1)
+        self.assertEqual(len(actual_knowledge_subnets[2].objects), 1)
+    '''
     def test_get_most_activated_knowledge_subnet(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.stored_objects["Paris"].activation = 1
@@ -385,7 +407,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].usages, [4,5])
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].usages, [1])
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].usages, [2])
-
+    '''
     def create_long_term_memory_based_on_papers_example(self):
         long_term_memory = LongTermMemoryService()
         long_term_memory.paris_city_object = CityObject("Paris")
