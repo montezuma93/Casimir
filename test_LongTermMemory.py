@@ -365,7 +365,8 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(len(actual_knowledge_subnets[1].objects), 2)
         self.assertEqual(len(actual_knowledge_subnets[2].relations[RelationType.CardinalRelation]), 1)
         self.assertEqual(len(actual_knowledge_subnets[2].objects), 1)
-    '''
+
+    
     def test_get_most_activated_knowledge_subnet(self):
         long_term_memory = self.create_long_term_memory_based_on_papers_example()
         long_term_memory.stored_objects["Paris"].activation = 1
@@ -407,7 +408,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(long_term_memory.stored_relations[RelationType.CardinalRelation][1].usages, [4,5])
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][0].usages, [1])
         self.assertEqual(long_term_memory.stored_relations[RelationType.TopologicalRelation][1].usages, [2])
-    '''
+    
     def create_long_term_memory_based_on_papers_example(self):
         long_term_memory = LongTermMemoryService()
         long_term_memory.paris_city_object = CityObject("Paris")

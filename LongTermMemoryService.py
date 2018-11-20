@@ -414,8 +414,6 @@ class LongTermMemoryService:
         Returns full KnowledgeSubnet
     """
     def create_knowledge_subnet_for_relation(self, stored_relation, retrieval_threshold):
-        print("create")
-        print(stored_relation.relation.name)
         relation_to_store = stored_relation
         knowledge_subnet = KnowledgeSubnet(relation_to_store)
         self.retrieve_activated_nodes_through_knowledge_subnet(knowledge_subnet, retrieval_threshold)
@@ -458,7 +456,6 @@ class LongTermMemoryService:
                             
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
                         else:
-                            print("remove object")
                             relation.objects_received[index] = False
 
     """
@@ -476,10 +473,8 @@ class LongTermMemoryService:
     def _add_object_to_knowledge_subnet(self, object_to_add, knowledge_subnet, relation_link):
         if (knowledge_subnet.objects.__contains__(object_to_add.stored_object.name)):
             if(not knowledge_subnet.objects[object_to_add.stored_object.name].relation_links.__contains__(relation_link)):
-                print("add object")
                 knowledge_subnet.objects[object_to_add.stored_object.name].relation_links.append(relation_link)
         else:
-            print("add object totaly new")
             object_to_store = StoredObject(object_to_add.stored_object, object_to_add.time_of_creation)
             object_to_store.activation = object_to_add.activation
             object_to_store.relation_links = [relation_link]
@@ -519,13 +514,11 @@ class LongTermMemoryService:
     def _add_relations_to_knowledge_subnet(self, relation_to_add, knowledge_subnet):
         if (knowledge_subnet.relations.__contains__(relation_to_add.relation.relation_type)):
             if(not knowledge_subnet.relations[relation_to_add.relation.relation_type].__contains__(relation_to_add)):
-                print("add relation")
                 knowledge_subnet.relations.get(relation_to_add.relation.relation_type).append(relation_to_add)
                 knowledge_subnet.amount_of_activated_nodes += 1
                 knowledge_subnet.activation_value += relation_to_add.activation
                 self.receive_knowledge_fragments_in_progress = True
         else:
-            print("add relation totaly new")
             knowledge_subnet.relations[relation_to_add.relation.relation_type] = [relation_to_add]
             knowledge_subnet.amount_of_activated_nodes += 1
             knowledge_subnet.activation_value += relation_to_add.activation
