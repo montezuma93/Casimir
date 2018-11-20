@@ -50,7 +50,7 @@ class LongTermMemoryService:
         StoredObjects, that should be saved
     """
     def save_knowledge_fragment(self, relation, objects):
-        #self.logger.info('Got save request')
+        self.logger.info('Got save request')
         self.time_since_initialization += 1
         self._save_relation(relation, objects)
         relation_reference_number = len(self.stored_relations[relation.relation_type]) -1
@@ -67,7 +67,7 @@ class LongTermMemoryService:
         StoredObjects, that should be saved
     """
     def _save_relation(self, relation, objects):
-        #self.logger.info('Save relation for type: %s, and name: %s', relation.relation_type, relation.name)
+        self.logger.info('Save relation for type: %s, and name: %s', relation.relation_type, relation.name)
         relation_to_store = StoredRelation(relation, [concrete_object.name for concrete_object in objects], self.time_since_initialization)
         if (self.stored_relations.__contains__(relation.relation_type)):
             self.stored_relations.get(relation.relation_type).append(relation_to_store)
@@ -88,7 +88,7 @@ class LongTermMemoryService:
     """
     def _save_objects_for_relation(self, objects, relation_type, relation_reference_number):
         for concrete_object in objects:
-            #self.logger.info('Save object with name: %s', concrete_object.name)
+            self.logger.info('Save object with name: %s', concrete_object.name)
             if (self.stored_objects.__contains__(concrete_object.name)):
                 self.stored_objects[concrete_object.name].amount_of_usages += 1
                 self.stored_objects[concrete_object.name].usages.append(self.time_since_initialization)
@@ -97,7 +97,16 @@ class LongTermMemoryService:
                 object_to_store = StoredObject(concrete_object, self.time_since_initialization)
                 object_to_store.relation_links.append((relation_type, relation_reference_number))
                 self.stored_objects[concrete_object.name] = object_to_store
-                
+
+    """
+    Receives most activated knowledge subnet
+    Calculates activation, base activation and noise before
+
+    Parameters
+    ----------
+    param1 : List of entities
+        List of Relations or Object to receive knowledge_subnet for and spread activation before
+    """        
     def receive_knowledge_fragments(self, context_array):
         self.time_since_initialization += 1
         self.calculate_activation(context_array)
@@ -109,12 +118,28 @@ class LongTermMemoryService:
         self.add_usage_for_activated_knowledge_fragments(most_activated_knowledge_fragment)
         return most_activated_knowledge_fragment
     
+    """
+    Calculate activation values for all entities
+
+    Parameters
+    ----------
+    param1 : List of entities
+        List of Relations or Objects to spread activation
+    """    
     def calculate_activation(self, context_array):
         self.spread_activation(context_array)
         self.calculate_base_activation()
         if(self.NOISE_ON):
             self.add_noise_to_activation()
 
+    """
+    Spread activation for context array entities
+
+    Parameters
+    ----------
+    param1 : List of entities
+        List of Relations or Object to spread activation
+    """    
     def spread_activation(self, context_array):
         if(self.DYNAMIC_FIRING_THRESHOLD):
             self.FIRING_THRESHOLD = len(context_array) * 0.0001
@@ -124,6 +149,16 @@ class LongTermMemoryService:
             self._spread_activation_for_entity()
             self._update_activation_values()
 
+    """
+    Set initial activation value for context entities and set it to active
+
+    Parameters
+    ----------
+    param1 : entity, can be object or relation
+        entity, that will receive the initial activation value and will be set to active
+    param2 : float
+        initial activation value, that the entity will receive
+    """   
     def _set_initial_activation_for_entity(self, entity, initial_activation_value):
         self._clean_up_activation_values()
         for relation_type, stored_relations in self.stored_relations.items():
@@ -139,6 +174,9 @@ class LongTermMemoryService:
                 stored_objects.activation_to_update = initial_activation_value
                 stored_objects.is_active = True
 
+    """
+    Clean up all activation values and set all entities to not active
+    """   
     def _clean_up_activation_values(self):
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
@@ -148,12 +186,21 @@ class LongTermMemoryService:
             stored_object.activation_to_update = 0
             stored_object.is_active = False
 
+    """
+    Spread activation for an entity as long as activation spreading is in progress.
+    Activation spreading is in progress as long as the activation value that will be spread
+    to the next entity via its connections is higher that the spreading threshold
+    """   
     def _spread_activation_for_entity(self):
         self.activation_spreading_in_progress = True
         while(self.activation_spreading_in_progress):
             self._update_linked_activation_for_relation()
             self._update_linked_activation_for_object()
 
+    """
+    Spread activation for all activated relations and sets objects which are not yet active to active as
+    well as set their activation value, that should be added
+    """   
     def _update_linked_activation_for_relation(self):
         objects_to_set_active = []
         for stored_relations in self.stored_relations.values():
@@ -167,6 +214,10 @@ class LongTermMemoryService:
                             objects_to_set_active.append(object_to_update)
         self._set_nodes_active(objects_to_set_active)
 
+    """
+    Spread activation for all activated objects and sets relation which are not yet active to active as
+    well as increase their activation value
+    """  
     def _update_linked_activation_for_object(self):       
         relations_to_set_active = []
         for stored_object in self.stored_objects.values():
@@ -181,6 +232,15 @@ class LongTermMemoryService:
                     relations_to_set_active.append(relation_to_update)
         self._set_nodes_active(relations_to_set_active)
 
+    """
+    Sets nodes to be active, if their is at least one node to set active,
+    activation spreading will be in progress
+
+    Parameters
+    ----------
+    param1 : List of entities, can be objects and relations
+        entities to set active
+    """  
     def _set_nodes_active(self, nodes_to_set_active):
         if(len(nodes_to_set_active) > 0):
             self.activation_spreading_in_progress = True
@@ -189,6 +249,10 @@ class LongTermMemoryService:
         for node in nodes_to_set_active:
             node.is_active = True
 
+    """
+    For all nodes add the activation value that should be added to the
+    activation value of the node
+    """  
     def _update_activation_values(self):
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
@@ -196,6 +260,11 @@ class LongTermMemoryService:
         for stored_object in self.stored_objects.values():
             stored_object.activation += stored_object.activation_to_update
 
+
+    """
+    Calculate the base activation value for all nodes
+    and add it to the activation value
+    """  
     def calculate_base_activation(self):            
         for relations in self.stored_relations.values():
             for relation in relations:
@@ -203,12 +272,28 @@ class LongTermMemoryService:
         for concrete_object in self.stored_objects.values():
             concrete_object.activation += self._calculate_base_activation_for_node(concrete_object)
 
+    """
+    Calculate the base activation value for a node
+
+    Parameters
+    ----------
+    param1 : Entity
+        entity, for which the base activation value should be calculated for
+
+    Returns
+    --------
+    float
+        base activation value that will be added to the node
+    """  
     def _calculate_base_activation_for_node(self, node):
         sum_over_usages = 0
         for usage in node.usages:
             sum_over_usages += power((self.time_since_initialization - usage), self.BASE_ACTIVATION_DECAY)
         return log(sum_over_usages)
 
+    """
+    Calculate the base activation value for all nodes and add it
+    """  
     def add_noise_to_activation(self):
         for relations in self.stored_relations.values():
             for relation in relations:
@@ -216,12 +301,29 @@ class LongTermMemoryService:
         for concrete_object in self.stored_objects.values():
             concrete_object.activation += self._calculate_noise_for_node(concrete_object)
 
+    """
+    Calculate the noise activation value for a node to be added
+
+    Parameters
+    ----------
+    param1 : Entity
+        entity, for which the base activation value should be calculated for
+
+    Returns
+    --------
+    float
+        noise activation value that will be added to the node
+    """  
     def _calculate_noise_for_node(self, node):
         loc = 0
         scale = power(pi, 2) / 3 * power(self.NOISE,2)
         noise = random.logistic(loc, scale)
         return noise
     
+    """
+    Calculate the noise retrieval threshold value for nodes
+    Done by averaging all nodes activation value
+    """  
     def _calculate_retrieval_threshold(self):
         amount_of_nodes = 0
         retrieval_threshold = 0
@@ -235,6 +337,7 @@ class LongTermMemoryService:
         if amount_of_nodes == 0:
             return None
         return (retrieval_threshold / amount_of_nodes)
+
 
     """
     Get all knowledge_subnets in the LTM
@@ -330,7 +433,7 @@ class LongTermMemoryService:
     Parameters
     ------------
     param1: KnowledgeSubnet
-        KnowledgeSubnet, to go through to add all activated nodes
+        KnowledgeSubnet, to go through to add all activated objects
     param2: int
         Retrieval Threeshold, that decides whether nodes can be added to KnowledgeSubnet or not
     """
@@ -348,6 +451,18 @@ class LongTermMemoryService:
                             print("remove object")
                             relation.objects_received[index] = False
 
+    """
+    Add object to knowledge subnet
+
+    Parameters
+    ------------
+    param1: object
+        object that will be added to  knowledge subnet if it not yet is in the subnet
+    param1: knowledge
+        KnowledgeSubnet, to which the object will be added if it is not yet in it
+    param2: tuple of (relation_category, relation_reference_number)
+        relation_link that will be added to the object in order to know to which relation in the subnet it is linked
+    """
     def _add_object_to_knowledge_subnet(self, object_to_add, knowledge_subnet, relation_link):
         if (knowledge_subnet.objects.__contains__(object_to_add.stored_object.name)):
             if(not knowledge_subnet.objects[object_to_add.stored_object.name].relation_links.__contains__(relation_link)):
@@ -363,6 +478,16 @@ class LongTermMemoryService:
             knowledge_subnet.amount_of_activated_nodes += 1
             self.receive_knowledge_fragments_in_progress = True
 
+    """
+    Check if an relation can be added based on the retrieval_threshold
+
+    Parameters
+    ------------
+    param1: KnowledgeSubnet
+        KnowledgeSubnet, to go through to add all activated relations
+    param2: int
+        Retrieval Threeshold, that decides whether nodes can be added to KnowledgeSubnet or not
+    """
     def _check_relation_in_objects_can_be_added(self, knowledge_subnet, retrieval_threshold):
         self.receive_knowledge_fragments_in_progress = False
         for object_name in knowledge_subnet.objects.keys():
@@ -371,6 +496,16 @@ class LongTermMemoryService:
                 if(relation_to_add_eventually.activation > retrieval_threshold):
                     self._add_relations_to_knowledge_subnet(relation_to_add_eventually, knowledge_subnet)
 
+    """
+    Add relation to knowledge subnet
+
+    Parameters
+    ------------
+    param1: relation
+        relation that will be added to knowledge subnet if it not yet is in the subnet
+    param1: knowledge
+        KnowledgeSubnet, to which the relation will be added if it is not yet in it
+    """
     def _add_relations_to_knowledge_subnet(self, relation_to_add, knowledge_subnet):
         if (knowledge_subnet.relations.__contains__(relation_to_add.relation.relation_type)):
             if(not knowledge_subnet.relations[relation_to_add.relation.relation_type].__contains__(relation_to_add)):
@@ -386,6 +521,20 @@ class LongTermMemoryService:
             knowledge_subnet.activation_value += relation_to_add.activation
             self.receive_knowledge_fragments_in_progress = True
 
+    """
+    Get the most activated knowledge subnet
+
+    Parameters
+    ------------
+    param1: List of knowledge subnets
+        all knowledge subnets that will be compared and will be evaluated, based on the activation values
+        of their members (relations and objects that each subnet contains)
+
+    Returns
+    ------------
+    KnowledgeSubnet
+        returns the most activated knowledge subnet
+    """
     def get_most_activated_knowledge_subnet(self, knowledge_subnets):
         most_activated_knowledge_subnet_average_activation_value = 0
         most_activated_knowledge_subnet = None
@@ -396,6 +545,17 @@ class LongTermMemoryService:
                 most_activated_knowledge_subnet_average_activation_value = average_activation_value
         return most_activated_knowledge_subnet
     
+
+    """
+    Add usage for all nodes in the most activated knowledge subnet
+    (If a node was received by an LTM call it will add this time to its usages array)
+
+    Parameters
+    ------------
+    param1: KnowledgeSubnet
+        Relations and Objects stored in the KnowledgeSubnet will get an new entry
+        in their usages list
+    """
     def add_usage_for_activated_knowledge_fragments(self, knowledge_subnet):
         if not knowledge_subnet:
             return
@@ -405,12 +565,16 @@ class LongTermMemoryService:
         for object_name in knowledge_subnet.objects.keys():
             self.stored_objects[object_name].usages.append(self.time_since_initialization)
 
-    def _get_relation_for_id(self, relation_id):
-        for relations in self.stored_relations.values():
-            for relation in relations:
-                if id(relation) == relation_id:
-                    return relation
+    """
+    Get all nodes (relations and objects and their relationsship)
+    (Just for demo and debugging or to know more about the actual activation values a
+    node has in the moment)
 
+    Returns
+    ------------
+    Json
+        Json Object which contains all relations, objects and their activation values
+    """
     def show_all_knowledge_fragments(self):
         object_list = []
         relation_list = []
@@ -435,7 +599,6 @@ class LongTermMemoryService:
             "objects": object_list,
             "relations": relation_list
         }
-
 
 class KnowledgeSubnet():
     def __init__(self, node_to_store):
