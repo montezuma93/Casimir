@@ -1,0 +1,287 @@
+import unittest
+from unittest import mock
+from mock import call, patch
+from LongTermMemoryService import LongTermMemoryService, KnowledgeSubnet
+from Relation import (EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation,
+ PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName,
+ NorthEastCardinalRelation, SouthWestCardinalRelation, RelationType, TopologicalRelationName)
+from Object import CityObject, CountryObject
+from WorkingMemoryService import WorkingMemoryService, SMM
+from LongTermMemoryService import StoredRelation
+
+class TestLongTermMemory(unittest.TestCase):
+    
+    def test_working_memory(self):
+        working_memory = WorkingMemoryService()
+        WorkingMemoryService.RECEIVE_ONLINE_COMPLETE_FRAGMENTS = False
+    
+    @patch('WorkingMemoryService.WorkingMemoryService.create_smm_json')
+    @patch('WorkingMemoryService.WorkingMemoryService.add_relation_and_opposite_to_smm')
+    @patch('WorkingMemoryService.WorkingMemoryService._relation_is_complete')
+    def test_construction_in_working_memory_call_the_correct_methods_if_incomplete_fragments_allowed(self, mock_relation_is_complete,
+     mock_add_relation_and_opposite_to_smm, mock_create_smm_json):
+        working_memory = WorkingMemoryService()
+        working_memory.USE_ONLY_COMPLETE_FRAGMENTS = False
+        relation = StoredRelation(SouthCardinalRelation(), ["Paris", "London"], 1)
+        knowledge_subnet = KnowledgeSubnet(relation)
+        working_memory.construction(knowledge_subnet)
+
+        self.assertEqual(mock_relation_is_complete.call_count, 0)
+        mock_add_relation_and_opposite_to_smm.assert_has_calls([call(relation)])
+        self.assertEqual(mock_create_smm_json.call_count, 1)
+    
+    @patch('WorkingMemoryService.WorkingMemoryService.create_smm_json')
+    @patch('WorkingMemoryService.WorkingMemoryService.add_relation_and_opposite_to_smm')
+    @patch('WorkingMemoryService.WorkingMemoryService._relation_is_complete')
+    def test_construction_in_working_memory_call_the_correct_methods_if_incomplete_fragments_not_allowed(self, mock_relation_is_complete,
+     mock_add_relation_and_opposite_to_smm, mock_create_smm_json):
+        working_memory = WorkingMemoryService()
+        working_memory.USE_ONLY_COMPLETE_FRAGMENTS = True
+        relation = StoredRelation(SouthCardinalRelation(), ["Paris", "London"], 1)
+        knowledge_subnet = KnowledgeSubnet(relation)
+        working_memory.construction(knowledge_subnet)
+
+        self.assertEqual(mock_relation_is_complete.call_count, 1)
+        mock_add_relation_and_opposite_to_smm.assert_has_calls([call(relation)])
+        self.assertEqual(mock_create_smm_json.call_count, 1)
+
+    def test_relation_is_complete_works_correctly_for_complete_knowledge_subnet(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthCardinalRelation(), ["Paris", "London"], 1)
+        self.assertEquals(working_memory._relation_is_complete(relation), True)
+
+    def test_relation_is_complete_works_correctly_for_incomplete_knowledge_subnet(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthCardinalRelation(), ["Paris", "London"], 1)
+        relation.objects_received[0] = False
+        self.assertEquals(working_memory._relation_is_complete(relation), False)
+
+    
+    @patch('WorkingMemoryService.WorkingMemoryService.use_relation_for_smm')
+    @patch('WorkingMemoryService.WorkingMemoryService.create_opposite')
+    def test_add_knowledge_fragment_to_smm_call_the_correct_methods_for_complete_relation(self, mock_create_opposite, mock_use_relation_for_smm):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthCardinalRelation(), ["Paris", "London"], 1)
+
+        working_memory.add_relation_and_opposite_to_smm(relation)
+
+        self.assertEqual(mock_create_opposite.call_count, 1)
+        self.assertEqual(mock_use_relation_for_smm.call_count, 2)
+    
+    @patch('WorkingMemoryService.WorkingMemoryService.use_relation_for_smm')
+    @patch('WorkingMemoryService.WorkingMemoryService.create_opposite')
+    def test_add_knowledge_fragment_to_smm_call_the_correct_methods_for_topological_relation(self, mock_create_opposite, mock_use_relation_for_smm):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(PartOfTopologicalRelation(), ["Paris", "France"], 1)
+        mock_create_opposite.return_value = None
+        working_memory.add_relation_and_opposite_to_smm(relation)
+
+        self.assertEqual(mock_create_opposite.call_count, 1)
+        self.assertEqual(mock_use_relation_for_smm.call_count, 1)
+
+    
+    @patch('WorkingMemoryService.WorkingMemoryService.use_relation_for_smm')
+    @patch('WorkingMemoryService.WorkingMemoryService.create_opposite')
+    def test_add_knowledge_fragment_to_smm_call_the_correct_methods_for_incomplete_relation(self, mock_create_opposite, mock_use_relation_for_smm):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthCardinalRelation(), ["Freiburg", "Hamburg"], 1)
+        relation.objects_received[1] = False
+
+        working_memory.add_relation_and_opposite_to_smm(relation)
+
+        self.assertEqual(mock_create_opposite.call_count, 1)
+        self.assertEqual(mock_use_relation_for_smm.call_count, 2)
+    
+    def test_create_opposite_for_topological_relation(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(PartOfTopologicalRelation(), ["Freiburg", "Germany"], 1)
+
+        opposite_relation = working_memory.create_opposite(relation)
+
+        self.assertIsNone(opposite_relation)
+
+    def test_create_opposite_for_complete_cardinal_relation(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthCardinalRelation(), ["Freiburg", "Hamburg"], 1)
+
+        opposite_relation = working_memory.create_opposite(relation)
+
+        self.assertEquals(opposite_relation.relation.name.value, "North")
+        self.assertEquals(opposite_relation.objects[0], "Hamburg")
+        self.assertEquals(opposite_relation.objects[1], "Freiburg")
+        self.assertEquals(opposite_relation.objects_received[0], True)
+        self.assertEquals(opposite_relation.objects_received[1], True)
+    
+    def test_create_opposite_for_incomplete_cardinal_relation_and_first_object_not_received(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthCardinalRelation(), ["Freiburg", "Hamburg"], 1)
+        relation.objects_received[0] = False
+
+        opposite_relation = working_memory.create_opposite(relation)
+
+        self.assertEquals(opposite_relation.relation.name.value, "North")
+        self.assertEquals(opposite_relation.objects[0], "Hamburg")
+        self.assertEquals(opposite_relation.objects[1], "Freiburg")
+        self.assertEquals(opposite_relation.objects_received[0], True)
+        self.assertEquals(opposite_relation.objects_received[1], False)
+
+
+
+    def test_create_opposite_for_incomplete_cardinal_relation_and_second_object_not_received(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthEastCardinalRelation(), ["Berlin", "Freiburg"], 1)
+        relation.objects_received[1] = False
+
+        opposite_relation = working_memory.create_opposite(relation)
+
+        self.assertEquals(opposite_relation.relation.name.value, "SouthWest")
+        self.assertEquals(opposite_relation.objects[0], "Freiburg")
+        self.assertEquals(opposite_relation.objects[1], "Berlin")
+        self.assertEquals(opposite_relation.objects_received[0], False)
+        self.assertEquals(opposite_relation.objects_received[1], True)
+
+    def test_create_smm_for_complete_cardinal_relation(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthCardinalRelation(), ["Hamburg", "Freiburg"], 1)
+
+        working_memory.create_new_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 1)
+        self.assertEqual(actual_smm_list[0].north, "Hamburg")
+        self.assertEqual(actual_smm_list[0].middle, "Freiburg")
+        self.assertEqual(actual_smm_list[0].south, "")
+
+    def test_create_smm_for_complete_intercardinal_relation(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(SouthWestCardinalRelation(), ["Freiburg", "Prague"], 1)
+
+        working_memory.create_new_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 1)
+        self.assertEqual(actual_smm_list[0].south_west, "Freiburg")
+        self.assertEqual(actual_smm_list[0].middle, "Prague")
+        self.assertEqual(actual_smm_list[0].south, "")
+
+    def test_create_smm_for_incomplete_relation_first_object(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthEastCardinalRelation(), ["Freiburg", "Prague"], 1)
+        relation.objects_received[0] = False
+
+        working_memory.create_new_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 1)
+        self.assertEqual(actual_smm_list[0].south_west, "")
+        self.assertEqual(actual_smm_list[0].middle, "Prague")
+        self.assertEqual(actual_smm_list[0].south, "")
+
+
+    def test_create_smm_for_incomplete_relation_second_object(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthEastCardinalRelation(), ["Freiburg", "Prague"], 1)
+        relation.objects_received[1] = False
+
+        working_memory.create_new_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 1)
+        self.assertEqual(actual_smm_list[0].north_east, "Freiburg")
+        self.assertEqual(actual_smm_list[0].middle, "")
+        self.assertEqual(actual_smm_list[0].south, "")
+
+    def test_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_complete(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
+
+        smm1 = SMM()
+        smm1.east = "Berlin"
+        smm1.middle = "Paris"
+        smm2 = SMM()
+        smm2.south = "Freiburg"
+        smm2.middle = "Hamburg"
+        working_memory.stored_smm = [smm1, smm2]
+        working_memory.use_relation_for_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 2)
+        self.assertEqual(actual_smm_list[0].east, "Berlin")
+        self.assertEqual(actual_smm_list[0].middle, "Paris")
+        self.assertEqual(actual_smm_list[0].north, "London")
+        self.assertEqual(actual_smm_list[1].north, "")
+        self.assertEqual(actual_smm_list[1].middle, "Hamburg")
+        self.assertEqual(actual_smm_list[1].south, "Freiburg")
+    
+    def test_multiple_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_complete(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
+        relation2 = StoredRelation(SouthWestCardinalRelation(), ["Madrid", "Paris"], 1)
+
+
+        smm = SMM()
+        smm.east = "Berlin"
+        smm.middle = "Paris"
+        working_memory.stored_smm = [smm]
+        working_memory.use_relation_for_smm(relation)
+        working_memory.use_relation_for_smm(relation2)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 1)
+        self.assertEqual(actual_smm_list[0].east, "Berlin")
+        self.assertEqual(actual_smm_list[0].south_west, "Madrid")
+        self.assertEqual(actual_smm_list[0].middle, "Paris")
+        self.assertEqual(actual_smm_list[0].north, "London")
+        
+    def test_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_incomplete_for_second_object(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
+        relation.objects_received[1] = False
+
+        smm1 = SMM()
+        smm1.east = "Berlin"
+        smm1.middle = "Paris"
+        smm2 = SMM()
+        smm2.south = "Freiburg"
+        smm2.middle = "Paris"
+        working_memory.stored_smm = [smm1, smm2]
+        working_memory.use_relation_for_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 3)
+        self.assertEqual(actual_smm_list[0].east, "Berlin")
+        self.assertEqual(actual_smm_list[0].middle, "Paris")
+        self.assertEqual(actual_smm_list[0].north, "")
+        self.assertEqual(actual_smm_list[1].north, "")
+        self.assertEqual(actual_smm_list[1].middle, "Paris")
+        self.assertEqual(actual_smm_list[1].south, "Freiburg")
+        self.assertEqual(actual_smm_list[2].north, "London")
+        self.assertEqual(actual_smm_list[2].middle, "")
+        self.assertEqual(actual_smm_list[2].south, "")
+
+
+    def test_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_incomplete_for_first_object(self):
+        working_memory = WorkingMemoryService()
+        relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
+        relation.objects_received[0] = False
+
+        smm1 = SMM()
+        smm1.east = "Berlin"
+        smm1.middle = "Paris"
+        smm2 = SMM()
+        smm2.south = "Freiburg"
+        smm2.middle = "Paris"
+        working_memory.stored_smm = [smm1, smm2]
+        working_memory.use_relation_for_smm(relation)
+        actual_smm_list = working_memory.stored_smm
+
+        self.assertEquals(len(actual_smm_list), 3)
+        self.assertEqual(actual_smm_list[0].east, "Berlin")
+        self.assertEqual(actual_smm_list[0].middle, "Paris")
+        self.assertEqual(actual_smm_list[0].north, "")
+        self.assertEqual(actual_smm_list[1].north, "")
+        self.assertEqual(actual_smm_list[1].middle, "Paris")
+        self.assertEqual(actual_smm_list[1].south, "Freiburg")
+        self.assertEqual(actual_smm_list[2].north, "")
+        self.assertEqual(actual_smm_list[2].middle, "Paris")
+        self.assertEqual(actual_smm_list[2].south, "")

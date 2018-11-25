@@ -7,7 +7,6 @@ from Object import CityObject, CountryObject
 
 class TestLongTermMemory(unittest.TestCase):
 
-    
     def test_long_term_memory_can_save_multiple_relations_with_equal_category_correctly(self):
         long_term_memory = LongTermMemoryService()
         paris_city_object = CityObject("Paris")

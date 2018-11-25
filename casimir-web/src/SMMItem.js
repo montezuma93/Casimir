@@ -12,7 +12,7 @@ class SMMItem extends React.Component {
             east: this.props.smm.east,
             northEast: this.props.smm.northEast,
             northWest: this.props.smm.northWest,
-            southWest: this.props.smm.southWest,
+            southEast: this.props.smm.southEast,
             southWest: this.props.smm.southWest,
             middle: this.props.smm.middle
         }
