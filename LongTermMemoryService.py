@@ -18,6 +18,8 @@ class LongTermMemoryService:
     #True
     NOISE_ON = False
     SPREAD_FULL_ACTIVATION = False
+    #BASE_ACTIVATION_DECAY = -0.2
+    #INITIAL_ACTIVATION_VALUE = 0.8
     #BASE_ACTIVATION_DECAY = -0.86
     #INITIAL_ACTIVATION_VALUE = 1.8
 
@@ -40,14 +42,16 @@ class LongTermMemoryService:
     Reset and clean up simulation
     """
     def reset_simulation(self):
-        self.BASE_ACTIVATION_DECAY = -0.5
+        """
+        self.BASE_ACTIVATION_DECAY = -0.86
         self.FRACTION_OF_ACTIVATION =  0.6
-        self.INITIAL_ACTIVATION_VALUE = 1
+        self.INITIAL_ACTIVATION_VALUE = 5
         self.NOISE = 0.1
         self.DYNAMIC_FIRING_THRESHOLD = True
         self.FIRING_THRESHOLD = 0.01667
         self.NOISE_ON = False
-        self.SPREAD_FULL_ACTIVATION = False
+        self.SPREAD_FULL_ACTIVATION = True
+        """
         self.activation_spreading_in_progress = False
         self.receive_knowledge_fragments_in_progress = False
         self.time_since_initialization = 0

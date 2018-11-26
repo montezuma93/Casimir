@@ -217,35 +217,35 @@ class WorkingMemoryService:
     """
     def add_to_smm(self, smm, relation):
         updated_smm = False
-        if(relation.relation.name.value == "North" and smm.north == ""):
+        if(relation.relation.name.value == "North" and smm.north == None):
             if(relation.objects_received[0] == True):
                 smm.north = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "South" and smm.south == ""):
+        elif(relation.relation.name.value == "South" and smm.south == None):
             if(relation.objects_received[0] == True):
                 smm.south = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "West" and smm.west == ""):
+        elif(relation.relation.name.value == "West" and smm.west == None):
             if(relation.objects_received[0] == True):
                 smm.west = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "East" and smm.east == ""):
+        elif(relation.relation.name.value == "East" and smm.east ==None):
             if(relation.objects_received[0] == True):
                 smm.east = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "NorthWest" and smm.north_west == ""):
+        elif(relation.relation.name.value == "NorthWest" and smm.north_west == None):
             if(relation.objects_received[0] == True):
                 smm.north_west = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "NorthEast" and smm.north_east == ""):
+        elif(relation.relation.name.value == "NorthEast" and smm.north_east ==None):
             if(relation.objects_received[0] == True):
                 smm.north_east = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "SouthWest" and smm.south_west == ""):
+        elif(relation.relation.name.value == "SouthWest" and smm.south_west == None):
             if(relation.objects_received[0] == True):
                 smm.south_west = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "SouthEast" and smm.south_east == ""):
+        elif(relation.relation.name.value == "SouthEast" and smm.south_east == None):
             if(relation.objects_received[0] == True):
                 smm.south_east = relation.objects[0]
                 updated_smm = True
@@ -275,16 +275,16 @@ class WorkingMemoryService:
 
 class SMM():
     def __init__(self):
-        self.north = ""
-        self.south = ""
-        self.west = ""
-        self.east = ""
-        self.north_west = ""
-        self.north_east = ""
-        self.south_west = ""
-        self.south_east = ""
-        self.middle = ""
-        self.outer_part = ""
-        self.inner_part = ""
+        self.north = None
+        self.south = None
+        self.west = None
+        self.east = None
+        self.north_west = None
+        self.north_east = None
+        self.south_west = None
+        self.south_east = None
+        self.middle = None
+        self.outer_part = None
+        self.inner_part = None
 
         
