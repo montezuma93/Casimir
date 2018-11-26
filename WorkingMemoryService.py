@@ -266,7 +266,7 @@ class WorkingMemoryService:
         relation_list = []
         for smm in self.stored_smm:
             relation_for_list = {"north": smm.north, "south": smm.south, "west": smm.west, "east": smm.east, 
-            "northWest": smm.north_west, "northEast": smm.north_east, "southWest": smm.south_west, "southEast": smm.south_east,
+            "north-west": smm.north_west, "north-east": smm.north_east, "south-west": smm.south_west, "south-east": smm.south_east,
             "middle": smm.middle, "innerPart": smm.inner_part, "outerPart": smm.outer_part }
             relation_list.append(relation_for_list)
         return{

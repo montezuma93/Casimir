@@ -21,15 +21,17 @@ def cast_relation(relation):
      'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
 
-with open('test.csv', newline='') as csvfile:
+
+with open('spatial1_cobra.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
+    counter = 0
     for row in reader:
         iD = row['id']
         task = row['task']
         question = row['question']
         response = row['response']
         fragments_to_save  = task.split('/')
-        print(iD, "\n")
+        print(reader.line_num)
         for fragment_to_save in fragments_to_save:
             array_in_fragment = fragment_to_save.split(';')
             relation_in_fragment =array_in_fragment[0]
@@ -71,15 +73,33 @@ with open('test.csv', newline='') as csvfile:
         response_of_receive_call = requests.put(receive_url, data=question_json, headers={"Content-Type": "application/json", "Accept": "application/json"})
         response_in_json = response_of_receive_call.json()
         smm_list = response_in_json['smm']
-        print("simulation asnwer", "\n")
+        print("simulation answer", "\n")
+        smm_string_list = []
         for smm in smm_list:
-            print(clean_empty(smm))
+            clean_smm = clean_empty(smm)
+            keys = list(clean_smm)
+            keys.remove('middle')
+            smm_string = keys[0] + " " + clean_smm[keys[0]] + " " + clean_smm['middle']
+            smm_string_list.append(smm_string)
+            print(smm_string, "\n")
+
 
         response_array = response.split(";")
         relation_in_answer = response_array[0]
         object1_in_answer = response_array[1]
         object2_in_answer = response_array[2]
-        print("answer was:", relation_in_answer, object1_in_answer, object2_in_answer, "\n")
+        response_string = relation_in_answer + " " + object1_in_answer + " " + object2_in_answer
+        print("experiment answer", "\n")
+        print(response_string, "\n")
 
+    
+        for smm_string_in_list in smm_string_list:
+            if smm_string_in_list == response_string:
+                print("Answer was found by simulation", "\n")
+                counter = counter + 1
+
+        print("reset simulation -> next task", "\n")
         response_of_reset_call = requests.post(reset_url)
+
+    print("# right answers", counter, "\n")
         
