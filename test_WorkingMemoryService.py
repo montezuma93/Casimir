@@ -150,7 +150,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].north, "Hamburg")
         self.assertEqual(actual_smm_list[0].middle, "Freiburg")
-        self.assertEqual(actual_smm_list[0].south, "")
+        self.assertEqual(actual_smm_list[0].south, None)
 
     def test_create_smm_for_complete_intercardinal_relation(self):
         working_memory = WorkingMemoryService()
@@ -162,7 +162,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].south_west, "Freiburg")
         self.assertEqual(actual_smm_list[0].middle, "Prague")
-        self.assertEqual(actual_smm_list[0].south, "")
+        self.assertEqual(actual_smm_list[0].south, None)
 
     def test_create_smm_for_incomplete_relation_first_object(self):
         working_memory = WorkingMemoryService()
@@ -173,9 +173,9 @@ class TestLongTermMemory(unittest.TestCase):
         actual_smm_list = working_memory.stored_smm
 
         self.assertEquals(len(actual_smm_list), 1)
-        self.assertEqual(actual_smm_list[0].south_west, "")
+        self.assertEqual(actual_smm_list[0].south_west, None)
         self.assertEqual(actual_smm_list[0].middle, "Prague")
-        self.assertEqual(actual_smm_list[0].south, "")
+        self.assertEqual(actual_smm_list[0].south, None)
 
 
     def test_create_smm_for_incomplete_relation_second_object(self):
@@ -188,8 +188,8 @@ class TestLongTermMemory(unittest.TestCase):
 
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].north_east, "Freiburg")
-        self.assertEqual(actual_smm_list[0].middle, "")
-        self.assertEqual(actual_smm_list[0].south, "")
+        self.assertEqual(actual_smm_list[0].middle, None)
+        self.assertEqual(actual_smm_list[0].south, None)
 
     def test_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_complete(self):
         working_memory = WorkingMemoryService()
@@ -209,7 +209,7 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(actual_smm_list[0].east, "Berlin")
         self.assertEqual(actual_smm_list[0].middle, "Paris")
         self.assertEqual(actual_smm_list[0].north, "London")
-        self.assertEqual(actual_smm_list[1].north, "")
+        self.assertEqual(actual_smm_list[1].north, None)
         self.assertEqual(actual_smm_list[1].middle, "Hamburg")
         self.assertEqual(actual_smm_list[1].south, "Freiburg")
     
@@ -251,13 +251,13 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(len(actual_smm_list), 3)
         self.assertEqual(actual_smm_list[0].east, "Berlin")
         self.assertEqual(actual_smm_list[0].middle, "Paris")
-        self.assertEqual(actual_smm_list[0].north, "")
-        self.assertEqual(actual_smm_list[1].north, "")
+        self.assertEqual(actual_smm_list[0].north, None)
+        self.assertEqual(actual_smm_list[1].north, None)
         self.assertEqual(actual_smm_list[1].middle, "Paris")
         self.assertEqual(actual_smm_list[1].south, "Freiburg")
         self.assertEqual(actual_smm_list[2].north, "London")
-        self.assertEqual(actual_smm_list[2].middle, "")
-        self.assertEqual(actual_smm_list[2].south, "")
+        self.assertEqual(actual_smm_list[2].middle, None)
+        self.assertEqual(actual_smm_list[2].south, None)
 
 
     def test_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_incomplete_for_first_object(self):
@@ -278,10 +278,10 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(len(actual_smm_list), 3)
         self.assertEqual(actual_smm_list[0].east, "Berlin")
         self.assertEqual(actual_smm_list[0].middle, "Paris")
-        self.assertEqual(actual_smm_list[0].north, "")
-        self.assertEqual(actual_smm_list[1].north, "")
+        self.assertEqual(actual_smm_list[0].north, None)
+        self.assertEqual(actual_smm_list[1].north, None)
         self.assertEqual(actual_smm_list[1].middle, "Paris")
         self.assertEqual(actual_smm_list[1].south, "Freiburg")
-        self.assertEqual(actual_smm_list[2].north, "")
+        self.assertEqual(actual_smm_list[2].north, None)
         self.assertEqual(actual_smm_list[2].middle, "Paris")
-        self.assertEqual(actual_smm_list[2].south, "")
+        self.assertEqual(actual_smm_list[2].south, None)
