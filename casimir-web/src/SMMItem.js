@@ -6,15 +6,15 @@ class SMMItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            north: this.props.smm.north,
-            south: this.props.smm.south,
-            west: this.props.smm.west,
-            east: this.props.smm.east,
-            northEast: this.props.smm.northEast,
-            northWest: this.props.smm.northWest,
-            southEast: this.props.smm.southEast,
-            southWest: this.props.smm.southWest,
-            middle: this.props.smm.middle
+            north: this.props.smm.north ? this.props.smm.north : '',
+            south: this.props.smm.south ? this.props.smm.south : '',
+            west: this.props.smm.west ? this.props.smm.west : '',
+            east: this.props.smm.east ? this.props.smm.east : '',
+            northEast: this.props.smm.northEast ? this.props.smm.northEast : '',
+            northWest: this.props.smm.northWest ? this.props.smm.northWest : '',
+            southEast: this.props.smm.southEast ? this.props.smm.southEast : '',
+            southWest: this.props.smm.southWest ? this.props.smm.southWest : '',
+            middle: this.props.smm.middle ? this.props.smm.middle : ''
         }
     }
 

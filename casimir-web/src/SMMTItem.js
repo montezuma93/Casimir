@@ -6,8 +6,8 @@ class SMMTItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            outerPart: this.props.smm.outerPart,
-            innerPart: this.props.smm.innerPart
+            outerPart: this.props.smm.outerPart ? this.props.smm.outerPart : '',
+            innerPart: this.props.smm.innerPart ? this.props.smm.innerPart : ''
         }
     }
 

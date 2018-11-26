@@ -111,7 +111,7 @@ class Simulation extends React.Component {
   }
 
   mapToSMMComponent(singleSmm, id) {
-    if (singleSmm.outerPart !== "") {
+    if (singleSmm.outerPart !== null) {
       return (
         <SMMTItem key={id} smm={singleSmm} />
       );
