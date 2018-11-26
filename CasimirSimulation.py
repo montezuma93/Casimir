@@ -19,6 +19,10 @@ class CasimirSimulation(Resource):
          dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation)
         self.working_memory_controller.update_settings(use_only_complete_fragments)
 
+    def reset_simulation(self):
+        self.working_memory_controller.reset_simulation()
+        self.long_term_memory_controller.reset_simulation()
+
     def save_knowledge_fragment(self, relation, objects):
         self.long_term_memory_controller.save_knowledge_fragment(relation, objects)
 
@@ -54,11 +58,14 @@ def update_settings():
     noise_on = req_data['noise_on']
     spread_full_activation = req_data['spread_full_activation']
     use_only_complete_fragments = req_data['use_only_complete_fragments']
-    print(base_activation_decay)
 
     casimirSimulation.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
      dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments)
-    print(casimirSimulation.working_memory_controller.working_memory_service.USE_ONLY_COMPLETE_FRAGMENTS)
+    return 'settings_updated'
+
+@app.route("/reset_simulation", methods=['POST'])
+def reset_simulation():     
+    casimirSimulation.reset_simulation()
     return 'settings_updated'
 
 @app.route("/show_all_knowledge_fragments", methods=['GET'])

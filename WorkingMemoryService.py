@@ -15,6 +15,12 @@ class WorkingMemoryService:
         self.stored_smm = []
 
     """
+    Reset all stored smm
+    """
+    def reset_simulation(self):
+        self.stored_smm = []
+
+    """
     Update setting used in LTM calculations
 
     Parameters

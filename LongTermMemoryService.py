@@ -37,6 +37,24 @@ class LongTermMemoryService:
         self.stored_objects = OrderedDict()
 
     """
+    Reset and clean up simulation
+    """
+    def reset_simulation(self):
+        self.BASE_ACTIVATION_DECAY = -0.5
+        self.FRACTION_OF_ACTIVATION =  0.6
+        self.INITIAL_ACTIVATION_VALUE = 1
+        self.NOISE = 0.1
+        self.DYNAMIC_FIRING_THRESHOLD = True
+        self.FIRING_THRESHOLD = 0.01667
+        self.NOISE_ON = False
+        self.SPREAD_FULL_ACTIVATION = False
+        self.activation_spreading_in_progress = False
+        self.receive_knowledge_fragments_in_progress = False
+        self.time_since_initialization = 0
+        self.stored_relations = OrderedDict()
+        self.stored_objects = OrderedDict()
+
+    """
     Update setting used in LTM calculations
 
     Parameters
