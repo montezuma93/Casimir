@@ -13,6 +13,12 @@ class CasimirSimulation(Resource):
         self.long_term_memory_controller = LongTermMemoryController()
         self.working_memory_controller = WorkingMemoryController()
 
+    def update_settings(self, base_activation_decay, fraction_of_activation, initial_activation_value, noise,
+         dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments):
+        self.long_term_memory_controller.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
+         dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation)
+        self.working_memory_controller.update_settings(use_only_complete_fragments)
+
     def save_knowledge_fragment(self, relation, objects):
         self.long_term_memory_controller.save_knowledge_fragment(relation, objects)
 
@@ -35,6 +41,25 @@ def save_knowledge_fragment():
 
     casimirSimulation.save_knowledge_fragment(casted_relation, casted_objects)
     return 'saved'
+
+@app.route("/update_settings", methods=['POST'])
+def update_settings():     
+    req_data = request.get_json()
+    base_activation_decay = req_data['base_activation_decay']
+    fraction_of_activation = req_data['fraction_of_activation']
+    initial_activation_value = req_data['initial_activation_value']
+    noise = req_data['noise']
+    dynamic_firing_threshold = req_data['dynamic_firing_threshold']
+    firing_threshold = req_data['firing_threshold']
+    noise_on = req_data['noise_on']
+    spread_full_activation = req_data['spread_full_activation']
+    use_only_complete_fragments = req_data['use_only_complete_fragments']
+    print(base_activation_decay)
+
+    casimirSimulation.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
+     dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments)
+    print(casimirSimulation.working_memory_controller.working_memory_service.USE_ONLY_COMPLETE_FRAGMENTS)
+    return 'settings_updated'
 
 @app.route("/show_all_knowledge_fragments", methods=['GET'])
 def show_all_knowledge_fragments():

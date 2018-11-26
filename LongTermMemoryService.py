@@ -17,7 +17,6 @@ class LongTermMemoryService:
     FIRING_THRESHOLD = 0.01667
     #True
     NOISE_ON = False
-    RECEIVE_ONLY_COMPLETE_KNOWLEDGE_FRAGMENTS = False
     SPREAD_FULL_ACTIVATION = False
     #BASE_ACTIVATION_DECAY = -0.86
     #INITIAL_ACTIVATION_VALUE = 1.8
@@ -37,7 +36,47 @@ class LongTermMemoryService:
         self.stored_relations = OrderedDict()
         self.stored_objects = OrderedDict()
 
-    
+    """
+    Update setting used in LTM calculations
+
+    Parameters
+    ----------
+    param1 : float
+        should be between 0 and -1, used to calculate the forgetting process
+    param2 : float
+        should be between 0 and 1, used to calculate how much of the previous activation value is spread to the next nodes
+    param3 : float
+        should be positive, the activation value that is spread in the beginning of an activation spreading process
+    param4 : float
+        value is used to calculated the noise activation value that is added to the nodes
+    param5 : boolean
+        true if the firing_threshold should be calculated dynamically or it should use a fix value
+    param6 : float
+        should be a small value below 1, is just used if DYNAMIC_FIRING_THRESHOLD is set to false
+    param7 : boolean
+        true if noise activation should be calculated and added to a nodes activation
+    param8 : boolean
+        true if the initial activation value should be added to the concrete categories instead of splitting the value among them, by going through
+        the relation category
+    """
+    def update_settings(self, base_activation_decay, fraction_of_activation, initial_activation_value, noise,
+     dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation):
+        if(base_activation_decay != ''):
+            self.BASE_ACTIVATION_DECAY = base_activation_decay
+        if(fraction_of_activation != ''):
+            self.FRACTION_OF_ACTIVATION = fraction_of_activation
+        if(initial_activation_value != ''):
+            self.INITIAL_ACTIVATION_VALUE = initial_activation_value
+        if(noise != ''):
+            self.NOISE = noise
+        if(dynamic_firing_threshold != ''):
+            self.DYNAMIC_FIRING_THRESHOLD = dynamic_firing_threshold
+        if(firing_threshold != ''):
+            self.FIRING_THRESHOLD = firing_threshold
+        if(noise_on != ''):
+            self.NOISE_ON = noise_on
+        if(spread_full_activation != ''):
+            self.SPREAD_FULL_ACTIVATION = spread_full_activation
 
     """
     Stores knowledge_fragments in the LTM

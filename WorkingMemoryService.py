@@ -6,12 +6,25 @@ import logging
 class WorkingMemoryService:
 
     USE_ONLY_COMPLETE_FRAGMENTS = True
+
     def __init__(self):
         self.logger = logging.getLogger('LongTermMemory')
         self.logger.setLevel(logging.INFO)
         stream_handler = logging.StreamHandler()
         self.logger.addHandler(stream_handler)
         self.stored_smm = []
+
+    """
+    Update setting used in LTM calculations
+
+    Parameters
+    ----------
+    param1 : boolean
+        true if just knowledge_fragments should be used, in that all objects were received
+    """
+    def update_settings(self, use_only_complete_fragments):
+        if use_only_complete_fragments != '':
+            self.USE_ONLY_COMPLETE_FRAGMENTS = use_only_complete_fragments
 
     """
     Construct SMM for received knowledge_subnet
