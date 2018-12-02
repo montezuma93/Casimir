@@ -428,12 +428,14 @@ class LongTermMemoryService:
         knowledge_subnets = []
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
+                #TODO Beautify
                 if(stored_relation.activation+0.0001 >= retrieval_threshold and self._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets, stored_relation)):
                     self._clean_up_retrieved_mark()
                     knowledge_subnets.append(self.create_knowledge_subnet_for_relation(stored_relation, retrieval_threshold))
         self.logger.info('Found %s knowledge subnets', len(knowledge_subnets))
         return knowledge_subnets
     
+    #TODO TESTS AND Comment
     def _clean_up_retrieved_mark(self):
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
@@ -516,6 +518,7 @@ class LongTermMemoryService:
                 for index, object_name in enumerate(relation.objects):
                     if relation.objects_received[index] == True:
                         object_to_add_eventually = self.stored_objects[object_name]
+                        #TODO Beautify
                         if (object_to_add_eventually.activation+0.1 >= retrieval_threshold):
                             
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
@@ -562,6 +565,7 @@ class LongTermMemoryService:
         for object_name in knowledge_subnet.objects.keys():
             for relation_link in self.stored_objects[object_name].relation_links:
                 relation_to_add_eventually = self.stored_relations[relation_link[0]][relation_link[1]]
+                #TODO Beautify
                 if(relation_to_add_eventually.activation+0.0001 >= retrieval_threshold):
                     self._add_relations_to_knowledge_subnet(relation_to_add_eventually, knowledge_subnet)
 
