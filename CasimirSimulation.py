@@ -1,5 +1,7 @@
 from LongTermMemoryController import LongTermMemoryController
+from LongTermMemoryService import StoredObject
 from WorkingMemoryController import WorkingMemoryController
+from Object import CityObject, CountryObject, ContinentObject
 import json
 from Relation import *
 from Object import CityObject, ObjectType, CountryObject, ContinentObject
@@ -30,8 +32,37 @@ class CasimirSimulation(Resource):
         return self.long_term_memory_controller.show_all_knowledge_fragments()
 
     def create_mental_image(self, context_array):
+        object_name_list = []
+        for node in context_array:
+            print("here")
+            if type(node) is CityObject or type(node) is CountryObject or type(node) is ContinentObject:
+                print("isType")
+                object_name_list.append(node.name)
+
         knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
+        counter = 0
+        added_context = True
+        while(not self._received_all_necessary_nodes(object_name_list, knowledge_subnet) and added_context == True):
+            added_context = False
+            counter = counter + 1
+            objects_context_array = []
+            for node in context_array:
+                if type(node) is StoredObject:
+                    objects_context_array.append(node)
+            print("retry")
+            for object_name, concrete_object in knowledge_subnet.objects.items():
+                if (not [concrete_object.name for concrete_object in objects_context_array].__contains__(object_name)):
+                    added_context = True
+                    context_array.append(cast_object(concrete_object.stored_object.object_type.value, object_name))
+            knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
         return self.working_memory_controller.construction(knowledge_subnet, context_array)
+
+    def _received_all_necessary_nodes(self, objects_to_receive, knowledge_subnet):
+        for object_to_receive in objects_to_receive:
+            if not knowledge_subnet.objects.__contains__(object_to_receive):
+                print("not all received")
+                return False
+        return True
 
 @app.route("/save_knowledge_fragment", methods=['POST'])
 def save_knowledge_fragment():     
@@ -98,6 +129,7 @@ def cast_relation_category(relation_category):
     return dictionary.get(relation_category,'Relation Category Not Found')
 
 def cast_object(object_type, name):
+    print(object_type)
     if object_type == "City":
         return CityObject(name)
     elif object_type == "Country":

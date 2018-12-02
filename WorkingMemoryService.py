@@ -5,7 +5,7 @@ import logging
 
 class WorkingMemoryService:
 
-    USE_ONLY_COMPLETE_FRAGMENTS = True
+    USE_ONLY_COMPLETE_FRAGMENTS = False
 
     def __init__(self):
         self.logger = logging.getLogger('LongTermMemory')
@@ -217,37 +217,69 @@ class WorkingMemoryService:
     """
     def add_to_smm(self, smm, relation):
         updated_smm = False
-        if(relation.relation.name.value == "North" and smm.north == None):
+        if(relation.relation.name.value == "North" and smm.north is None):
             if(relation.objects_received[0] == True):
                 smm.north = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "South" and smm.south == None):
+        elif(relation.relation.name.value == "North" and smm.north is not None and smm.outer_north is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_north = relation.objects[0]
+                updated_smm = True
+        elif(relation.relation.name.value == "South" and smm.south is None):
             if(relation.objects_received[0] == True):
                 smm.south = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "West" and smm.west == None):
+        elif(relation.relation.name.value == "South" and smm.south is not None and smm.outer_south is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_south = relation.objects[0]
+                updated_smm = True
+        elif(relation.relation.name.value == "West" and smm.west is None):
             if(relation.objects_received[0] == True):
                 smm.west = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "East" and smm.east ==None):
+        elif(relation.relation.name.value == "West" and smm.west is not None and smm.outer_west is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_west = relation.objects[0]
+                updated_smm = True
+        elif(relation.relation.name.value == "East" and smm.east is None):
             if(relation.objects_received[0] == True):
                 smm.east = relation.objects[0]
+                updated_smm = True
+        elif(relation.relation.name.value == "East" and smm.east is not None and smm.outer_east is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_east = relation.objects[0]
                 updated_smm = True
         elif(relation.relation.name.value == "NorthWest" and smm.north_west == None):
             if(relation.objects_received[0] == True):
                 smm.north_west = relation.objects[0]
                 updated_smm = True
+        elif(relation.relation.name.value == "NorthWest" and smm.north_west is not None and smm.outer_north_west is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_north_west = relation.objects[0]
+                updated_smm = True
         elif(relation.relation.name.value == "NorthEast" and smm.north_east ==None):
             if(relation.objects_received[0] == True):
                 smm.north_east = relation.objects[0]
+                updated_smm = True
+        elif(relation.relation.name.value == "NorthEast" and smm.north_east is not None and smm.outer_north_east is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_north_east = relation.objects[0]
                 updated_smm = True
         elif(relation.relation.name.value == "SouthWest" and smm.south_west == None):
             if(relation.objects_received[0] == True):
                 smm.south_west = relation.objects[0]
                 updated_smm = True
+        elif(relation.relation.name.value == "SouthWest" and smm.south_west is not None and smm.outer_south_west is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_south_west = relation.objects[0]
+                updated_smm = True
         elif(relation.relation.name.value == "SouthEast" and smm.south_east == None):
             if(relation.objects_received[0] == True):
                 smm.south_east = relation.objects[0]
+                updated_smm = True
+        elif(relation.relation.name.value == "SouthEast" and smm.south_east is not None and smm.outer_south_east is None):
+            if(relation.objects_received[0] == True):
+                smm.outer_south_east = relation.objects[0]
                 updated_smm = True
         if(updated_smm == False):
             self.create_new_smm(relation)
@@ -267,7 +299,10 @@ class WorkingMemoryService:
         for smm in self.stored_smm:
             relation_for_list = {"north": smm.north, "south": smm.south, "west": smm.west, "east": smm.east, 
             "north-west": smm.north_west, "north-east": smm.north_east, "south-west": smm.south_west, "south-east": smm.south_east,
-            "middle": smm.middle, "innerPart": smm.inner_part, "outerPart": smm.outer_part }
+            "middle": smm.middle, "innerPart": smm.inner_part, "outerPart": smm.outer_part,
+            "outer-north": smm.outer_north, "outer-south": smm.outer_south, "outer-west": smm.outer_west, "outer-east": smm.outer_east,
+            "outer-north-west": smm.outer_north_west, "outer-north-east": smm.outer_north_east, 
+            "outer-south-west": smm.outer_south_west, "outer-south-east": smm.outer_south_east }
             relation_list.append(relation_for_list)
         return{
             "smm": relation_list
@@ -276,13 +311,21 @@ class WorkingMemoryService:
 class SMM():
     def __init__(self):
         self.north = None
+        self.outer_north = None
         self.south = None
+        self.outer_south = None
         self.west = None
+        self.outer_west = None
         self.east = None
+        self.outer_east = None
         self.north_west = None
+        self.outer_north_west = None
         self.north_east = None
+        self.outer_north_east = None
         self.south_west = None
+        self.outer_south_west = None
         self.south_east = None
+        self.outer_south_east = None
         self.middle = None
         self.outer_part = None
         self.inner_part = None

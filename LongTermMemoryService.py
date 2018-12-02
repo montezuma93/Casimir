@@ -177,6 +177,7 @@ class LongTermMemoryService:
         if not knowledge_subnets:
             return None
         most_activated_knowledge_fragment = self.get_most_activated_knowledge_subnet(knowledge_subnets)
+        self.mark_received_nodes_for_activated_knowledge_fragment(most_activated_knowledge_fragment)
         self.add_usage_for_activated_knowledge_fragments(most_activated_knowledge_fragment)
         return most_activated_knowledge_fragment
     
@@ -394,13 +395,15 @@ class LongTermMemoryService:
             for stored_relation in stored_relations:
                 self.logger.info('Activation value of relation for type: %s, and name: %s is %s',
                  stored_relation.relation.relation_type, stored_relation.relation.name, stored_relation.activation)
-                amount_of_nodes += 1
-                retrieval_threshold += stored_relation.activation
+                if not stored_relation.is_received:
+                    amount_of_nodes += 1
+                    retrieval_threshold += stored_relation.activation
         for object_name, stored_object in self.stored_objects.items():
             self.logger.info('Activation value of object with name: %s is %s',
                  object_name, stored_object.activation)
-            amount_of_nodes += 1
-            retrieval_threshold += stored_object.activation
+            if not stored_object.is_received:
+                amount_of_nodes += 1
+                retrieval_threshold += stored_object.activation
         if amount_of_nodes == 0:
             return None
         threshold = (retrieval_threshold / amount_of_nodes)
@@ -425,7 +428,7 @@ class LongTermMemoryService:
         knowledge_subnets = []
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
-                if(stored_relation.activation > retrieval_threshold and self._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets, stored_relation)):
+                if(stored_relation.activation+0.0001 >= retrieval_threshold and self._relation_not_yet_used_in_knowledge_subnet(knowledge_subnets, stored_relation)):
                     self._clean_up_retrieved_mark()
                     knowledge_subnets.append(self.create_knowledge_subnet_for_relation(stored_relation, retrieval_threshold))
         self.logger.info('Found %s knowledge subnets', len(knowledge_subnets))
@@ -513,7 +516,7 @@ class LongTermMemoryService:
                 for index, object_name in enumerate(relation.objects):
                     if relation.objects_received[index] == True:
                         object_to_add_eventually = self.stored_objects[object_name]
-                        if (object_to_add_eventually.activation > retrieval_threshold):
+                        if (object_to_add_eventually.activation+0.1 >= retrieval_threshold):
                             
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
                         else:
@@ -559,7 +562,7 @@ class LongTermMemoryService:
         for object_name in knowledge_subnet.objects.keys():
             for relation_link in self.stored_objects[object_name].relation_links:
                 relation_to_add_eventually = self.stored_relations[relation_link[0]][relation_link[1]]
-                if(relation_to_add_eventually.activation > retrieval_threshold):
+                if(relation_to_add_eventually.activation+0.0001 >= retrieval_threshold):
                     self._add_relations_to_knowledge_subnet(relation_to_add_eventually, knowledge_subnet)
 
     """
@@ -630,6 +633,16 @@ class LongTermMemoryService:
         for object_name in knowledge_subnet.objects.keys():
             self.stored_objects[object_name].usages.append(self.time_since_initialization)
 
+    #TODO Test and Comment
+    def mark_received_nodes_for_activated_knowledge_fragment(self, knowledge_subnet):
+        if not knowledge_subnet:
+            return
+        for relations in knowledge_subnet.relations.values():
+            for relation in relations:
+                relation.is_received = True        
+        for object_name in knowledge_subnet.objects.keys():
+            self.stored_objects[object_name].is_received = True
+
     """
     Get all nodes (relations and objects and their relationsship)
     (Just for demo and debugging or to know more about the actual activation values a
@@ -690,6 +703,7 @@ class StoredRelation():
         self.is_active = False
         self.usages = [time_of_creation]
         self.is_complete = None
+        self.is_received = False
 
 class StoredObject():
     def __init__(self, stored_object, time_of_creation):
@@ -701,4 +715,5 @@ class StoredObject():
         self.activation = 0
         self.activation_to_update = 0
         self.usages = [time_of_creation]
+        self.is_received = False
 
