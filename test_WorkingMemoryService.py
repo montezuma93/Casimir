@@ -11,10 +11,6 @@ from LongTermMemoryService import StoredRelation
 
 class TestLongTermMemory(unittest.TestCase):
     
-    def test_working_memory(self):
-        working_memory = WorkingMemoryService()
-        WorkingMemoryService.RECEIVE_ONLINE_COMPLETE_FRAGMENTS = False
-    
     @patch('WorkingMemoryService.WorkingMemoryService.create_smm_json')
     @patch('WorkingMemoryService.WorkingMemoryService.add_relation_and_opposite_to_smm')
     @patch('WorkingMemoryService.WorkingMemoryService._relation_is_complete')

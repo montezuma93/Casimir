@@ -10,7 +10,8 @@ app = Flask(__name__)
 class TestCasimirSimulation(unittest.TestCase):
 
     def test_casimir_simulation_is_initialized_correctly(self):
-        
         casimir_simulation = CasimirSimulation(app)
+        self.assertIsNotNone(casimir_simulation.long_term_memory_controller)
+        self.assertIsNotNone(casimir_simulation.long_term_memory_controller)
 
         

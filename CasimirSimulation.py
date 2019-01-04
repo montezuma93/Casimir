@@ -34,9 +34,7 @@ class CasimirSimulation(Resource):
     def create_mental_image(self, context_array):
         object_name_list = []
         for node in context_array:
-            print("here")
             if type(node) is CityObject or type(node) is CountryObject or type(node) is ContinentObject:
-                print("isType")
                 object_name_list.append(node.name)
 
         knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
@@ -49,7 +47,6 @@ class CasimirSimulation(Resource):
             for node in context_array:
                 if type(node) is StoredObject:
                     objects_context_array.append(node)
-            print("retry")
             for object_name, concrete_object in knowledge_subnet.objects.items():
                 if (not [concrete_object.name for concrete_object in objects_context_array].__contains__(object_name)):
                     added_context = True
@@ -60,7 +57,6 @@ class CasimirSimulation(Resource):
     def _received_all_necessary_nodes(self, objects_to_receive, knowledge_subnet):
         for object_to_receive in objects_to_receive:
             if not knowledge_subnet.objects.__contains__(object_to_receive):
-                print("not all received")
                 return False
         return True
 
@@ -129,7 +125,6 @@ def cast_relation_category(relation_category):
     return dictionary.get(relation_category,'Relation Category Not Found')
 
 def cast_object(object_type, name):
-    print(object_type)
     if object_type == "City":
         return CityObject(name)
     elif object_type == "Country":
