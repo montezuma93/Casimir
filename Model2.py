@@ -136,7 +136,8 @@ def run(item):
     #print(simulation_response_of_task)
     #print("reset simulation -> next task", "\n")
     response_of_reset_call = requests.post(reset_url)
-    return(simulation_response_of_task)
+    print(simulation_response_of_task)
+    return simulation_response_of_task
 
 '''
 Prefers stumpfe traingles as well as not main cardinal directions
