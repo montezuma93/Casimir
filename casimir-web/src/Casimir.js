@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Adder from './Adder'
 import Simulation from './Simulation'
 

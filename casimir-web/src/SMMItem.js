@@ -1,6 +1,5 @@
 import React from 'react';
 import { ImageBackground, Text } from 'react-native';
-import ReactDOM from 'react-dom';
 
 class SMMItem extends React.Component {
     constructor(props) {

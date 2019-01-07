@@ -18,7 +18,7 @@ export default class FormDialog extends React.Component {
   state = {
     open: false,
     base_activation_decay: -0.5,
-    fraction_of_activation: 6,
+    fraction_of_activation: 0.6,
     initial_activation_value: 1,
     noise: 0.1,
     dynamic_firing_threshold: true,

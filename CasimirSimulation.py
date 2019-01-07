@@ -81,12 +81,12 @@ def reset_simulation():
 @app.route("/create_mental_image" , methods=['PUT'])   
 def create_mental_image():
     req_data = request.get_json()
-    base_activation_decay = req_data['base_activation_decay']
-    fraction_of_activation = req_data['fraction_of_activation']
-    initial_activation_value = req_data['initial_activation_value']
-    noise = req_data['noise']
+    base_activation_decay = float(req_data['base_activation_decay'])
+    fraction_of_activation = float(req_data['fraction_of_activation'])
+    initial_activation_value = float(req_data['initial_activation_value'])
+    noise = float(req_data['noise'])
     dynamic_firing_threshold = req_data['dynamic_firing_threshold']
-    firing_threshold = req_data['firing_threshold']
+    firing_threshold = float(req_data['firing_threshold'])
     noise_on = req_data['noise_on']
     spread_full_activation = req_data['spread_full_activation']
     use_only_complete_fragments = req_data['use_only_complete_fragments']
