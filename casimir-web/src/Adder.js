@@ -55,8 +55,6 @@ class Adder extends React.Component {
             <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{marginLeft:'2rem'}}/>
           </div>
           <Button onClick={this.onClick} variant="contained" title="Post Knowledge" style={{marginTop:'1rem', color:'#00BFFF'}}>Submit Data</Button>
-          <Button onClick={this.resetSimulation} variant="contained" title="Reset Simulation" style={{marginLeft:'3rem', marginTop:'1rem', color:'#8B0000'}}>
-            Reset Simulation</Button>
         </div>
       </div>
     );
@@ -85,19 +83,6 @@ class Adder extends React.Component {
         ]
       })
     });
-  }
-
-  resetSimulation = (e) => {
-    this.setState({objectName1: '',objectName2: ''})
-    return fetch('http://127.0.0.1:5000/reset_simulation', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-      })
-    });
-
   }
 
   onChange = (e) => {

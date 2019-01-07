@@ -1,6 +1,7 @@
 import React from 'react';
 import SMMItem from './SMMItem';
 import SMMTItem from './SMMTItem';
+import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import FormDialog from './FormDialog';
@@ -40,6 +41,8 @@ class Simulation extends React.Component {
 
     return (
       <div style={{marginLeft:'4rem', marginTop:'4rem'}}>
+          <Button onClick={this.resetSimulation} variant="contained" title="Reset Simulation" style={{marginBottom:'2rem', color:'#8B0000'}}>
+            Reset Simulation</Button>
         <h3>Starter</h3>
         <form onSubmit={this.onSubmit}>
           <div>
@@ -63,7 +66,6 @@ class Simulation extends React.Component {
             <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{marginLeft:'2rem'}}/>
           </div>
           <br />
-         
           <FormDialog data={this.state} setSMMs={this.handleSMMs} style={{height: '1000rem'}}/>
           <br />
         </form>
@@ -79,6 +81,19 @@ class Simulation extends React.Component {
 
   handleSMMs= (data) => {
     this.setState({smm: data.smm})
+  }
+
+  resetSimulation = (e) => {
+    this.setState({objectName1: '',objectName2: '', smm: []})
+    return fetch('http://127.0.0.1:5000/reset_simulation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+      })
+    });
+
   }
 
   onClick = (e) => {
