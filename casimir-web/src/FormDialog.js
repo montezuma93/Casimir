@@ -6,19 +6,26 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
+//BASE_ACTIVATION_DECAY = -0.2
+//INITIAL_ACTIVATION_VALUE = 0.8
+//BASE_ACTIVATION_DECAY = -0.86
+//INITIAL_ACTIVATION_VALUE = 1.8
 
 export default class FormDialog extends React.Component {
   state = {
     open: false,
-    base_activation_decay: 9,
-    fraction_of_activation: 2,
+    base_activation_decay: -0.5,
+    fraction_of_activation: 6,
     initial_activation_value: 1,
-    noise: 0.5,
-    dynamic_firing_threshold: 10,
-    firing_threshold:10,
-    noise_on: 0,
-    spread_full_activation:0,
-    use_only_complete_fragments:0
+    noise: 0.1,
+    dynamic_firing_threshold: true,
+    firing_threshold:0.01667,
+    noise_on: false,
+    spread_full_activation:false,
+    use_only_complete_fragments:false
   };
 
   render() {
@@ -82,16 +89,16 @@ export default class FormDialog extends React.Component {
               label="noise"
               fullWidth
             />
-            <TextField
-              autoFocus
-              margin="dense"
-              name="dynamic_firing_threshold"
-              ref="dynamic_firing_threshold"
-              value={this.state.dynamic_firing_threshold}
-              id="name"
-              onChange={this.onChange}
-              label="dynamic_firing_threshold"
-              fullWidth
+           <FormControlLabel
+            control={
+              <Switch
+              checked={this.state.dynamic_firing_threshold}
+              onChange={this.handleChange('dynamic_firing_threshold')}
+              value="dynamic_firing_threshold"
+              color="primary"
+            />
+            }
+            label="dynamic_firing_threshold"
             />
                         <TextField
               autoFocus
@@ -104,38 +111,40 @@ export default class FormDialog extends React.Component {
               label="firing_threshold"
               fullWidth
             />
-                        <TextField
-              autoFocus
-              margin="dense"
-              name="noise_on"
-              ref="noise_on"
-              value={this.state.noise_on}
-              id="name"
-              onChange={this.onChange}
+            <FormControlLabel
+            control={
+              <Switch
               label="noise_on"
-              fullWidth
+              ref="noise_on"
+              checked={this.state.noise_on}
+              onChange={this.handleChange('noise_on')}
+              value="noise_on"
+              color="primary"
             />
-                        <TextField
-              autoFocus
-              margin="dense"
-              name="spread_full_activation"
-              ref="spread_full_activation"
-              value={this.state.spread_full_activation}
-              id="name"
-              onChange={this.onChange}
-              label="spread_full_activation"
-              fullWidth
+            }
+            label="noise_on"
             />
-                                    <TextField
-              autoFocus
-              margin="dense"
-              name="use_only_complete_fragments"
-              ref="use_only_complete_fragments"
-              value={this.state.use_only_complete_fragments}
-              id="name"
-              onChange={this.onChange}
-              label="use_only_complete_fragments"
-              fullWidth
+            <FormControlLabel
+            control={
+              <Switch
+              checked={this.state.spread_full_activation}
+              onChange={this.handleChange('spread_full_activation')}
+              value="spread_full_activation"
+              color="primary"
+            />
+            }
+            label="spread_full_activation"
+            />
+             <FormControlLabel
+            control={
+              <Switch
+              checked={this.state.use_only_complete_fragments}
+              onChange={this.handleChange('use_only_complete_fragments')}
+              value="use_only_complete_fragments"
+              color="primary"
+            />
+            }
+            label="use_only_complete_fragments"
             />
           </DialogContent>
           <DialogActions>
@@ -154,10 +163,6 @@ export default class FormDialog extends React.Component {
   handleClickOpen = () => {
     this.setState({ open: true });
   };
-
-
-
-  
 
   handleClose = () => {
     this.setState({ open: false });
@@ -183,13 +188,25 @@ export default class FormDialog extends React.Component {
           "category": "RelationCategory",
           "type": this.props.data.relationCategory
         }
-        ]
+        ],
+        'base_activation_decay':this.state.base_activation_decay,
+        'fraction_of_activation':this.state.fraction_of_activation,
+        'initial_activation_value':this.state.initial_activation_value,
+        'noise':this.state.noise,
+        'dynamic_firing_threshold':this.state.dynamic_firing_threshold,
+        'firing_threshold':this.state.firing_threshold,
+        'noise_on':this.state.noise_on,
+        'spread_full_activation':this.state.spread_full_activation,
+        'use_only_complete_fragments':this.state.use_only_complete_fragments
       })
     })
       .then((response) => response.json())
       .then((data) => this.props.setSMMs(data));
   }
 
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.checked });
+  };
 
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });

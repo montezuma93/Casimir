@@ -55,31 +55,15 @@ class Adder extends React.Component {
             <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{marginLeft:'2rem'}}/>
           </div>
           <Button onClick={this.onClick} variant="contained" title="Post Knowledge" style={{marginTop:'1rem', color:'#00BFFF'}}>Submit Data</Button>
-        </div>
-        <div>
-          <Button onClick={this.getAllData} variant="contained" title="GetAllData" style={{marginTop:'1rem', color:'#00BFFF'}}>Get All Data</Button>
+          <Button onClick={this.resetSimulation} variant="contained" title="Reset Simulation" style={{marginLeft:'3rem', marginTop:'1rem', color:'#8B0000'}}>
+            Reset Simulation</Button>
         </div>
       </div>
     );
   }
-  getAllData = (e) => {
-    e.preventDefault();
-    const { objects, relations } = this.state;
-    return fetch('http://127.0.0.1:5000/show_all_knowledge_fragments', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-      .then((response) => response.json())
-      .then((data) => this.setState({
-        relations: data.relations,
-        objects: data.objects
-      }));
-  }
 
   onClick = (e) => {
+    this.setState({objectName1: '',objectName2: ''})
     const { relationName, objectCategory1, objectName1, objectCategory2, objectName2 } = this.state;
     console.log("submit")
     return fetch('http://127.0.0.1:5000/save_knowledge_fragment', {
@@ -99,6 +83,18 @@ class Adder extends React.Component {
             "type": objectCategory2,
           }
         ]
+      })
+    });
+  }
+
+  resetSimulation = (e) => {
+    this.setState({objectName1: '',objectName2: ''})
+    return fetch('http://127.0.0.1:5000/reset_simulation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
       })
     });
 

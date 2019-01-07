@@ -73,8 +73,13 @@ def save_knowledge_fragment():
     casimirSimulation.save_knowledge_fragment(casted_relation, casted_objects)
     return 'saved'
 
-@app.route("/update_settings", methods=['POST'])
-def update_settings():     
+@app.route("/reset_simulation", methods=['POST'])
+def reset_simulation():     
+    casimirSimulation.reset_simulation()
+    return 'settings_updated'
+
+@app.route("/create_mental_image" , methods=['PUT'])   
+def create_mental_image():
     req_data = request.get_json()
     base_activation_decay = req_data['base_activation_decay']
     fraction_of_activation = req_data['fraction_of_activation']
@@ -88,21 +93,7 @@ def update_settings():
 
     casimirSimulation.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
      dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments)
-    return 'settings_updated'
 
-@app.route("/reset_simulation", methods=['POST'])
-def reset_simulation():     
-    casimirSimulation.reset_simulation()
-    return 'settings_updated'
-
-@app.route("/show_all_knowledge_fragments", methods=['GET'])
-def show_all_knowledge_fragments():
-    all_fragments = casimirSimulation.long_term_memory_controller.show_all_knowledge_fragments()
-    return jsonify(all_fragments)
-
-@app.route("/create_mental_image" , methods=['PUT'])   
-def create_mental_image():
-    req_data = request.get_json()
     context_array = req_data['context']
     casted_context_array = []
     for context in context_array:

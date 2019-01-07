@@ -84,7 +84,6 @@ class Simulation extends React.Component {
     this.setState({smm: data.smm})
   }
 
-
   onClick = (e) => {
     e.preventDefault();
     const { relationCategory, objectCategory1, objectName1, objectCategory2, objectName2, objects, relations } = this.state;
