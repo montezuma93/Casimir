@@ -12,9 +12,9 @@ class Casimir extends React.Component {
 
     render() {
         return (
-            <div className="class">
+            <div className="class" style={{marginLeft:'10rem'}}>
             <h1>UI for Casimir Simulation</h1>
-            <Adder />
+            <Adder/>
             <Simulation/>
             </div>
         );

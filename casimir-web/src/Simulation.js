@@ -5,6 +5,8 @@ import SMMTItem from './SMMTItem';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { blue } from '@material-ui/core/colors';
+import FormDialog from './FormDialog';
 
 class Simulation extends React.Component {
   constructor(props) {
@@ -40,7 +42,7 @@ class Simulation extends React.Component {
     });
 
     return (
-      <div>
+      <div style={{marginLeft:'4rem', marginTop:'4rem'}}>
         <h3>Starter</h3>
         <form onSubmit={this.onSubmit}>
           <div>
@@ -49,25 +51,27 @@ class Simulation extends React.Component {
               {relationOptions}
             </Select>
           </div>
-          <div>
-            <label>Objects</label><br />
+          <div style={{marginTop:'1rem'}}>
+            <label>Object 1</label><br />
             <Select ref="objectCategory1" value={objectCategory1} onChange={this.onChange} name='objectCategory1'>
               {objectCategoriesOptions}
             </Select>
-            <TextField type="text" ref="objectName1" value={objectName1} onChange={this.onChange} name='objectName1' />
+            <TextField type="text" ref="objectName1" value={objectName1} onChange={this.onChange} name='objectName1' style={{marginLeft:'2rem'}} />
           </div>
-          <div>
-            <label>Objects</label><br />
+          <div style={{marginTop:'1rem'}}>
+            <label>Object 2</label><br />
             <Select ref="objectCategory2" value={objectCategory2} onChange={this.onChange} name='objectCategory2'>
               {objectCategoriesOptions}
             </Select>
-            <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' />
+            <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{marginLeft:'2rem'}}/>
           </div>
           <br />
-          <Button onClick={this.onClick} title="Start">Start</Button>
+         
+          <FormDialog data={this.state} setSMMs={this.handleSMMs} style={{height: '1000rem'}}/>
           <br />
         </form>
-        {SMMItems}
+        <div style={{display: 'inline-block'}}>{SMMItems}</div>
+
       </div>
     );
   }
@@ -75,6 +79,11 @@ class Simulation extends React.Component {
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   }
+
+  handleSMMs= (data) => {
+    this.setState({smm: data.smm})
+  }
+
 
   onClick = (e) => {
     e.preventDefault();
