@@ -27,7 +27,7 @@ export default class FormDialog extends React.Component {
     spread_full_activation:false,
     use_only_complete_fragments:false
   };
-
+  
   render() {
     return (
       <div>
@@ -53,7 +53,7 @@ export default class FormDialog extends React.Component {
               id="name"
               name="base_activation_decay"
               ref="base_activation_decay"
-              label="base_activation_decay"
+              label="Base activation decay (should be in between (-1,0)"
               fullWidth
             />
             <TextField
@@ -64,7 +64,7 @@ export default class FormDialog extends React.Component {
               name="fraction_of_activation"
               ref="fraction_of_activation"
               onChange={this.onChange}
-              label="fraction_of_activation"
+              label="Fraction of activation (should be in between (0,1)"
               fullWidth
             />
             <TextField
@@ -75,40 +75,7 @@ export default class FormDialog extends React.Component {
               value={this.state.initial_activation_value}
               id="name"
               onChange={this.onChange}
-              label="initial_activation_value"
-              fullWidth
-            />
-            <TextField
-              autoFocus
-              margin="dense"
-              name="noise"
-              ref="noise"
-              value={this.state.noise}
-              id="name"
-              onChange={this.onChange}
-              label="noise"
-              fullWidth
-            />
-           <FormControlLabel
-            control={
-              <Switch
-              checked={this.state.dynamic_firing_threshold}
-              onChange={this.handleChange('dynamic_firing_threshold')}
-              value="dynamic_firing_threshold"
-              color="primary"
-            />
-            }
-            label="dynamic_firing_threshold"
-            />
-                        <TextField
-              autoFocus
-              margin="dense"
-              name="firing_threshold"
-              ref="firing_threshold"
-              value={this.state.firing_threshold}
-              id="name"
-              onChange={this.onChange}
-              label="firing_threshold"
+              label="Initial activation value Should be a positive value (tested in range 0.1 to 10)"
               fullWidth
             />
             <FormControlLabel
@@ -118,33 +85,66 @@ export default class FormDialog extends React.Component {
               ref="noise_on"
               checked={this.state.noise_on}
               onChange={this.handleChange('noise_on')}
-              value="noise_on"
+              value="Noise enabled or disabled"
               color="primary"
             />
             }
-            label="noise_on"
+            label="Noise enabled or disabled"
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              name="noise"
+              ref="noise"
+              disabled = {(this.state.noise_on)? "" : "disabled"}
+              value={this.state.noise}
+              id="name"
+              onChange={this.onChange}
+              label="Noise disturb values"
+              fullWidth
+            />
+           <FormControlLabel
+            control={
+              <Switch
+              checked={this.state.dynamic_firing_threshold}
+              onChange={this.handleChange('dynamic_firing_threshold')}
+              color="primary"
+            />
+            }
+            label="Dynamic firing threshold or fix"
+            />
+                        <TextField
+              autoFocus
+              margin="dense"
+              name="firing_threshold"
+              ref="firing_threshold"
+              disabled = {(this.state.dynamic_firing_threshold)? "" : "disabled"}
+              value={this.state.firing_threshold}
+              id="name"
+              onChange={this.onChange}
+              label="Fix firing threshold"
+              fullWidth
             />
             <FormControlLabel
             control={
               <Switch
               checked={this.state.spread_full_activation}
               onChange={this.handleChange('spread_full_activation')}
-              value="spread_full_activation"
               color="primary"
             />
             }
-            label="spread_full_activation"
+            label="Enable if the full initial activation value should be spread to its childs"
             />
              <FormControlLabel
             control={
               <Switch
               checked={this.state.use_only_complete_fragments}
               onChange={this.handleChange('use_only_complete_fragments')}
-              value="use_only_complete_fragments"
+              value="Enable if you only want complete fragments to receive"
               color="primary"
             />
             }
-            label="use_only_complete_fragments"
+            label="Enable if you only want complete fragments to receive"
             />
           </DialogContent>
           <DialogActions>
