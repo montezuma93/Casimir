@@ -12,13 +12,13 @@ class WorkingMemoryService:
         self.logger.setLevel(logging.INFO)
         stream_handler = logging.StreamHandler()
         self.logger.addHandler(stream_handler)
-        self.stored_smm = []
+        self.stored_spatial_mental_models = []
 
     """
-    Reset all stored smm
+    Reset all stored spatial mental models
     """
     def reset_simulation(self):
-        self.stored_smm = []
+        self.stored_spatial_mental_models = []
 
     """
     Update setting used in LTM calculations
@@ -33,20 +33,20 @@ class WorkingMemoryService:
             self.USE_ONLY_COMPLETE_FRAGMENTS = use_only_complete_fragments
 
     """
-    Construct SMM for received knowledge_subnet
+    Construct SpatialMentalModel for received knowledge_subnet
 
     Parameters
     ------------
     param1: KnowledgeSubnet
-        knowledgeSubnet, for which a smm gets created
+        knowledgeSubnet, for which a spatial mental model gets created
 
     Returns
     ------------
     JsonObject
-        returns a created smm based on the received knowledge_subnet
+        returns a created spatial mental model based on the received knowledge_subnet
     """
     def construction(self, knowledge_subnet):
-        self.stored_smm = []
+        self.stored_spatial_mental_models = []
         self.logger.info('Construction request')
         if knowledge_subnet:
             for relations in knowledge_subnet.relations.values():
@@ -78,12 +78,12 @@ class WorkingMemoryService:
         return True 
 
     """
-    Use relation and its opposite to create or update smm 
+    Use relation and its opposite to create or update spatial mental model 
 
     Parameters
     ------------
     param1: StoredRelation
-        storedRelation, which gets used to create or update smm
+        storedRelation, which gets used to create or update spatial mental model
     """
     def add_relation_and_opposite_to_smm(self, relation):
         self.use_relation_for_smm(relation)
@@ -147,22 +147,22 @@ class WorkingMemoryService:
         i.e. partOf topological relation
     """
     def use_relation_for_smm(self, relation):
-        for smm in self.stored_smm:
+        for smm in self.stored_spatial_mental_models:
             if smm.middle == relation.objects[1] and relation.objects_received[1] == True and not relation.relation.name.value == "PartOf":
                 self.add_to_smm(smm, relation)
                 return
         self.create_new_smm(relation)
 
     """
-    Create new smm for given relation
+    Create new spatial mental model for given relation
 
     Parameters
     ------------
     param1: StoredRelation
-        storedRelation, for which a smm gets created and stored in WM
+        storedRelation, for which a spatial mental model gets created and stored in WM
     """
     def create_new_smm(self, relation):
-        smm_to_add = SMM()
+        smm_to_add = SpatialMentalModel()
         if(relation.relation.name.value == "North"):
             if(relation.objects_received[0] == True):
                 smm_to_add.north = relation.objects[0]
@@ -208,17 +208,17 @@ class WorkingMemoryService:
                 smm_to_add.inner_part = relation.objects[0]
             if(relation.objects_received[1] == True):
                 smm_to_add.outer_part = relation.objects[1]
-        self.stored_smm.append(smm_to_add)
+        self.stored_spatial_mental_models.append(smm_to_add)
 
     """
-    Add given relation to smm if possible otherwise create new
+    Add given relation to spatial mental model if possible otherwise create new
 
     Parameters
     ------------
-    param1: SMM
-        smm, to which relation should get added
+    param1: Spatial Mental Model
+        spatial mental model, to which relation should get added
     param2: StoredRelation
-        storedRelation, which should get added to smm
+        storedRelation, which should get added to spatial mental model
     """
     def add_to_smm(self, smm, relation):
         updated_smm = False
@@ -301,7 +301,7 @@ class WorkingMemoryService:
     def create_smm_json(self):
         self.logger.info("create json for stored smm")
         relation_list = []
-        for smm in self.stored_smm:
+        for smm in self.stored_spatial_mental_models:
             relation_for_list = {"north": smm.north, "south": smm.south, "west": smm.west, "east": smm.east, 
             "north-west": smm.north_west, "north-east": smm.north_east, "south-west": smm.south_west, "south-east": smm.south_east,
             "middle": smm.middle, "innerPart": smm.inner_part, "outerPart": smm.outer_part,
@@ -313,7 +313,7 @@ class WorkingMemoryService:
             "smm": relation_list
         }
 
-class SMM():
+class SpatialMentalModel():
     def __init__(self):
         self.north = None
         self.outer_north = None

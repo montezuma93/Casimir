@@ -6,7 +6,7 @@ from Relation import (EastCardinalRelation, NorthCardinalRelation, SouthCardinal
  PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName,
  NorthEastCardinalRelation, SouthWestCardinalRelation, RelationType, TopologicalRelationName)
 from Object import CityObject, CountryObject
-from WorkingMemoryService import WorkingMemoryService, SMM
+from WorkingMemoryService import WorkingMemoryService, SpatialMentalModel
 from LongTermMemoryService import StoredRelation
 
 class TestLongTermMemory(unittest.TestCase):
@@ -121,8 +121,6 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(opposite_relation.objects_received[0], True)
         self.assertEquals(opposite_relation.objects_received[1], False)
 
-
-
     def test_create_opposite_for_incomplete_cardinal_relation_and_second_object_not_received(self):
         working_memory = WorkingMemoryService()
         relation = StoredRelation(NorthEastCardinalRelation(), ["Berlin", "Freiburg"], 1)
@@ -141,7 +139,7 @@ class TestLongTermMemory(unittest.TestCase):
         relation = StoredRelation(NorthCardinalRelation(), ["Hamburg", "Freiburg"], 1)
 
         working_memory.create_new_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].north, "Hamburg")
@@ -153,7 +151,7 @@ class TestLongTermMemory(unittest.TestCase):
         relation = StoredRelation(SouthWestCardinalRelation(), ["Freiburg", "Prague"], 1)
 
         working_memory.create_new_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].south_west, "Freiburg")
@@ -166,13 +164,12 @@ class TestLongTermMemory(unittest.TestCase):
         relation.objects_received[0] = False
 
         working_memory.create_new_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].south_west, None)
         self.assertEqual(actual_smm_list[0].middle, "Prague")
         self.assertEqual(actual_smm_list[0].south, None)
-
 
     def test_create_smm_for_incomplete_relation_second_object(self):
         working_memory = WorkingMemoryService()
@@ -180,7 +177,7 @@ class TestLongTermMemory(unittest.TestCase):
         relation.objects_received[1] = False
 
         working_memory.create_new_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].north_east, "Freiburg")
@@ -191,15 +188,15 @@ class TestLongTermMemory(unittest.TestCase):
         working_memory = WorkingMemoryService()
         relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
 
-        smm1 = SMM()
+        smm1 = SpatialMentalModel()
         smm1.east = "Berlin"
         smm1.middle = "Paris"
-        smm2 = SMM()
+        smm2 = SpatialMentalModel()
         smm2.south = "Freiburg"
         smm2.middle = "Hamburg"
-        working_memory.stored_smm = [smm1, smm2]
+        working_memory.stored_spatial_mental_models = [smm1, smm2]
         working_memory.use_relation_for_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 2)
         self.assertEqual(actual_smm_list[0].east, "Berlin")
@@ -215,13 +212,13 @@ class TestLongTermMemory(unittest.TestCase):
         relation2 = StoredRelation(SouthWestCardinalRelation(), ["Madrid", "Paris"], 1)
 
 
-        smm = SMM()
+        smm = SpatialMentalModel()
         smm.east = "Berlin"
         smm.middle = "Paris"
-        working_memory.stored_smm = [smm]
+        working_memory.stored_spatial_mental_models = [smm]
         working_memory.use_relation_for_smm(relation)
         working_memory.use_relation_for_smm(relation2)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 1)
         self.assertEqual(actual_smm_list[0].east, "Berlin")
@@ -234,15 +231,15 @@ class TestLongTermMemory(unittest.TestCase):
         relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
         relation.objects_received[1] = False
 
-        smm1 = SMM()
+        smm1 = SpatialMentalModel()
         smm1.east = "Berlin"
         smm1.middle = "Paris"
-        smm2 = SMM()
+        smm2 = SpatialMentalModel()
         smm2.south = "Freiburg"
         smm2.middle = "Paris"
-        working_memory.stored_smm = [smm1, smm2]
+        working_memory.stored_spatial_mental_models = [smm1, smm2]
         working_memory.use_relation_for_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 3)
         self.assertEqual(actual_smm_list[0].east, "Berlin")
@@ -255,21 +252,20 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(actual_smm_list[2].middle, None)
         self.assertEqual(actual_smm_list[2].south, None)
 
-
     def test_use_relation_for_smm_if_suitable_smm_exists_in_wm_and_relation_is_incomplete_for_first_object(self):
         working_memory = WorkingMemoryService()
         relation = StoredRelation(NorthCardinalRelation(), ["London", "Paris"], 1)
         relation.objects_received[0] = False
 
-        smm1 = SMM()
+        smm1 = SpatialMentalModel()
         smm1.east = "Berlin"
         smm1.middle = "Paris"
-        smm2 = SMM()
+        smm2 = SpatialMentalModel()
         smm2.south = "Freiburg"
         smm2.middle = "Paris"
-        working_memory.stored_smm = [smm1, smm2]
+        working_memory.stored_spatial_mental_models = [smm1, smm2]
         working_memory.use_relation_for_smm(relation)
-        actual_smm_list = working_memory.stored_smm
+        actual_smm_list = working_memory.stored_spatial_mental_models
 
         self.assertEquals(len(actual_smm_list), 3)
         self.assertEqual(actual_smm_list[0].east, "Berlin")

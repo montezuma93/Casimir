@@ -11,7 +11,6 @@ from flask_restplus import Resource, Api, reqparse, Swagger,fields
 app = Flask(__name__)
 class CasimirSimulation(Resource):
 
-    
     """
     Initialize Casimir Simulation, with LongTermMemory and WorkingMemory
     Parameters
