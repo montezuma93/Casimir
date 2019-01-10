@@ -5,6 +5,8 @@ from flask import Flask, request, json, jsonify
 from flask_restplus import Resource, Api, reqparse, Swagger,fields
 from flask.views import View
 from mock import call, patch
+from Object import MiscellaneousObject
+from Relation import NorthCardinalRelation
 
 app = Flask(__name__)
 
@@ -44,3 +46,14 @@ class TestCasimirSimulation(unittest.TestCase):
 
         self.assertFalse(casimir_simulation.long_term_memory_controller.long_term_memory_service.stored_objects.__contains__("A"))
         self.assertFalse(casimir_simulation.working_memory_controller.working_memory_service.stored_spatial_mental_models.__contains__("SMM"))
+    
+    @patch('LongTermMemoryService.LongTermMemoryService.save_knowledge_fragment')
+    def test_save_knowledge_fragment_calling_the_correct_methods(self, mock_save_knowledge_fragment):
+        casimir_simulation = CasimirSimulation(app)
+        relation_to_save = NorthCardinalRelation()
+        object1_to_save = MiscellaneousObject("A")
+        object2_to_save = MiscellaneousObject("B")
+
+        casimir_simulation.save_knowledge_fragment(relation_to_save, [object1_to_save, object2_to_save])
+
+        mock_save_knowledge_fragment.assert_has_calls([call(relation_to_save, [object1_to_save, object2_to_save])])
