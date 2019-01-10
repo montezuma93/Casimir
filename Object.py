@@ -5,6 +5,7 @@ class ObjectType(Enum):
     City = "City"
     Country = "Country"
     Continent = "Continent"
+    Miscellaneous= "Miscellaneous"
 
 class Object(ABC):
 
@@ -30,6 +31,12 @@ class CountryObject(ObjectCategorie):
 
 class ContinentObject(ObjectCategorie):
     object_type = ObjectType.Continent
+
+    def __init__(self, name):
+        super().__init__(name)
+
+class MiscellaneousObject(ObjectCategorie):
+    object_type = ObjectType.Miscellaneous
 
     def __init__(self, name):
         super().__init__(name)

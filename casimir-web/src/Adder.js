@@ -19,7 +19,7 @@ class Adder extends React.Component {
 
   static defaultProps = {
     relations: ['South', 'North', 'East', 'West', 'NorthWest', 'NorthEast', 'SouthWest', 'SouthEast', 'PartOf'],
-    objectCategories: ['City', 'Country', 'Continent']
+    objectCategories: ['City', 'Country', 'Continent', 'Miscellaneous']
   }
 
   render() {
@@ -36,20 +36,20 @@ class Adder extends React.Component {
           <h3>Add KnowledgeFragment</h3>
           <div style={{ marginTop: '1rem' }}>
             <label>Relation</label><br />
-            <Select ref="relationName" value={relationName} onChange={this.onChange} name='relationName'>
+            <Select ref="relationName" value={relationName} onChange={this.onChange} name='relationName' style={{ width: '9rem' }}>
               {relationOptions}
             </Select>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <label>Object 1</label><br />
-            <Select ref="objectCategory1" value={objectCategory1} onChange={this.onChange} name='objectCategory1'>
+            <Select ref="objectCategory1" value={objectCategory1} onChange={this.onChange} name='objectCategory1' style={{ width: '9rem' }}>
               {objectCategoriesOptions}
             </Select>
             <TextField type="text" ref="objectName1" value={objectName1} onChange={this.onChange} name='objectName1' style={{ marginLeft: '2rem' }} />
           </div>
           <div style={{ marginTop: '1rem' }}>
             <label>Object 2</label><br />
-            <Select ref="objectCategory2" value={objectCategory2} onChange={this.onChange} name='objectCategory2'>
+            <Select ref="objectCategory2" value={objectCategory2} onChange={this.onChange} name='objectCategory2' style={{ width: '9rem' }}>
               {objectCategoriesOptions}
             </Select>
             <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{ marginLeft: '2rem' }} />

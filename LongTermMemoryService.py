@@ -655,41 +655,6 @@ class LongTermMemoryService:
         for object_name in knowledge_subnet.objects.keys():
             self.stored_objects[object_name].is_received = True
 
-    """
-    Get all nodes (relations and objects and their relationsship)
-    (Just for demo and debugging or to know more about the actual activation values a
-    node has in the moment)
-
-    Returns
-    ------------
-    Json
-        Json Object which contains all relations, objects and their activation values
-    """
-    def show_all_knowledge_fragments(self):
-        object_list = []
-        relation_list = []
-        for concrete_object in self.stored_objects.values():
-            object_for_list = {"name":concrete_object.stored_object.name,
-             "activation": concrete_object.activation}
-            object_list.append(object_for_list)
-        for stored_relations in self.stored_relations.values():
-            for stored_relation in stored_relations:
-                relation_for_list = {"category": stored_relation.relation.relation_type.value, 
-                "name": stored_relation.relation.name.value, 
-                "activation": stored_relation.activation, 
-                "objects": None}
-                object_of_relation_list = []
-                for concrete_object in stored_relation.objects:
-                    object_for_relation_list = {"name":concrete_object}
-                    object_of_relation_list.append(object_for_relation_list)
-                relation_for_list["objects"] = object_of_relation_list
-                relation_list.append(relation_for_list)    
-        return{
-            "retrival-threshold": self._calculate_retrieval_threshold(),
-            "objects": object_list,
-            "relations": relation_list
-        }
-
 class KnowledgeSubnet():
     def __init__(self, node_to_store):
         if(type(node_to_store) is StoredRelation):

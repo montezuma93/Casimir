@@ -20,7 +20,7 @@ class Simulation extends React.Component {
   }
   static defaultProps = {
     relationCategories: ['Cardinal', 'Topological'],
-    objectCategories: ['City', 'Country', 'Continent']
+    objectCategories: ['City', 'Country', 'Continent', 'Miscellaneous']
   }
 
   render() {
@@ -47,20 +47,20 @@ class Simulation extends React.Component {
         <form onSubmit={this.onSubmit}>
           <div>
             <label>RelationCategory</label><br />
-            <Select ref="relationCategory" value={relationCategory} onChange={this.onChange} name='relationCategory'>
+            <Select ref="relationCategory" value={relationCategory} onChange={this.onChange} name='relationCategory' style={{ width: '9rem' }}>
               {relationOptions}
             </Select>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <label>Object 1</label><br />
-            <Select ref="objectCategory1" value={objectCategory1} onChange={this.onChange} name='objectCategory1'>
+            <Select ref="objectCategory1" value={objectCategory1} onChange={this.onChange} name='objectCategory1' style={{ width: '9rem' }}>
               {objectCategoriesOptions}
             </Select>
             <TextField type="text" ref="objectName1" value={objectName1} onChange={this.onChange} name='objectName1' style={{ marginLeft: '2rem' }} />
           </div>
           <div style={{ marginTop: '1rem' }}>
             <label>Object 2</label><br />
-            <Select ref="objectCategory2" value={objectCategory2} onChange={this.onChange} name='objectCategory2'>
+            <Select ref="objectCategory2" value={objectCategory2} onChange={this.onChange} name='objectCategory2' style={{ width: '9rem' }}>
               {objectCategoriesOptions}
             </Select>
             <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{ marginLeft: '2rem' }} />

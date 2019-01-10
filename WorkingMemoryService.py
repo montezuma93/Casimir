@@ -162,8 +162,6 @@ class WorkingMemoryService:
         storedRelation, for which a smm gets created and stored in WM
     """
     def create_new_smm(self, relation):
-        import pprint
-        pprint.pprint(relation)
         smm_to_add = SMM()
         if(relation.relation.name.value == "North"):
             if(relation.objects_received[0] == True):

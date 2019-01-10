@@ -1,48 +1,99 @@
 from LongTermMemoryController import LongTermMemoryController
 from LongTermMemoryService import StoredObject
 from WorkingMemoryController import WorkingMemoryController
-from Object import CityObject, CountryObject, ContinentObject
+from Object import CityObject, CountryObject, ContinentObject, ObjectType
+from Object import  MiscellaneousObject
 import json
 from Relation import *
-from Object import CityObject, ObjectType, CountryObject, ContinentObject
 from flask import Flask, request, json, jsonify
 from flask_restplus import Resource, Api, reqparse, Swagger,fields
 
 app = Flask(__name__)
 class CasimirSimulation(Resource):
 
+    
+    """
+    Initialize Casimir Simulation, with LongTermMemory and WorkingMemory
+    Parameters
+    """  
     def __init__(self, app):
         self.long_term_memory_controller = LongTermMemoryController()
         self.working_memory_controller = WorkingMemoryController()
 
+    """
+    Update setting used in LTM and WM
+    Parameters
+    ----------
+    param1 : float
+        should be between 0 and -1, used to calculate the forgetting process
+    param2 : float
+        should be between 0 and 1, used to calculate how much of the previous activation value is spread to the next nodes
+    param3 : float
+        should be positive, the activation value that is spread in the beginning of an activation spreading process
+    param4 : float
+        value is used to calculated the noise activation value that is added to the nodes
+    param5 : boolean
+        true if the firing_threshold should be calculated dynamically or it should use a fix value
+    param6 : float
+        should be a small value below 1, is just used if DYNAMIC_FIRING_THRESHOLD is set to false
+    param7 : boolean
+        true if noise activation should be calculated and added to a nodes activation
+    param8 : boolean
+        true if the initial activation value should be added to the concrete categories instead of splitting the value among them, by going through
+        the relation category
+    param9 : boolean
+        false if complete and incomplete knowledge_fragments can be received, false otherwise
+    """
     def update_settings(self, base_activation_decay, fraction_of_activation, initial_activation_value, noise,
          dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments):
         self.long_term_memory_controller.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
          dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation)
         self.working_memory_controller.update_settings(use_only_complete_fragments)
 
+    """
+    Reset simulation, clearing LongTermMemory and WorkingMemory
+    """
     def reset_simulation(self):
         self.working_memory_controller.reset_simulation()
         self.long_term_memory_controller.reset_simulation()
 
+    """
+    Stores knowledge_fragments in the LTM
+
+    Parameters
+    ----------
+    param1 : StoredRelation
+        StoredRelation, that should be saved
+    param2 : List of StoredObjects
+        StoredObjects, that should be saved
+    """
     def save_knowledge_fragment(self, relation, objects):
         self.long_term_memory_controller.save_knowledge_fragment(relation, objects)
+    
+    """
+    Create Spatial Mental Images and checks whether all from the contex wanted data, was received.
+    If not try again, with a new call to the LTM
 
-    def show_all_knowledge_fragments(self):
-        return self.long_term_memory_controller.show_all_knowledge_fragments()
+    Parameters
+    ----------
+    param1 : Array of Relations and Objects
+        Relation and Objects which should get received from LTM and create Spatial Mental Images
 
+    Returns
+    --------
+    SpatialMentalImages
+        Array of Json Formatted Spatial Mental Images
+    """
     def create_mental_image(self, context_array):
         object_name_list = []
         for node in context_array:
-            if type(node) is CityObject or type(node) is CountryObject or type(node) is ContinentObject:
+            if type(node) is CityObject or type(node) is CountryObject or type(node) is ContinentObject or type(node) is MiscellaneousObject:
                 object_name_list.append(node.name)
 
         knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
-        counter = 0
         added_context = True
         while(not self._received_all_necessary_nodes(object_name_list, knowledge_subnet) and added_context == True):
             added_context = False
-            counter = counter + 1
             objects_context_array = []
             for node in context_array:
                 if type(node) is StoredObject:
@@ -54,6 +105,21 @@ class CasimirSimulation(Resource):
             knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
         return self.working_memory_controller.construction(knowledge_subnet, context_array)
 
+    """
+    Checks if all data, was received based on the context array
+
+    Parameters
+    ----------
+    param1 : Array of Relations and Objects
+        Relation and Objects which should get received from LTM
+    param2 : KnowledgeSubnet
+        The knowledge subnet received from the LTM
+
+    Returns
+    --------
+    boolean
+        True if all nodes were received, false otherwise
+    """
     def _received_all_necessary_nodes(self, objects_to_receive, knowledge_subnet):
         for object_to_receive in objects_to_receive:
             if not knowledge_subnet.objects.__contains__(object_to_receive):
@@ -74,11 +140,11 @@ def save_knowledge_fragment():
     return 'saved'
 
 @app.route("/reset_simulation", methods=['POST'])
-def reset_simulation():     
+def reset_simulation():
     casimirSimulation.reset_simulation()
-    return 'settings_updated'
+    return 'Simulation reseted'
 
-@app.route("/create_mental_image" , methods=['PUT'])   
+@app.route("/create_mental_image" , methods=['PUT'])
 def create_mental_image():
     req_data = request.get_json()
     base_activation_decay = float(req_data['base_activation_decay'])
@@ -101,7 +167,6 @@ def create_mental_image():
             casted_context_array.append(cast_relation_category(context["type"]))
         elif context["category"] == "Object":
             casted_context_array.append(cast_object(context["type"], context["name"]))
-
     mental_image = casimirSimulation.create_mental_image(casted_context_array)
     return jsonify(mental_image)
 
@@ -122,6 +187,8 @@ def cast_object(object_type, name):
         return CountryObject(name)
     elif object_type == "Continent":
         return ContinentObject(name)
+    elif object_type == "Miscellaneous":
+        return MiscellaneousObject(name)
 
 casimirSimulation = CasimirSimulation(app)
 
