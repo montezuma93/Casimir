@@ -162,6 +162,8 @@ class WorkingMemoryService:
         storedRelation, for which a smm gets created and stored in WM
     """
     def create_new_smm(self, relation):
+        import pprint
+        pprint.pprint(relation)
         smm_to_add = SMM()
         if(relation.relation.name.value == "North"):
             if(relation.objects_received[0] == True):
@@ -203,6 +205,11 @@ class WorkingMemoryService:
                 smm_to_add.south_east = relation.objects[0]
             if(relation.objects_received[1] == True):
                 smm_to_add.middle = relation.objects[1]
+        elif(relation.relation.name.value == "PartOf"):
+            if(relation.objects_received[0] == True):
+                smm_to_add.inner_part = relation.objects[0]
+            if(relation.objects_received[1] == True):
+                smm_to_add.outer_part = relation.objects[1]
         self.stored_smm.append(smm_to_add)
 
     """

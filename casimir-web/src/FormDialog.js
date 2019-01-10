@@ -22,12 +22,12 @@ export default class FormDialog extends React.Component {
     initial_activation_value: 1,
     noise: 0.1,
     dynamic_firing_threshold: true,
-    firing_threshold:0.01667,
+    firing_threshold: 0.01667,
     noise_on: false,
-    spread_full_activation:false,
-    use_only_complete_fragments:false
+    spread_full_activation: false,
+    use_only_complete_fragments: false
   };
-  
+
   render() {
     return (
       <div>
@@ -42,7 +42,7 @@ export default class FormDialog extends React.Component {
           <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Please set the settings for the simulation. 
+              Please set the settings for the simulation.
               If you don't want to change something, just use the default values.
             </DialogContentText>
             <TextField
@@ -79,46 +79,46 @@ export default class FormDialog extends React.Component {
               fullWidth
             />
             <FormControlLabel
-            control={
-              <Switch
-              label="noise_on"
-              ref="noise_on"
-              checked={this.state.noise_on}
-              onChange={this.handleChange('noise_on')}
-              value="Noise enabled or disabled"
-              color="primary"
-            />
-            }
-            label="Noise enabled or disabled"
+              control={
+                <Switch
+                  label="noise_on"
+                  ref="noise_on"
+                  checked={this.state.noise_on}
+                  onChange={this.handleChange('noise_on')}
+                  value="Noise enabled or disabled"
+                  color="primary"
+                />
+              }
+              label="Noise enabled or disabled"
             />
             <TextField
               autoFocus
               margin="dense"
               name="noise"
               ref="noise"
-              disabled = {(this.state.noise_on)? "" : "disabled"}
+              disabled={(this.state.noise_on) ? "" : "disabled"}
               value={this.state.noise}
               id="name"
               onChange={this.onChange}
               label="Noise disturb values"
               fullWidth
             />
-           <FormControlLabel
-            control={
-              <Switch
-              checked={this.state.dynamic_firing_threshold}
-              onChange={this.handleChange('dynamic_firing_threshold')}
-              color="primary"
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={this.state.dynamic_firing_threshold}
+                  onChange={this.handleChange('dynamic_firing_threshold')}
+                  color="primary"
+                />
+              }
+              label="Dynamic firing threshold or fix"
             />
-            }
-            label="Dynamic firing threshold or fix"
-            />
-                        <TextField
+            <TextField
               autoFocus
               margin="dense"
               name="firing_threshold"
               ref="firing_threshold"
-              disabled = {(this.state.dynamic_firing_threshold)? "" : "disabled"}
+              disabled={(this.state.dynamic_firing_threshold) ? "" : "disabled"}
               value={this.state.firing_threshold}
               id="name"
               onChange={this.onChange}
@@ -126,25 +126,25 @@ export default class FormDialog extends React.Component {
               fullWidth
             />
             <FormControlLabel
-            control={
-              <Switch
-              checked={this.state.spread_full_activation}
-              onChange={this.handleChange('spread_full_activation')}
-              color="primary"
+              control={
+                <Switch
+                  checked={this.state.spread_full_activation}
+                  onChange={this.handleChange('spread_full_activation')}
+                  color="primary"
+                />
+              }
+              label="Enable if the full initial activation value should be spread to its childs"
             />
-            }
-            label="Enable if the full initial activation value should be spread to its childs"
-            />
-             <FormControlLabel
-            control={
-              <Switch
-              checked={this.state.use_only_complete_fragments}
-              onChange={this.handleChange('use_only_complete_fragments')}
-              value="Enable if you only want complete fragments to receive"
-              color="primary"
-            />
-            }
-            label="Enable if you only want complete fragments to receive"
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={this.state.use_only_complete_fragments}
+                  onChange={this.handleChange('use_only_complete_fragments')}
+                  value="Enable if you only want complete fragments to receive"
+                  color="primary"
+                />
+              }
+              label="Enable if you only want complete fragments to receive"
             />
           </DialogContent>
           <DialogActions>
@@ -159,7 +159,7 @@ export default class FormDialog extends React.Component {
       </div>
     );
   }
-  
+
   handleClickOpen = () => {
     this.setState({ open: true });
   };
@@ -189,19 +189,19 @@ export default class FormDialog extends React.Component {
           "type": this.props.data.relationCategory
         }
         ],
-        'base_activation_decay':this.state.base_activation_decay,
-        'fraction_of_activation':this.state.fraction_of_activation,
-        'initial_activation_value':this.state.initial_activation_value,
-        'noise':this.state.noise,
-        'dynamic_firing_threshold':this.state.dynamic_firing_threshold,
-        'firing_threshold':this.state.firing_threshold,
-        'noise_on':this.state.noise_on,
-        'spread_full_activation':this.state.spread_full_activation,
-        'use_only_complete_fragments':this.state.use_only_complete_fragments
+        'base_activation_decay': this.state.base_activation_decay,
+        'fraction_of_activation': this.state.fraction_of_activation,
+        'initial_activation_value': this.state.initial_activation_value,
+        'noise': this.state.noise,
+        'dynamic_firing_threshold': this.state.dynamic_firing_threshold,
+        'firing_threshold': this.state.firing_threshold,
+        'noise_on': this.state.noise_on,
+        'spread_full_activation': this.state.spread_full_activation,
+        'use_only_complete_fragments': this.state.use_only_complete_fragments
       })
     })
       .then((response) => response.json())
-      .then((data) => this.props.setSMMs(data));
+      .then((data) => this.props.setSpatialMentalModels(data));
   }
 
   handleChange = name => event => {

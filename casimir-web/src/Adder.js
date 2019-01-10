@@ -31,37 +31,37 @@ class Adder extends React.Component {
       return <option key={category} value={category}>{category}</option>
     });
     return (
-      <div style={{marginLeft:'4rem'}}>
+      <div style={{ marginLeft: '4rem' }}>
         <div>
           <h3>Add KnowledgeFragment</h3>
-          <div style={{marginTop:'1rem'}}>
+          <div style={{ marginTop: '1rem' }}>
             <label>Relation</label><br />
             <Select ref="relationName" value={relationName} onChange={this.onChange} name='relationName'>
               {relationOptions}
             </Select>
           </div>
-          <div style={{marginTop:'1rem'}}>
+          <div style={{ marginTop: '1rem' }}>
             <label>Object 1</label><br />
             <Select ref="objectCategory1" value={objectCategory1} onChange={this.onChange} name='objectCategory1'>
               {objectCategoriesOptions}
             </Select>
-            <TextField type="text" ref="objectName1" value={objectName1} onChange={this.onChange} name='objectName1' style={{marginLeft:'2rem'}}/>
+            <TextField type="text" ref="objectName1" value={objectName1} onChange={this.onChange} name='objectName1' style={{ marginLeft: '2rem' }} />
           </div>
-          <div style={{marginTop:'1rem'}}>
+          <div style={{ marginTop: '1rem' }}>
             <label>Object 2</label><br />
             <Select ref="objectCategory2" value={objectCategory2} onChange={this.onChange} name='objectCategory2'>
               {objectCategoriesOptions}
             </Select>
-            <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{marginLeft:'2rem'}}/>
+            <TextField type="text" ref="objectName2" value={objectName2} onChange={this.onChange} name='objectName2' style={{ marginLeft: '2rem' }} />
           </div>
-          <Button onClick={this.onClick} variant="contained" title="Post Knowledge" style={{marginTop:'1rem', color:'#00BFFF'}}>Submit Data</Button>
+          <Button onClick={this.onClick} variant="contained" title="Post Knowledge" style={{ marginTop: '1rem', color: '#00BFFF' }}>Submit Data</Button>
         </div>
       </div>
     );
   }
 
   onClick = (e) => {
-    this.setState({objectName1: '',objectName2: ''})
+    this.setState({ objectName1: '', objectName2: '' })
     const { relationName, objectCategory1, objectName1, objectCategory2, objectName2 } = this.state;
     console.log("submit")
     return fetch('http://127.0.0.1:5000/save_knowledge_fragment', {

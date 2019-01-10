@@ -1,26 +1,26 @@
 import React from 'react';
 import { ImageBackground, Text } from 'react-native';
 
-class SMMItem extends React.Component {
+class CardinalSpatialMentalModelItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            north: this.props.smm.north ? this.props.smm.north : '',
-            south: this.props.smm.south ? this.props.smm.south : '',
-            west: this.props.smm.west ? this.props.smm.west : '',
-            east: this.props.smm.east ? this.props.smm.east : '',
-            northEast: this.props.smm.northEast ? this.props.smm.northEast : '',
-            northWest: this.props.smm.northWest ? this.props.smm.northWest : '',
-            southEast: this.props.smm.southEast ? this.props.smm.southEast : '',
-            southWest: this.props.smm.southWest ? this.props.smm.southWest : '',
-            middle: this.props.smm.middle ? this.props.smm.middle : ''
+            north: this.props.spatialMentalModel.north ? this.props.spatialMentalModel.north : '',
+            south: this.props.spatialMentalModel.south ? this.props.spatialMentalModel.south : '',
+            west: this.props.spatialMentalModel.west ? this.props.spatialMentalModel.west : '',
+            east: this.props.spatialMentalModel.east ? this.props.spatialMentalModel.east : '',
+            northEast: this.props.spatialMentalModel.northEast ? this.props.spatialMentalModel.northEast : '',
+            northWest: this.props.spatialMentalModel.northWest ? this.props.spatialMentalModel.northWest : '',
+            southEast: this.props.spatialMentalModel.southEast ? this.props.spatialMentalModel.southEast : '',
+            southWest: this.props.spatialMentalModel.southWest ? this.props.spatialMentalModel.southWest : '',
+            middle: this.props.spatialMentalModel.middle ? this.props.spatialMentalModel.middle : ''
         }
     }
 
     render() {
         return (
             <ImageBackground
-                source={require('./SMM.jpg')}
+                source={require('./CardinalSpatialMentalModel.jpg')}
                 style={{
                     height: 250,
                     width: 250,
@@ -28,7 +28,7 @@ class SMMItem extends React.Component {
                     top: 7,
                     left: 5
                 }}
-                >
+            >
                 <Text
                     style={{
                         fontWeight: 'bold',
@@ -45,7 +45,7 @@ class SMMItem extends React.Component {
                         fontWeight: 'bold',
                         color: 'black',
                         position: 'absolute',
-                        top: 172, 
+                        top: 172,
                         left: 125
                     }}
                 >
@@ -66,8 +66,8 @@ class SMMItem extends React.Component {
                     style={{
                         fontWeight: 'bold',
                         color: 'black',
-                        position: 'absolute', 
-                        top: 110, 
+                        position: 'absolute',
+                        top: 110,
                         left: 180
                     }}
                 >
@@ -133,4 +133,4 @@ class SMMItem extends React.Component {
     }
 }
 
-export default SMMItem;
+export default CardinalSpatialMentalModelItem;

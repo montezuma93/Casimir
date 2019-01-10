@@ -1,8 +1,7 @@
 import React from 'react';
 import { ImageBackground, Text } from 'react-native';
-import ReactDOM from 'react-dom';
 
-class SMMTItem extends React.Component {
+class TopologicalSpatialMentalModelItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -14,7 +13,7 @@ class SMMTItem extends React.Component {
     render() {
         return (
             <ImageBackground
-                source={require('./SMMTopology.jpg')}
+                source={require('./TopologicalSpatialMentalModel.jpg')}
                 style={{
                     height: 250,
                     width: 250,
@@ -28,7 +27,7 @@ class SMMTItem extends React.Component {
                         fontWeight: 'bold',
                         color: 'black',
                         position: 'relative',
-                        top: 25,
+                        top: 26,
                         left: 125
                     }}
                 >
@@ -39,8 +38,8 @@ class SMMTItem extends React.Component {
                         fontWeight: 'bold',
                         color: 'black',
                         position: 'relative',
-                        top: 125,
-                        left: 125
+                        top: 108,
+                        left: 122
                     }}
                 >
                     {this.state.innerPart}
@@ -50,4 +49,4 @@ class SMMTItem extends React.Component {
     }
 }
 
-export default SMMTItem;
+export default TopologicalSpatialMentalModelItem;
