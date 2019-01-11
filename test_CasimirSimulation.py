@@ -5,13 +5,14 @@ from flask import Flask, request, json, jsonify
 from flask_restplus import Resource, Api, reqparse, Swagger,fields
 from flask.views import View
 from mock import call, patch
-from Object import MiscellaneousObject
-from Relation import NorthCardinalRelation
+from Object import MiscellaneousObject, CityObject
+from LongTermMemoryService import KnowledgeSubnet
+from Relation import NorthCardinalRelation, SouthCardinalRelation, EastCardinalRelation, CardinalRelation, RelationType
 
 app = Flask(__name__)
 
 class TestCasimirSimulation(unittest.TestCase):
-
+    
     def test_casimir_simulation_is_initialized_correctly(self):
         casimir_simulation = CasimirSimulation(app)
         self.assertIsNotNone(casimir_simulation.long_term_memory_controller)
@@ -22,7 +23,7 @@ class TestCasimirSimulation(unittest.TestCase):
     def test_update_setting_call_the_correct_methods_in_controller(self, mock_ltm_controller_update_settings, mock_wm_controller_update_settings):
         casimir_simulation = CasimirSimulation(app)
 
-        casimir_simulation.update_settings(1, 2, 3, 4,True, 5, False, True, False)
+        casimir_simulation.update_settings(1, 2, 3, 4,True, 5, False, True, False, 3)
         
         mock_ltm_controller_update_settings.assert_has_calls([call(1, 2, 3, 4, True, 5, False, True)])
         mock_wm_controller_update_settings.assert_has_calls([call(False)])
@@ -32,7 +33,7 @@ class TestCasimirSimulation(unittest.TestCase):
     def test_update_setting_call_the_correct_methods_in_services(self, mock_ltm_service_update_settings, mock_wm_service_update_settings):
         casimir_simulation = CasimirSimulation(app)
 
-        casimir_simulation.update_settings(1, 2, 3, 4,True, 5, False, True, False)
+        casimir_simulation.update_settings(1, 2, 3, 4,True, 5, False, True, False, 3)
 
         mock_ltm_service_update_settings.assert_has_calls([call(1, 2, 3, 4, True, 5, False, True)])
         mock_wm_service_update_settings.assert_has_calls([call(False)])
@@ -57,3 +58,77 @@ class TestCasimirSimulation(unittest.TestCase):
         casimir_simulation.save_knowledge_fragment(relation_to_save, [object1_to_save, object2_to_save])
 
         mock_save_knowledge_fragment.assert_has_calls([call(relation_to_save, [object1_to_save, object2_to_save])])
+    
+
+    @patch('CasimirSimulation.CasimirSimulation._received_all_necessary_nodes')
+    @patch('LongTermMemoryController.LongTermMemoryController.receive_knowledge_fragments')
+    def test_create_mental_image_call_the_correct_methods(self, mock_receive_knowledge_fragments, mock_received_all_necessary_nodes):
+        casimir_simulation = CasimirSimulation(app)
+        casimir_simulation.MAX_AMOUNT_OF_RETRIES = 3
+        paris_city_object = CityObject("Paris")
+        prague_city_object = CityObject("Prague")
+        london_city_object = CityObject("London")
+        south_cardinal_relation = SouthCardinalRelation()
+        east_cardinal_relation = EastCardinalRelation()
+        casimir_simulation.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
+        casimir_simulation.save_knowledge_fragment(east_cardinal_relation, [prague_city_object, paris_city_object])
+        mock_receive_knowledge_fragments.side_effect = [KnowledgeSubnet(casimir_simulation.long_term_memory_controller.
+          long_term_memory_service.stored_relations[RelationType.CardinalRelation][0]), KnowledgeSubnet(casimir_simulation.long_term_memory_controller.
+          long_term_memory_service.stored_relations[RelationType.CardinalRelation][1])]
+        mock_received_all_necessary_nodes.side_effect = [False, True]
+
+        casimir_simulation.create_mental_image([CardinalRelation, [paris_city_object, london_city_object]])
+
+        self.assertEqual(mock_received_all_necessary_nodes.call_count, 2)
+
+
+    def test_get_all_objects_names_in_context_array(self):
+        casimir_simulation = CasimirSimulation(app)
+        paris_city_object = CityObject("Paris")
+        london_city_object = CityObject("London")
+        context_array = [CardinalRelation, paris_city_object, london_city_object]
+
+        object_name_list = casimir_simulation._get_all_objects_names_in_context_array(context_array)
+        self.assertEquals(object_name_list[0], "Paris")
+        self.assertEquals(object_name_list[1], "London")
+
+    def test_received_all_necessary_nodes_should_return_true(self):
+        casimir_simulation = CasimirSimulation(app)
+        paris_city_object = CityObject("Paris")
+        prague_city_object = CityObject("Prague")
+        london_city_object = CityObject("London")
+        south_cardinal_relation = SouthCardinalRelation()
+        east_cardinal_relation = EastCardinalRelation()
+        casimir_simulation.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
+        casimir_simulation.save_knowledge_fragment(east_cardinal_relation, [prague_city_object, paris_city_object])
+        objects_to_receive = ["Paris", "London"]
+        knowledge_subnet = KnowledgeSubnet(casimir_simulation.long_term_memory_controller.
+          long_term_memory_service.stored_objects["Paris"])
+        knowledge_subnet.objects["London"] = london_city_object
+
+        self.assertTrue(casimir_simulation._received_all_necessary_nodes(objects_to_receive, knowledge_subnet))
+    
+    def test_received_all_necessary_nodes_should_return_false(self):
+        casimir_simulation = CasimirSimulation(app)
+        paris_city_object = CityObject("Paris")
+        prague_city_object = CityObject("Prague")
+        london_city_object = CityObject("London")
+        south_cardinal_relation = SouthCardinalRelation()
+        east_cardinal_relation = EastCardinalRelation()
+        casimir_simulation.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
+        casimir_simulation.save_knowledge_fragment(east_cardinal_relation, [prague_city_object, paris_city_object])
+        objects_to_receive = ["Paris", "London"]
+        
+        knowledge_subnet = KnowledgeSubnet(casimir_simulation.long_term_memory_controller.
+          long_term_memory_service.stored_objects["Paris"])
+        knowledge_subnet.objects["Prague"] = prague_city_object
+
+        self.assertFalse(casimir_simulation._received_all_necessary_nodes(objects_to_receive, knowledge_subnet))
+
+    def test_received_all_necessary_nodes_if_received_knowledge_subnet_is_none(self):
+        casimir_simulation = CasimirSimulation(app)
+        objects_to_receive = ["Paris", "London"]   
+        knowledge_subnet = None
+
+        self.assertFalse(casimir_simulation._received_all_necessary_nodes(objects_to_receive, knowledge_subnet))
+    

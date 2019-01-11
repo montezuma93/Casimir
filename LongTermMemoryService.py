@@ -425,7 +425,6 @@ class LongTermMemoryService:
     List of KnowledgeSubnet, can be empty
     """
     def get_knowledge_subnets(self, retrieval_threshold):
-        
         knowledge_subnets = []
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
@@ -520,9 +519,7 @@ class LongTermMemoryService:
                 for index, object_name in enumerate(relation.objects):
                     if relation.objects_received[index] == True:
                         object_to_add_eventually = self.stored_objects[object_name]
-                        #TODO Beautify
-                        if (object_to_add_eventually.activation+0.1 >= retrieval_threshold):
-                            
+                        if (object_to_add_eventually.activation + 0.1 >= retrieval_threshold):
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
                         else:
                             relation.objects_received[index] = False

@@ -25,7 +25,8 @@ export default class FormDialog extends React.Component {
     firing_threshold: 0.01667,
     noise_on: false,
     spread_full_activation: false,
-    use_only_complete_fragments: false
+    use_only_complete_fragments: false,
+    max_amount_of_retries: 3
   };
 
   render() {
@@ -146,6 +147,17 @@ export default class FormDialog extends React.Component {
               }
               label="Enable if you only want complete fragments to receive"
             />
+            <TextField
+              autoFocus
+              margin="dense"
+              name="max_amount_of_retries"
+              ref="max_amount_of_retries"
+              value={this.state.max_amount_of_retries}
+              id="name"
+              onChange={this.onChange}
+              label="Amount of retry calls to the LTM in order to get all context nodes"
+              fullWidth
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">
@@ -197,7 +209,8 @@ export default class FormDialog extends React.Component {
         'firing_threshold': this.state.firing_threshold,
         'noise_on': this.state.noise_on,
         'spread_full_activation': this.state.spread_full_activation,
-        'use_only_complete_fragments': this.state.use_only_complete_fragments
+        'use_only_complete_fragments': this.state.use_only_complete_fragments,
+        'max_amount_of_retries': this.state.max_amount_of_retries
       })
     })
       .then((response) => response.json())

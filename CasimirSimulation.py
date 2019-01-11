@@ -11,11 +11,14 @@ from flask_restplus import Resource, Api, reqparse, Swagger,fields
 app = Flask(__name__)
 class CasimirSimulation(Resource):
 
+    MAX_AMOUNT_OF_RETRIES = 3
+
     """
     Initialize Casimir Simulation, with LongTermMemory and WorkingMemory
     Parameters
     """  
-    def __init__(self, app):
+    def __init__(self, app):   
+
         self.long_term_memory_controller = LongTermMemoryController()
         self.working_memory_controller = WorkingMemoryController()
 
@@ -44,7 +47,8 @@ class CasimirSimulation(Resource):
         false if complete and incomplete knowledge_fragments can be received, false otherwise
     """
     def update_settings(self, base_activation_decay, fraction_of_activation, initial_activation_value, noise,
-         dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments):
+         dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments, max_amount_of_retries):
+        self.MAX_AMOUNT_OF_RETRIES = max_amount_of_retries
         self.long_term_memory_controller.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
          dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation)
         self.working_memory_controller.update_settings(use_only_complete_fragments)
@@ -84,25 +88,41 @@ class CasimirSimulation(Resource):
         Array of Json Formatted Spatial Mental Images
     """
     def create_mental_image(self, context_array):
+        object_to_receive_name_list = self._get_all_objects_names_in_context_array(context_array)
+        knowledge_subnet = []
+        received_object_list = []
+        context_added = True
+        retries = 0
+        while(not self._received_all_necessary_nodes(object_to_receive_name_list, knowledge_subnet) and (context_added or retries < self.MAX_AMOUNT_OF_RETRIES )):
+            retries = retries + 1
+            context_added = False
+            knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
+            for object_name, concrete_object in knowledge_subnet.objects.items():
+                if (not received_object_list.__contains__(object_name)):
+                    context_added = True
+                    received_object_list.append(object_name)
+                    context_array.append(cast_object(concrete_object.stored_object.object_type.value, object_name))
+        return self.working_memory_controller.construction(knowledge_subnet, context_array)
+
+    """
+    Get all objects from context_array and returns them in an array
+
+    Parameters
+    ----------
+    param1 : Array of Relations and Objects
+        Relation and Objects
+
+    Returns
+    --------
+    List
+        List of the names of all objects in context array
+    """
+    def _get_all_objects_names_in_context_array(self, context_array):
         object_name_list = []
         for node in context_array:
             if type(node) is CityObject or type(node) is CountryObject or type(node) is ContinentObject or type(node) is MiscellaneousObject:
                 object_name_list.append(node.name)
-
-        knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
-        added_context = True
-        while(not self._received_all_necessary_nodes(object_name_list, knowledge_subnet) and added_context == True):
-            added_context = False
-            objects_context_array = []
-            for node in context_array:
-                if type(node) is StoredObject:
-                    objects_context_array.append(node)
-            for object_name, concrete_object in knowledge_subnet.objects.items():
-                if (not [concrete_object.name for concrete_object in objects_context_array].__contains__(object_name)):
-                    added_context = True
-                    context_array.append(cast_object(concrete_object.stored_object.object_type.value, object_name))
-            knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
-        return self.working_memory_controller.construction(knowledge_subnet, context_array)
+        return object_name_list
 
     """
     Checks if all data, was received based on the context array
@@ -119,11 +139,14 @@ class CasimirSimulation(Resource):
     boolean
         True if all nodes were received, false otherwise
     """
-    def _received_all_necessary_nodes(self, objects_to_receive, knowledge_subnet):
-        for object_to_receive in objects_to_receive:
-            if not knowledge_subnet.objects.__contains__(object_to_receive):
-                return False
-        return True
+    def _received_all_necessary_nodes(self, object_names_to_receive, knowledge_subnet):
+        if knowledge_subnet:
+            for object_name in object_names_to_receive:
+                if not knowledge_subnet.objects.__contains__(object_name):
+                    return False
+            return True
+        else:
+            return False
 
 @app.route("/save_knowledge_fragment", methods=['POST'])
 def save_knowledge_fragment():     
@@ -155,9 +178,10 @@ def create_mental_image():
     noise_on = req_data['noise_on']
     spread_full_activation = req_data['spread_full_activation']
     use_only_complete_fragments = req_data['use_only_complete_fragments']
+    max_amount_of_retries = req_data['max_amount_of_retries']
 
     casimirSimulation.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
-     dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments)
+     dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments, max_amount_of_retries)
 
     context_array = req_data['context']
     casted_context_array = []

@@ -111,7 +111,16 @@ def run(item):
                 {"category": "RelationCategory",
                 "type": "Cardinal"
                 }
-            ]
+            ],
+            'base_activation_decay': -0.5,
+            'fraction_of_activation': 0.6,
+            'initial_activation_value': 1,
+            'noise': 0.1,
+            'dynamic_firing_threshold': True,
+            'firing_threshold': 0.01667,
+            'noise_on': False,
+            'spread_full_activation': False,
+            'use_only_complete_fragments': False
         }
     question_json = json.dumps(question_data)
     
@@ -137,6 +146,7 @@ def run(item):
     #print(simulation_response_of_task[0][2])
     #print("reset simulation -> next task", "\n")
     response_of_reset_call = requests.post(reset_url)
+    print(simulation_response_of_task)
     return(simulation_response_of_task)
 
 
