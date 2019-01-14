@@ -93,7 +93,7 @@ class CasimirSimulation(Resource):
         received_object_list = []
         context_added = True
         retries = 0
-        while(not self._received_all_necessary_nodes(object_to_receive_name_list, knowledge_subnet) and (context_added or retries < self.MAX_AMOUNT_OF_RETRIES )):
+        while(not self._received_all_necessary_nodes(object_to_receive_name_list, knowledge_subnet) and (context_added or retries <= self.MAX_AMOUNT_OF_RETRIES )):
             retries = retries + 1
             context_added = False
             knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)

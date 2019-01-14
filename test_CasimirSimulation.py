@@ -132,3 +132,47 @@ class TestCasimirSimulation(unittest.TestCase):
 
         self.assertFalse(casimir_simulation._received_all_necessary_nodes(objects_to_receive, knowledge_subnet))
     
+    def test_create_mental_image_without_recall(self):
+        casimir_simulation = CasimirSimulation(app)
+        casimir_simulation.MAX_AMOUNT_OF_RETRIES = 0
+        paris_city_object = CityObject("Paris")
+        prague_city_object = CityObject("Prague")
+        london_city_object = CityObject("London")
+        south_cardinal_relation = SouthCardinalRelation()
+        east_cardinal_relation = EastCardinalRelation()
+        casimir_simulation.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
+        casimir_simulation.save_knowledge_fragment(east_cardinal_relation, [prague_city_object, paris_city_object])
+        casimir_simulation.update_settings(-0.5, 0.6, 1, 0.1, True, 0.1, False, False, False, 0)
+        
+        created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.CardinalRelation, prague_city_object, london_city_object])
+
+        self.assertEqual(created_spatial_mental_image['smm'][0]['east'], 'Prague')
+        self.assertEqual(created_spatial_mental_image['smm'][0]['middle'], 'Paris')
+        self.assertEqual(created_spatial_mental_image['smm'][1]['west'], 'Paris')
+        self.assertEqual(created_spatial_mental_image['smm'][1]['middle'], 'Prague')
+
+    def test_create_mental_image_with_only_one_relation(self):
+        casimir_simulation = CasimirSimulation(app)
+        casimir_simulation.MAX_AMOUNT_OF_RETRIES = 0
+        paris_city_object = CityObject("Paris")
+        london_city_object = CityObject("London")
+        south_cardinal_relation = SouthCardinalRelation()
+        casimir_simulation.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
+        casimir_simulation.update_settings(-0.5, 0.6, 1, 0.1, True, 0.1, False, False, False, 0)
+        
+        created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.CardinalRelation, paris_city_object, london_city_object])
+       
+        self.assertEqual(created_spatial_mental_image['smm'][0]['middle'], None)
+
+    def test_create_mental_image_with_only_one_relation_receive_just_complete_fragments(self):
+        casimir_simulation = CasimirSimulation(app)
+        casimir_simulation.MAX_AMOUNT_OF_RETRIES = 0
+        paris_city_object = CityObject("Paris")
+        london_city_object = CityObject("London")
+        south_cardinal_relation = SouthCardinalRelation()
+        casimir_simulation.save_knowledge_fragment(south_cardinal_relation, [paris_city_object, london_city_object])
+        casimir_simulation.update_settings(-0.5, 0.6, 1, 0.1, True, 0.1, False, False, True, 0)
+        
+        created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.CardinalRelation, paris_city_object, london_city_object])
+        
+        self.assertEqual(len(created_spatial_mental_image['smm']), 0)

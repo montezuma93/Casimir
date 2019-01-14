@@ -22,7 +22,7 @@ class LongTermMemoryService:
     #INITIAL_ACTIVATION_VALUE = 0.8
     #BASE_ACTIVATION_DECAY = -0.86
     #INITIAL_ACTIVATION_VALUE = 1.8
-    EPSILON = 0.0001
+    EPSILON = 0.001
 
     """
     Initialize a empty LongTermMemory
@@ -519,7 +519,7 @@ class LongTermMemoryService:
                 for index, object_name in enumerate(relation.objects):
                     if relation.objects_received[index] == True:
                         object_to_add_eventually = self.stored_objects[object_name]
-                        if (object_to_add_eventually.activation + 0.1 >= retrieval_threshold):
+                        if (object_to_add_eventually.activation + self.EPSILON >= retrieval_threshold):
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
                         else:
                             relation.objects_received[index] = False
