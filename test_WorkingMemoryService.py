@@ -4,12 +4,13 @@ from mock import call, patch
 from LongTermMemoryService import LongTermMemoryService, KnowledgeSubnet
 from Relation import (EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation,
  PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName,
- NorthEastCardinalRelation, SouthWestCardinalRelation, RelationType, TopologicalRelationName)
+ NorthEastCardinalRelation, SouthWestCardinalRelation, RelationType, TopologicalRelationName,
+ SouthEastCardinalRelation, NorthWestCardinalRelation)
 from Object import CityObject, CountryObject
 from WorkingMemoryService import WorkingMemoryService, SpatialMentalModel
 from LongTermMemoryService import StoredRelation
 
-class TestLongTermMemory(unittest.TestCase):
+class TestLongTermMemoryService(unittest.TestCase):
     
     @patch('WorkingMemoryService.WorkingMemoryService.create_smm_json')
     @patch('WorkingMemoryService.WorkingMemoryService.add_relation_and_opposite_to_smm')
@@ -107,7 +108,27 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(opposite_relation.objects[1], "Freiburg")
         self.assertEquals(opposite_relation.objects_received[0], True)
         self.assertEquals(opposite_relation.objects_received[1], True)
-    
+
+    def test_add_multiple_relations_to_smm(self):
+        working_memory = WorkingMemoryService()
+        relation1 = StoredRelation(SouthEastCardinalRelation(), ["Munich", "Cologne"], 1)
+        relation2 = StoredRelation(NorthEastCardinalRelation(), ["Berlin", "Cologne"], 1)
+        relation3 = StoredRelation(SouthWestCardinalRelation(), ["Freiburg", "Berlin"], 1)
+        relation4 = StoredRelation(SouthWestCardinalRelation(), ["Basel", "Freiburg"], 1)
+
+        working_memory.add_relation_and_opposite_to_smm(relation1)
+        working_memory.add_relation_and_opposite_to_smm(relation2)
+        working_memory.add_relation_and_opposite_to_smm(relation3)
+        working_memory.add_relation_and_opposite_to_smm(relation4)
+
+        stored_spatial_mental_models = working_memory.stored_spatial_mental_models
+        self.assertEquals(stored_spatial_mental_models[0].middle, "Cologne")
+        self.assertEquals(stored_spatial_mental_models[0].south_east, "Munich")
+        self.assertEquals(stored_spatial_mental_models[0].north_east, "Berlin")
+        self.assertEquals(stored_spatial_mental_models[1].middle, "Munich")
+        self.assertEquals(stored_spatial_mental_models[2].outer_south_west, "Freiburg")
+        self.assertEquals(stored_spatial_mental_models[3].south_west, "Basel")
+
     def test_create_opposite_for_incomplete_cardinal_relation_and_first_object_not_received(self):
         working_memory = WorkingMemoryService()
         relation = StoredRelation(SouthCardinalRelation(), ["Freiburg", "Hamburg"], 1)
@@ -133,6 +154,28 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEquals(opposite_relation.objects[1], "Berlin")
         self.assertEquals(opposite_relation.objects_received[0], False)
         self.assertEquals(opposite_relation.objects_received[1], True)
+
+    def test_create_opposite_for_inter_cardinal_direction(self):
+        working_memory = WorkingMemoryService()
+        relation1 = StoredRelation(SouthWestCardinalRelation(), ["Berlin", "Freiburg"], 1)
+        relation2 = StoredRelation(NorthWestCardinalRelation(), ["Berlin", "Freiburg"], 1)
+        relation3 = StoredRelation(SouthEastCardinalRelation(), ["Berlin", "Freiburg"], 1)
+
+        opposite_relation1 = working_memory.create_opposite(relation1)
+        opposite_relation2 = working_memory.create_opposite(relation2)
+        opposite_relation3 = working_memory.create_opposite(relation3)
+
+        self.assertEquals(opposite_relation1.relation.name.value, "NorthEast")
+        self.assertEquals(opposite_relation1.objects[0], "Freiburg")
+        self.assertEquals(opposite_relation1.objects[1], "Berlin")
+        
+        self.assertEquals(opposite_relation2.relation.name.value, "SouthEast")
+        self.assertEquals(opposite_relation2.objects[0], "Freiburg")
+        self.assertEquals(opposite_relation2.objects[1], "Berlin")
+
+        self.assertEquals(opposite_relation3.relation.name.value, "NorthWest")
+        self.assertEquals(opposite_relation3.objects[0], "Freiburg")
+        self.assertEquals(opposite_relation3.objects[1], "Berlin")
 
     def test_create_smm_for_complete_cardinal_relation(self):
         working_memory = WorkingMemoryService()
@@ -277,3 +320,21 @@ class TestLongTermMemory(unittest.TestCase):
         self.assertEqual(actual_smm_list[2].north, None)
         self.assertEqual(actual_smm_list[2].middle, "Paris")
         self.assertEqual(actual_smm_list[2].south, None)
+
+    def test_add_main_cardinal_to_smm(self):
+        working_memory = WorkingMemoryService()
+        spatial_mental_model = SpatialMentalModel()
+        spatial_mental_model.middle = "A"
+        spatial_mental_model.north = "B"
+        relation = StoredRelation(SouthCardinalRelation, [CityObject("C"), CityObject("A")], 0)
+        working_memory.add_to_smm(spatial_mental_model, relation)
+        self.assertEquals(spatial_mental_model.south.name, "C")
+
+    def test_add_inter_cardinal_to_smm(self):
+        working_memory = WorkingMemoryService()
+        spatial_mental_model = SpatialMentalModel()
+        spatial_mental_model.middle = "A"
+        spatial_mental_model.north_east = "B"
+        relation = StoredRelation(NorthWestCardinalRelation, [CityObject("C"), CityObject("A")], 0)
+        working_memory.add_to_smm(spatial_mental_model, relation)
+        self.assertEquals(spatial_mental_model.north_west.name, "C")

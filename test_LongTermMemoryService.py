@@ -5,7 +5,7 @@ from LongTermMemoryService import LongTermMemoryService, KnowledgeSubnet
 from Relation import EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation, PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName, RelationType, TopologicalRelationName
 from Object import CityObject, CountryObject
 
-class TestLongTermMemory(unittest.TestCase):
+class TestLongTermMemoryService(unittest.TestCase):
 
     def test_long_term_memory_can_save_multiple_relations_with_equal_category_correctly(self):
         long_term_memory = LongTermMemoryService()
