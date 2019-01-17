@@ -19,7 +19,8 @@ def clean_empty(d):
 
 def cast_relation(relation):
     dictionary = {'north': 'North', 'south':'South', 'west': 'West', 'east': 'East' ,
-    'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
+    'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest',
+    'left': 'Left', 'right': 'Right'}
     return dictionary.get(relation,'Relation Not Found')
 
 def get_opposite(relation):
@@ -87,7 +88,7 @@ def run(item):
         relation = None
         
         fragment_to_save_data = {
-            "relation": cast_relation(relation_in_fragment),
+            "relation": relation_in_fragment,
             "objects": [object1_in_fragment, object2_in_fragment]
         }
         fragment_to_save_json = json.dumps(fragment_to_save_data)
@@ -96,6 +97,22 @@ def run(item):
 
         #print("save_fragment", fragment_to_save_json, "\n")
     
+    for choice in enumerate(choices[0]):
+        relation = choice[1][0]
+        object1 = choice[1][1]
+        object2 = choice[1][2]
+        print(relation)  
+        if relation == "Left" or relation == "Right":
+            use_cardinal_relation = False
+        print(object1)
+        print(object2)     
+        #TODO FInd simlation relation
+        simulation_relation = get_relation(spatial_array, object1, object2, use_cardinal_relation)
+        print(simulation_relation)
+        print("\n")
+        if relation != simulation_relation:
+            sumlation_thinks_all_facts_correct = False
+
     context_object1 = choices[0][0][1]
     context_object2 = choices[0][0][2]
     #print("question is: ", context_object1, context_object2, "\n")
@@ -120,7 +137,8 @@ def run(item):
             'firing_threshold': 0.01667,
             'noise_on': False,
             'spread_full_activation': False,
-            'use_only_complete_fragments': False
+            'use_only_complete_fragments': False,
+            'max_amount_of_retries': 3
         }
     question_json = json.dumps(question_data)
     
@@ -128,10 +146,10 @@ def run(item):
     response_in_json = response_of_receive_call.json()
     smm_list = response_in_json['smm']
 
-    #print("simulation answer", "\n")
+    print("simulation answer", "\n")
     smm_string_list = []
     for smm in smm_list:
-        #print(smm, "\n")
+        print(smm, "\n")
         get_relations_out_of_smm(smm, smm_string_list)
 
     simulation_response_of_task = ""
