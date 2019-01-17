@@ -22,7 +22,7 @@ class LongTermMemoryService:
     #INITIAL_ACTIVATION_VALUE = 0.8
     #BASE_ACTIVATION_DECAY = -0.86
     #INITIAL_ACTIVATION_VALUE = 1.8
-    EPSILON = 0.001
+    EPSILON = 0.01
 
     """
     Initialize a empty LongTermMemory

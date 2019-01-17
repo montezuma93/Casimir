@@ -24,6 +24,10 @@ class DistanceRelationName(Enum):
     Far = "Far"
     Close = "Close"
 
+class SpatialRelationName(Enum):
+    Left = "Left"
+    Right = "Right"
+
 class Relation(ABC):
     pass
 
@@ -75,3 +79,12 @@ class FarDistanceRelation(DistanceRelation):
 class CloseDistanceRelation(DistanceRelation):
     name = DistanceRelationName.Close
 
+class SpatialRelation(RelationCategory):
+    relation_type = RelationType.SpatialRelation
+    amount_of_objects = 2
+
+class LeftSpatialRelation(SpatialRelation):
+    name = SpatialRelationName.Left
+
+class RightSpatialRelation(SpatialRelation):
+    name = SpatialRelationName.Right

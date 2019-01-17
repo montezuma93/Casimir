@@ -7,7 +7,7 @@ from flask.views import View
 from mock import call, patch
 from Object import MiscellaneousObject, CityObject
 from LongTermMemoryService import KnowledgeSubnet
-from Relation import NorthCardinalRelation, SouthCardinalRelation, EastCardinalRelation, CardinalRelation, RelationType
+from Relation import NorthCardinalRelation, SouthCardinalRelation, EastCardinalRelation, CardinalRelation, RelationType, SpatialRelation, LeftSpatialRelation, RightSpatialRelation
 
 app = Flask(__name__)
 
@@ -146,10 +146,10 @@ class TestCasimirSimulation(unittest.TestCase):
         
         created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.CardinalRelation, prague_city_object, london_city_object])
 
-        self.assertEqual(created_spatial_mental_image['smm'][0]['east'], 'Prague')
-        self.assertEqual(created_spatial_mental_image['smm'][0]['middle'], 'Paris')
-        self.assertEqual(created_spatial_mental_image['smm'][1]['west'], 'Paris')
-        self.assertEqual(created_spatial_mental_image['smm'][1]['middle'], 'Prague')
+        self.assertEqual(created_spatial_mental_image['smm'][0]['south'], 'Paris')
+        self.assertEqual(created_spatial_mental_image['smm'][0]['middle'], 'London')
+        self.assertEqual(created_spatial_mental_image['smm'][1]['east'], 'Prague')
+        self.assertEqual(created_spatial_mental_image['smm'][1]['middle'], 'Paris')
 
     def test_create_mental_image_with_only_one_relation(self):
         casimir_simulation = CasimirSimulation(app)
@@ -176,3 +176,20 @@ class TestCasimirSimulation(unittest.TestCase):
         created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.CardinalRelation, paris_city_object, london_city_object])
         
         self.assertEqual(len(created_spatial_mental_image['smm']), 0)
+
+    def test_create_mental_image_for_spatial_relations(self):
+        casimir_simulation = CasimirSimulation(app)
+        a_object = MiscellaneousObject("A")
+        b_object = MiscellaneousObject("B")
+        c_object = MiscellaneousObject("C")
+        left_spatial_relation = LeftSpatialRelation()
+        right_spatial_relation = RightSpatialRelation()
+        casimir_simulation.save_knowledge_fragment(left_spatial_relation, [a_object, b_object])
+        casimir_simulation.save_knowledge_fragment(right_spatial_relation, [c_object, b_object])
+        casimir_simulation.update_settings(-0.5, 0.6, 1, 0.1, True, 0.1, False, False, False, 3)
+        
+        created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.SpatialRelation, a_object, c_object])
+
+        self.assertEqual(created_spatial_mental_image['smm'][0]['right'], 'C')
+        self.assertEqual(created_spatial_mental_image['smm'][0]['middle'], 'B')
+        self.assertEqual(created_spatial_mental_image['smm'][0]['left'], 'A')

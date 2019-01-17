@@ -196,7 +196,8 @@ def create_mental_image():
 def cast_relation(relation):
     dictionary = {'North':NorthCardinalRelation(), 'South':SouthCardinalRelation(), 'West':WestCardinalRelation(), 'East': EastCardinalRelation(),
         "PartOf": PartOfTopologicalRelation(), 'NorthEast': NorthEastCardinalRelation(), 'NorthWest': NorthWestCardinalRelation(), 
-        'SouthEast': SouthEastCardinalRelation(), 'SouthWest': SouthWestCardinalRelation(), 'Far': FarDistanceRelation(), 'Close': CloseDistanceRelation()}
+        'SouthEast': SouthEastCardinalRelation(), 'SouthWest': SouthWestCardinalRelation(), 'Far': FarDistanceRelation(), 'Close': CloseDistanceRelation(),
+        'Left': LeftSpatialRelation(), 'Right': RightSpatialRelation()}
     return dictionary.get(relation,'Relation Not Found')
 
 def cast_relation_category(relation_category):

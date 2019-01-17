@@ -5,7 +5,7 @@ from LongTermMemoryService import LongTermMemoryService, KnowledgeSubnet
 from Relation import (EastCardinalRelation, NorthCardinalRelation, SouthCardinalRelation,
  PartOfTopologicalRelation, CardinalRelation, RelationCategory, CardinalRelationName,
  NorthEastCardinalRelation, SouthWestCardinalRelation, RelationType, TopologicalRelationName,
- SouthEastCardinalRelation, NorthWestCardinalRelation)
+ SouthEastCardinalRelation, NorthWestCardinalRelation, LeftSpatialRelation, RightSpatialRelation)
 from Object import CityObject, CountryObject
 from WorkingMemoryService import WorkingMemoryService, SpatialMentalModel
 from LongTermMemoryService import StoredRelation
