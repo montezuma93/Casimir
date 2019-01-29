@@ -23,7 +23,8 @@ def cast_relation(relation):
     return dictionary.get(relation,'Relation Not Found')
 
 def cast_relation_back(relation):
-    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west'}
+    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west',
+    'south': 'south', 'north': 'north', 'west': 'west', 'east': 'east'}
     return dictionary.get(relation,'')
 
 def get_opposite(relation):
@@ -32,14 +33,11 @@ def get_opposite(relation):
     return dictionary.get(relation,'Relation Not Found')
 
 def get_relation(relation_key1, relation_key2):
-    print(relation_key1, relation_key2)
     key1 = relation_key1.replace('outer-', '')
     key2 = relation_key2.replace('outer-', '')
     if(key1 == key2):
         if 'outer' in relation_key1:
-            relation = cast_relation_back(relation_key1.replace('outer-', ''))
-            if relation == '':
-                return relation_key1.replace('outer-', '')
+            relation = cast_relation_back(key1)
             return relation
         else:
             return get_opposite(relation_key2.replace('outer-', ''))
@@ -100,7 +98,7 @@ def run(item):
             "relation": cast_relation(relation_in_fragment),
             "objects": [object1_in_fragment, object2_in_fragment]
         }
-        
+        print(fragment_to_save[0], fragment_to_save[1], fragment_to_save[2])
         fragment_to_save_json = json.dumps(fragment_to_save_data)
 
         response_of_call = requests.post(save_url, data=fragment_to_save_json, headers={"Content-Type": "application/json"})
@@ -142,7 +140,6 @@ def run(item):
     print("simulation answer", "\n")
     smm_string_list = []
     for smm in smm_list:
-        print(smm, "\n")
         get_relations_out_of_smm(smm, smm_string_list)
 
     simulation_response_of_task = ""
@@ -151,15 +148,14 @@ def run(item):
         if smm_string_in_list[1] == context_object1 and smm_string_in_list[2] == context_object2:
             simulation_response_of_task = [smm_string_in_list]
 
-    print("Last answer")
-    print(simulation_response_of_task[0][0], simulation_response_of_task[0][1], simulation_response_of_task[0][2])
+    print("returning: ", simulation_response_of_task)
     print("reset simulation -> next task", "\n")
     response_of_reset_call = requests.post(reset_url)
     return(simulation_response_of_task)
 
 
 '''
-Prefers spitze traingles as well as not main cardinal directions
+Prefers spitze traingles (in the middle) as well as not main cardinal directions
 '''
 class Model3(ccobra.CCobraModel):
 

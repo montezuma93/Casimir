@@ -21,7 +21,8 @@ def cast_relation(relation):
     'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
 def cast_relation_back(relation):
-    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west'}
+    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west',
+    'south': 'south', 'north': 'north', 'west': 'west', 'east': 'east'}
     return dictionary.get(relation,'')
 
 def get_opposite(relation):
@@ -35,8 +36,6 @@ def get_relation(relation_key1, relation_key2):
     if(key1 == key2):
         if 'outer' in relation_key1:
             relation = cast_relation_back(key1)
-            if relation == '':
-                return key1
             return relation
         else:
             return get_opposite(key2)

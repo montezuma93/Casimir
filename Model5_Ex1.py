@@ -21,7 +21,8 @@ def cast_relation(relation):
     'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
 def cast_relation_back(relation):
-    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west'}
+    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west',
+    'south': 'south', 'north': 'north', 'west': 'west', 'east': 'east'}
     return dictionary.get(relation,'')
 
 def get_opposite(relation):
@@ -30,15 +31,12 @@ def get_opposite(relation):
     return dictionary.get(relation,'Relation Not Found')
 
 def get_relation(relation_key1, relation_key2):
-    print(relation_key1, relation_key2)
     key1 = relation_key1.replace('outer-', '')
     key2 = relation_key2.replace('outer-', '')
     if(key1 == key2):
         print("same")
         if 'outer' in relation_key1:
             relation = cast_relation_back(key1)
-            if relation == '':
-                return key1
             return relation
         else:
             return get_opposite(key2)
@@ -97,7 +95,7 @@ def run(item):
             "objects": [object1_in_fragment, object2_in_fragment]
         }
         fragment_to_save_json = json.dumps(fragment_to_save_data)
-
+        print(fragment_to_save[0], fragment_to_save[1], fragment_to_save[2])
         response_of_call = requests.post(save_url, data=fragment_to_save_json, headers={"Content-Type": "application/json"})
 
     
@@ -145,7 +143,7 @@ def run(item):
         #print(smm_string_in_list)
         if smm_string_in_list[1] == context_object1 and smm_string_in_list[2] == context_object2:
             simulation_response_of_task = [smm_string_in_list]
-
+    print("returning: ", simulation_response_of_task)
     #print("Last answer")
     #print(simulation_response_of_task[0][0])
     #print(simulation_response_of_task[0][1])
@@ -156,7 +154,7 @@ def run(item):
 
 
 '''
-Prefers spitze traingles as well as main cardinal directions
+Prefers spitze traingles (in the middle) as well as main cardinal directions
 '''
 class Model5(ccobra.CCobraModel):
 

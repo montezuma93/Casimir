@@ -21,7 +21,8 @@ def cast_relation(relation):
     'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
 def cast_relation_back(relation):
-    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west'}
+    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west',
+    'south': 'south', 'north': 'north', 'west': 'west', 'east': 'east'}
     return dictionary.get(relation,'')
 
 def get_opposite(relation):
@@ -35,8 +36,6 @@ def get_relation(relation_key1, relation_key2):
     if(key1 == key2):
         if 'outer' in relation_key1:
             relation = cast_relation_back(key1)
-            if relation == '':
-                return key1
             return relation
         else:
             return get_opposite(key2)
@@ -96,7 +95,7 @@ def run(item):
             "objects": [object1_in_fragment, object2_in_fragment]
         }
         fragment_to_save_json = json.dumps(fragment_to_save_data)
-
+        print(fragment_to_save[0], fragment_to_save[1], fragment_to_save[2])
         response_of_call = requests.post(save_url, data=fragment_to_save_json, headers={"Content-Type": "application/json"})
 
         #print("save_fragment", fragment_to_save_json, "\n")
@@ -149,11 +148,12 @@ def run(item):
     #print("Last answer")
     #print(simulation_response_of_task)
     #print("reset simulation -> next task", "\n")
+    print("returning: ", simulation_response_of_task)
     response_of_reset_call = requests.post(reset_url)
     return simulation_response_of_task
 
 '''
-Prefers stumpfe traingles as well as not main cardinal directions
+Prefers stumpfe traingles (am rand) as well as not main cardinal directions
 '''
 class Model2(ccobra.CCobraModel):
 
