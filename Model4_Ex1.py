@@ -21,7 +21,6 @@ def cast_relation(relation):
     dictionary = {'north': 'North', 'south':'South', 'west': 'West', 'east': 'East' ,
     'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
-
 def cast_relation_back(relation):
     dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west'}
     return dictionary.get(relation,'')
@@ -36,41 +35,41 @@ def get_relation(relation_key1, relation_key2):
     key1 = relation_key1.replace('outer-', '')
     key2 = relation_key2.replace('outer-', '')
     if(key1 == key2):
+        print("same")
         if 'outer' in relation_key1:
-            relation = cast_relation_back(relation_key1.replace('outer-', ''))
+            relation = cast_relation_back(key1)
             if relation == '':
-                return relation_key1.replace('outer-', '')
+                return key1
             return relation
         else:
-            return get_opposite(relation_key2.replace('outer-', ''))
-
+            return get_opposite(key2)
     key = key1 + " " + key2
     dictionary = {'north south': 'north', 'north west': 'north-east', 'north east': 'north-west', 'north middle': 'north',
-    'north northEast': 'north-west', 'north northWest': 'north-east', 'north southEast': 'north-west', 'north southWest': 'north-east',
+    'north northEast': 'south-west', 'north northWest': 'south-east', 'north southEast': 'north', 'north southWest': 'north',
 
     'south north':'south', 'south west': 'south-east', 'south east': 'south-west', 'south middle': 'south',
-    'south southEast': 'south-west', 'south southWest': 'south-east', 'south northEast': 'south-west', 'south northWest': 'south-east',
+    'south southEast': 'north-west', 'south southWest': 'north-east', 'south northEast': 'south', 'south northWest': 'south',
 
     'east west': 'east', 'east north': 'south-east', 'east south': 'north-east', 'east middle': 'east',
-    'east northEast': 'south-east', 'east southEast': 'north-east', 'east northWest': 'south-east', 'east southWest': 'north-east',
+    'east northEast': 'south-west', 'east southEast': 'north-west', 'east northWest': 'east', 'east southWest': 'east',
 
     'west east': 'west', 'west north': 'south-west', 'west south': 'north-west', 'west middle': 'west',
-    'west northWest': 'south-west', 'west southWest': 'north-west', 'west northEast': 'south-west', 'west southEast': 'north-west',
+    'west northWest': 'south-east', 'west southWest': 'north-east', 'west northEast': 'west', 'west southEast': 'west',
 
     'northEast southWest': 'north-east', 'northEast northWest': 'east', 'northEast southEast': 'north',
-    'northEast middle': 'north-east', 'northEast north': 'south-east', 'northEast east': 'north-west', 'northEast west': 'north-east', 'northEast south': 'north-east',
+    'northEast middle': 'north-east', 'northEast north': 'north-east', 'northEast east': 'north-east', 'northEast west': 'east', 'northEast south': 'north',
 
     'northWest southWest': 'north', 'northWest northEast': 'west', 'northWest southEast': 'north-west',
-    'northWest middle': 'north-west', 'northWest north': 'south-west', 'northWest west':'north-east', 'northWest east': 'north-west', 'northWest south': 'north-west',
+    'northWest middle': 'north-west', 'northWest north': 'north-west', 'northWest west':'north-west', 'northWest east': 'west', 'northWest south': 'north',
     
     'southWest northWest': 'south', 'southWest northEast': 'south-west', 'southWest southEast': 'west',
-    'southWest middle': 'south-west', 'southWest south': 'north-west', 'southWest west': 'south-east', 'southWest north': 'south-west', 'southWest east': 'south-west',
+    'southWest middle': 'south-west', 'southWest south': 'south-west', 'southWest west': 'south-west', 'southWest north': 'south', 'southWest east': 'west',
 
     'southEast northWest': 'south-east', 'southEast northEast': 'south', 'southEast southWest': 'east',
-    'southEast middle': 'south-east', 'southEast south': 'north-east', 'southEast east': 'south-west', 'southEast north': 'south-east', 'southEast west': 'south-east',
+    'southEast middle': 'south-east', 'southEast south': 'south-east', 'southEast east': 'south-east', 'southEast north': 'south', 'southEast west': 'east',
 
     'middle north': 'south', 'middle south': 'north', 'middle west': 'east', 'middle east': 'west',
-    'middle northWest': 'south-east', 'middle northEast': 'south-west', 'middle southWest': 'north-east', 'middle southEast': 'north-west'
+    'middle northWest': 'south-east', 'middle northEast': 'south-west', 'middle southWest': 'north-east', 'middle southEast': 'north-west',
     }
     return dictionary.get(key,'')
 
@@ -88,27 +87,26 @@ def get_relations_out_of_smm(smm, smm_string_list):
 def run(item):
     tasks = item.task
     choices = item.choices
+    #print("task in run")
     for fragment_to_save in tasks:
-
         relation_in_fragment = fragment_to_save[0]
         object1_in_fragment = {"name": fragment_to_save[1], "type": "City" }
         object2_in_fragment = {"name": fragment_to_save[2], "type": "City" }
-        print(fragment_to_save[0], fragment_to_save[1], fragment_to_save[2])
         relation = None
         
         fragment_to_save_data = {
             "relation": cast_relation(relation_in_fragment),
             "objects": [object1_in_fragment, object2_in_fragment]
         }
-        
         fragment_to_save_json = json.dumps(fragment_to_save_data)
 
         response_of_call = requests.post(save_url, data=fragment_to_save_json, headers={"Content-Type": "application/json"})
 
+        #print("save_fragment", fragment_to_save_json, "\n")
     
     context_object1 = choices[0][0][1]
     context_object2 = choices[0][0][2]
-    print("question is: ", context_object1, context_object2, "\n")
+    #print("question is: ", context_object1, context_object2, "\n")
     context = []
     question_data = {
             "context" : [
@@ -139,10 +137,10 @@ def run(item):
     response_in_json = response_of_receive_call.json()
     smm_list = response_in_json['smm']
 
-    print("simulation answer", "\n")
+    #print("simulation answer", "\n")
     smm_string_list = []
     for smm in smm_list:
-        print(smm, "\n")
+        #print(smm, "\n")
         get_relations_out_of_smm(smm, smm_string_list)
 
     simulation_response_of_task = ""
@@ -151,20 +149,20 @@ def run(item):
         if smm_string_in_list[1] == context_object1 and smm_string_in_list[2] == context_object2:
             simulation_response_of_task = [smm_string_in_list]
 
-    print("Last answer")
-    print(simulation_response_of_task[0][0], simulation_response_of_task[0][1], simulation_response_of_task[0][2])
-    print("reset simulation -> next task", "\n")
+    #print("Last answer")
+    #print(simulation_response_of_task)
+    #print("reset simulation -> next task", "\n")
     response_of_reset_call = requests.post(reset_url)
-    return(simulation_response_of_task)
-
+    return simulation_response_of_task
 
 '''
-Prefers spitze traingles as well as not main cardinal directions
+Prefers stumpfe traingles as well as main cardinal directions
 '''
-class Model3(ccobra.CCobraModel):
+class Model4(ccobra.CCobraModel):
 
-    def __init__(self, name='Model3'):
-        super(Model3, self).__init__(name, ['relational'], ['verify', 'single_choice'])
+    def __init__(self, name='Model4'):
+        super(Model4, self).__init__(name, ['relational'], ['verify', 'single_choice'])
 
     def predict(self, item, **kwargs):
+        #print("task")
         return run(item)

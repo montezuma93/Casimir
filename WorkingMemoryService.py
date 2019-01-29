@@ -1,6 +1,6 @@
 import json
 import copy
-from Relation import CardinalRelationName, SpatialRelationName
+from Relation import CardinalRelationName
 import logging
 
 class WorkingMemoryService:
@@ -47,10 +47,11 @@ class WorkingMemoryService:
     """
     def construction(self, knowledge_subnet):
         self.stored_spatial_mental_models = []
-        self.logger.info('Construction request')
+        self.logger.info('Construction request for %s reltations', len(knowledge_subnet.relations.values()))
         if knowledge_subnet:
             for relations in knowledge_subnet.relations.values():
                 for relation in relations:
+                    print("adasdsad")
                     if self.USE_ONLY_COMPLETE_FRAGMENTS:
                         if self._relation_is_complete(relation):
                             self.add_relation_and_opposite_to_smm(relation)
@@ -128,10 +129,6 @@ class WorkingMemoryService:
                 opposite_relation.relation.name = CardinalRelationName.NorthEast
             elif(relation.relation.name.value == "SouthEast"):
                 opposite_relation.relation.name = CardinalRelationName.NorthWest
-            elif(relation.relation.name.value == "Left"):
-                opposite_relation.relation.name = SpatialRelationName.Right
-            elif(relation.relation.name.value == "Right"):
-                opposite_relation.relation.name = SpatialRelationName.Left
             return opposite_relation
         else:
             return None
@@ -212,16 +209,6 @@ class WorkingMemoryService:
                 smm_to_add.inner_part = relation.objects[0]
             if(relation.objects_received[1] == True):
                 smm_to_add.outer_part = relation.objects[1]
-        elif(relation.relation.name.value == "Left"):
-            if(relation.objects_received[0] == True):
-                smm_to_add.left = relation.objects[0]
-            if(relation.objects_received[1] == True):
-                smm_to_add.middle = relation.objects[1]
-        elif(relation.relation.name.value == "Right"):
-            if(relation.objects_received[0] == True):
-                smm_to_add.right = relation.objects[0]
-            if(relation.objects_received[1] == True):
-                smm_to_add.middle = relation.objects[1]
         self.stored_spatial_mental_models.append(smm_to_add)
 
     """
@@ -300,22 +287,6 @@ class WorkingMemoryService:
             if(relation.objects_received[0] == True):
                 smm.outer_south_east = relation.objects[0]
                 updated_smm = True
-        elif(relation.relation.name.value == "Left" and smm.left is None):
-            if(relation.objects_received[0] == True):
-                smm.left = relation.objects[0]
-                updated_smm = True
-        elif(relation.relation.name.value == "Left" and smm.left is not None and smm.outer_left is None):
-            if(relation.objects_received[0] == True):
-                smm.outer_left = relation.objects[0]
-                updated_smm = True
-        elif(relation.relation.name.value == "Right" and smm.right is None):
-            if(relation.objects_received[0] == True):
-                smm.right = relation.objects[0]
-                updated_smm = True
-        elif(relation.relation.name.value == "Right" and smm.right is not None and smm.outer_right is None):
-            if(relation.objects_received[0] == True):
-                smm.outer_right = relation.objects[0]
-                updated_smm = True
         if(updated_smm == False):
             self.create_new_smm(relation)
 
@@ -333,12 +304,11 @@ class WorkingMemoryService:
         relation_list = []
         for smm in self.stored_spatial_mental_models:
             relation_for_list = {"north": smm.north, "south": smm.south, "west": smm.west, "east": smm.east, 
-            "north-west": smm.north_west, "north-east": smm.north_east, "south-west": smm.south_west, "south-east": smm.south_east,
+            "northWest": smm.north_west, "northEast": smm.north_east, "southWest": smm.south_west, "southEast": smm.south_east,
             "middle": smm.middle, "innerPart": smm.inner_part, "outerPart": smm.outer_part,
             "outer-north": smm.outer_north, "outer-south": smm.outer_south, "outer-west": smm.outer_west, "outer-east": smm.outer_east,
-            "outer-north-west": smm.outer_north_west, "outer-north-east": smm.outer_north_east, 
-            "outer-south-west": smm.outer_south_west, "outer-south-east": smm.outer_south_east,
-            "left": smm.left, "outer-left": smm.outer_left, "right": smm.right, "outer-right": smm.outer_right}
+            "outer-northWest": smm.outer_north_west, "outer-northEast": smm.outer_north_east, 
+            "outer-southWest": smm.outer_south_west, "outer-southEast": smm.outer_south_east}
             relation_list.append(relation_for_list)
         return{
             "smm": relation_list

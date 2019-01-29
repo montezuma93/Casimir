@@ -16,15 +16,17 @@ def clean_empty(d):
     if isinstance(d, list):
         return [v for v in (clean_empty(v) for v in d) if v]
     return {k: v for k, v in ((k, clean_empty(v)) for k, v in d.items()) if v}
-
 def cast_relation(relation):
     dictionary = {'north': 'North', 'south':'South', 'west': 'West', 'east': 'East' ,
     'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
+def cast_relation_back(relation):
+    dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west'}
+    return dictionary.get(relation,'')
 
 def get_opposite(relation):
     dictionary = {'north': 'south', 'south':'north', 'west': 'east', 'east': 'west' ,
-    'north-east': 'south-west', 'north-west': 'south-east', 'south-east': 'north-west', 'south-west': 'north-east'}
+    'northEast': 'south-west', 'northWest': 'south-east', 'southEast': 'north-west', 'southWest': 'north-east'}
     return dictionary.get(relation,'Relation Not Found')
 
 def get_relation(relation_key1, relation_key2):
@@ -32,37 +34,39 @@ def get_relation(relation_key1, relation_key2):
     key2 = relation_key2.replace('outer-', '')
     if(key1 == key2):
         if 'outer' in relation_key1:
-            return relation_key1.replace('outer-', '')
+            relation = cast_relation_back(key1)
+            if relation == '':
+                return key1
+            return relation
         else:
-            return get_opposite(relation_key2.replace('outer-', ''))
-
+            return get_opposite(key2)
     key = key1 + " " + key2
-    dictionary = {'north south': 'north', 'north west': 'north-west', 'north east': 'north-east', 'north middle': 'north',
-    'north north-east': 'west', 'north north-west': 'east', 'north south-east': 'north', 'north south-west': 'north',
+    dictionary = {'north south': 'north', 'north west': 'north-east', 'north east': 'north-west', 'north middle': 'north',
+    'north northEast': 'west', 'north northWest': 'east', 'north southEast': 'north', 'north southWest': 'north',
 
-    'south north':'south', 'south west': 'south-east', 'south east': 'south-east', 'south middle': 'south',
-    'south south-east': 'west', 'south south-west': 'east', 'south north-east': 'south', 'south north-west': 'south',
+    'south north':'south', 'south west': 'south-east', 'south east': 'south-west', 'south middle': 'south',
+    'south southEast': 'west', 'south southWest': 'east', 'south northEast': 'south', 'south northWest': 'south',
 
     'east west': 'east', 'east north': 'south-east', 'east south': 'north-east', 'east middle': 'east',
-    'east north-east': 'south', 'east south-east': 'north', 'east north-west': 'east', 'east south-west': 'east',
+    'east northEast': 'south', 'east southEast': 'north', 'east northWest': 'east', 'east southWest': 'east',
 
     'west east': 'west', 'west north': 'south-west', 'west south': 'north-west', 'west middle': 'west',
-    'west north-west': 'south', 'west south-west': 'north', 'west north-east': 'west', 'west south-east': 'west',
+    'west northWest': 'south', 'west southWest': 'north', 'west northEast': 'west', 'west southEast': 'west',
 
-    'north-east south-west': 'north-east', 'north-east north-west': 'east', 'north-east south-east': 'north',
-    'north-east middle': 'north-east', 'north-east north': 'east', 'north-east east': 'north', 'north-east west': 'east', 'north-east south': 'north',
+    'northEast southWest': 'north-east', 'northEast northWest': 'east', 'northEast southEast': 'north',
+    'northEast middle': 'north-east', 'northEast north': 'east', 'northEast east': 'north', 'northEast west': 'east', 'northEast south': 'north',
 
-    'north-west south-west': 'north', 'north-west north-east': 'west', 'north-west south-east': 'north-west',
-    'north-west middle': 'north-west', 'north-west north': 'west', 'north-west west':'north', 'north-west east': 'west', 'north-west south': 'north',
+    'northWest southWest': 'north', 'northWest northEast': 'west', 'northWest southEast': 'north-west',
+    'northWest middle': 'north-west', 'northWest north': 'west', 'northWest west':'north', 'northWest east': 'west', 'northWest south': 'north',
     
-    'south-west north-west': 'south', 'south-west north-east': 'south-west', 'south-west south-east': 'west',
-    'south-west middle': 'south-west', 'south-west south': 'west', 'south-west west': 'south', 'south-west north': 'south', 'south-west east': 'west',
+    'southWest northWest': 'south', 'southWest northEast': 'south-west', 'southWest southEast': 'west',
+    'southWest middle': 'south-west', 'southWest south': 'west', 'southWest west': 'south', 'southWest north': 'south', 'southWest east': 'west',
 
-    'south-east north-west': 'south-east', 'south-east north-east': 'south', 'south-east south-west': 'east',
-    'south-east middle': 'south-east', 'south-east south': 'east', 'south-east east': 'south', 'south-east north': 'south', 'south-east west': 'east',
+    'southEast northWest': 'south-east', 'southEast northEast': 'south', 'southEast southWest': 'east',
+    'southEast middle': 'south-east', 'southEast south': 'east', 'southEast east': 'south', 'southEast north': 'south', 'southEast west': 'east',
 
     'middle north': 'south', 'middle south': 'north', 'middle west': 'east', 'middle east': 'west',
-    'middle north-west': 'south-east', 'middle north-east': 'south-west', 'middle south-west': 'north-east', 'middle south-east': 'north-west',
+    'middle northWest': 'south-east', 'middle northEast': 'south-west', 'middle southWest': 'north-east', 'middle southEast': 'north-west'
     }
     return dictionary.get(key,'')
 
@@ -85,6 +89,7 @@ def run(item):
         object1_in_fragment = {"name": fragment_to_save[1], "type": "City" }
         object2_in_fragment = {"name": fragment_to_save[2], "type": "City" }
         relation = None
+        print(fragment_to_save[0], fragment_to_save[1], fragment_to_save[2])
         
         fragment_to_save_data = {
             "relation": cast_relation(relation_in_fragment),
@@ -112,14 +117,14 @@ def run(item):
                 "type": "Cardinal"
                 }
             ],
-            'base_activation_decay': -0.5,
+            'base_activation_decay': -0.86,
             'fraction_of_activation': 0.6,
-            'initial_activation_value': 1,
+            'initial_activation_value': 5,
             'noise': 0.1,
             'dynamic_firing_threshold': True,
             'firing_threshold': 0.01667,
             'noise_on': False,
-            'spread_full_activation': False,
+            'spread_full_activation': True,
             'use_only_complete_fragments': False,
             'max_amount_of_retries': 3
         }
@@ -129,10 +134,9 @@ def run(item):
     response_in_json = response_of_receive_call.json()
     smm_list = response_in_json['smm']
 
-    print("simulation answer", "\n")
     smm_string_list = []
     for smm in smm_list:
-        print(smm, "\n")
+
         get_relations_out_of_smm(smm, smm_string_list)
 
     simulation_response_of_task = ""
@@ -140,14 +144,14 @@ def run(item):
         #print(smm_string_in_list)
         if smm_string_in_list[1] == context_object1 and smm_string_in_list[2] == context_object2:
             simulation_response_of_task = [smm_string_in_list]
-
+    print("returning: ", simulation_response_of_task)
     #print("Last answer")
     #print(simulation_response_of_task[0][0])
     #print(simulation_response_of_task[0][1])
     #print(simulation_response_of_task[0][2])
     #print("reset simulation -> next task", "\n")
     response_of_reset_call = requests.post(reset_url)
-    print(simulation_response_of_task)
+    
     return(simulation_response_of_task)
 
 

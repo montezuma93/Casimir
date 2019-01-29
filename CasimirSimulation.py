@@ -89,19 +89,21 @@ class CasimirSimulation(Resource):
     """
     def create_mental_image(self, context_array):
         object_to_receive_name_list = self._get_all_objects_names_in_context_array(context_array)
-        knowledge_subnet = []
+        knowledge_subnet = None
         received_object_list = []
         context_added = True
         retries = 0
-        while(not self._received_all_necessary_nodes(object_to_receive_name_list, knowledge_subnet) and (context_added or retries <= self.MAX_AMOUNT_OF_RETRIES )):
+        while(not self._received_all_necessary_nodes(object_to_receive_name_list, knowledge_subnet) and (context_added or retries <= self.MAX_AMOUNT_OF_RETRIES)):
             retries = retries + 1
             context_added = False
             knowledge_subnet = self.long_term_memory_controller.receive_knowledge_fragments(context_array)
+            print(len(knowledge_subnet.objects.items()))
             for object_name, concrete_object in knowledge_subnet.objects.items():
                 if (not received_object_list.__contains__(object_name)):
                     context_added = True
                     received_object_list.append(object_name)
-                    context_array.append(cast_object(concrete_object.stored_object.object_type.value, object_name))
+                    if(not object_to_receive_name_list.__contains__(object_name)):
+                        context_array.append(cast_object(concrete_object.stored_object.object_type.value, object_name))
         return self.working_memory_controller.construction(knowledge_subnet, context_array)
 
     """
@@ -178,7 +180,7 @@ def create_mental_image():
     noise_on = req_data['noise_on']
     spread_full_activation = req_data['spread_full_activation']
     use_only_complete_fragments = req_data['use_only_complete_fragments']
-    max_amount_of_retries = req_data['max_amount_of_retries']
+    max_amount_of_retries = int(req_data['max_amount_of_retries'])
 
     casimirSimulation.update_settings(base_activation_decay, fraction_of_activation, initial_activation_value, noise,
      dynamic_firing_threshold, firing_threshold, noise_on, spread_full_activation, use_only_complete_fragments, max_amount_of_retries)
@@ -196,8 +198,7 @@ def create_mental_image():
 def cast_relation(relation):
     dictionary = {'North':NorthCardinalRelation(), 'South':SouthCardinalRelation(), 'West':WestCardinalRelation(), 'East': EastCardinalRelation(),
         "PartOf": PartOfTopologicalRelation(), 'NorthEast': NorthEastCardinalRelation(), 'NorthWest': NorthWestCardinalRelation(), 
-        'SouthEast': SouthEastCardinalRelation(), 'SouthWest': SouthWestCardinalRelation(), 'Far': FarDistanceRelation(), 'Close': CloseDistanceRelation(),
-        'Left': LeftSpatialRelation(), 'Right': RightSpatialRelation()}
+        'SouthEast': SouthEastCardinalRelation(), 'SouthWest': SouthWestCardinalRelation(), 'Far': FarDistanceRelation(), 'Close': CloseDistanceRelation()}
     return dictionary.get(relation,'Relation Not Found')
 
 def cast_relation_category(relation_category):

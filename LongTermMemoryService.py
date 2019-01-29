@@ -440,8 +440,9 @@ class LongTermMemoryService:
     def _clean_up_retrieved_mark(self):
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
-                for object_retrieved_flag in stored_relation.objects_received:
-                    object_retrieved_flag = True
+                for index in enumerate(stored_relation.objects_received):
+                    print("index", index[0])
+                    stored_relation.objects_received[index[0]] = True
     """
     Check if relation not yet used in a created knowledge subnet
 
@@ -517,8 +518,12 @@ class LongTermMemoryService:
         for relation_type, stored_relations in knowledge_subnet.relations.items():
             for relation in stored_relations:
                 for index, object_name in enumerate(relation.objects):
+                    print(object_name)
                     if relation.objects_received[index] == True:
+                        print("True")
                         object_to_add_eventually = self.stored_objects[object_name]
+                        print(object_to_add_eventually.activation + 0.1)
+                        print(retrieval_threshold)
                         if (object_to_add_eventually.activation + self.EPSILON >= retrieval_threshold):
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
                         else:
