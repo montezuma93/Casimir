@@ -146,11 +146,12 @@ class TestCasimirSimulation(unittest.TestCase):
         casimir_simulation.update_settings(-0.5, 0.6, 1, 0.1, True, 0.1, False, False, False, 0)
         
         created_spatial_mental_image = casimir_simulation.create_mental_image([RelationType.CardinalRelation, prague_city_object, london_city_object])
-        print(created_spatial_mental_image)
-        self.assertEqual(created_spatial_mental_image['smm'][1]['east'], 'Prague')
+        
+        self.assertEqual(len(created_spatial_mental_image['smm']), 2)
+        self.assertEqual(created_spatial_mental_image['smm'][0]['east'], 'Prague')
         self.assertEqual(created_spatial_mental_image['smm'][0]['middle'], 'Paris')
-        #self.assertEqual(created_spatial_mental_image['smm'][1]['east'], 'Prague')
-        self.assertEqual(created_spatial_mental_image['smm'][1]['middle'], 'London')
+        self.assertEqual(created_spatial_mental_image['smm'][1]['west'], 'Paris')
+        self.assertEqual(created_spatial_mental_image['smm'][1]['middle'], 'Prague')
     
     def test_create_mental_image_with_only_one_relation(self):
         casimir_simulation = CasimirSimulation(app)

@@ -10,16 +10,11 @@ receive_url = 'http://localhost:5000/create_mental_image'
 reset_url = 'http://localhost:5000/reset_simulation'
 update_settings_url = 'http://localhost:5000/update_settings'
 
-def clean_empty(d):
-    if not isinstance(d, (dict, list)):
-        return d
-    if isinstance(d, list):
-        return [v for v in (clean_empty(v) for v in d) if v]
-    return {k: v for k, v in ((k, clean_empty(v)) for k, v in d.items()) if v}
 def cast_relation(relation):
     dictionary = {'north': 'North', 'south':'South', 'west': 'West', 'east': 'East' ,
     'north-east': 'NorthEast', 'north-west': 'NorthWest', 'south-east': 'SouthEast', 'south-west': 'SouthWest'}
     return dictionary.get(relation,'Relation Not Found')
+
 def cast_relation_back(relation):
     dictionary = {'northEast': 'north-east', 'northWest': 'north-west', 'southEast': 'south-east', 'southWest': 'south-west',
     'south': 'south', 'north': 'north', 'west': 'west', 'east': 'east'}
@@ -31,10 +26,9 @@ def get_opposite(relation):
     return dictionary.get(relation,'Relation Not Found')
 
 def get_relation(relation_key1, relation_key2):
-    key1 = relation_key1.replace('outer-', '')
-    key2 = relation_key2.replace('outer-', '')
+    key1 = relation_key1.replace('outer_', '')
+    key2 = relation_key2.replace('outer_', '')
     if(key1 == key2):
-        print("same")
         if 'outer' in relation_key1:
             relation = cast_relation_back(key1)
             return relation
@@ -89,19 +83,15 @@ def run(item):
         object1_in_fragment = {"name": fragment_to_save[1], "type": "City" }
         object2_in_fragment = {"name": fragment_to_save[2], "type": "City" }
         relation = None
-        
         fragment_to_save_data = {
             "relation": cast_relation(relation_in_fragment),
             "objects": [object1_in_fragment, object2_in_fragment]
         }
         fragment_to_save_json = json.dumps(fragment_to_save_data)
-        print(fragment_to_save[0], fragment_to_save[1], fragment_to_save[2])
         response_of_call = requests.post(save_url, data=fragment_to_save_json, headers={"Content-Type": "application/json"})
 
-    
     context_object1 = choices[0][0][1]
     context_object2 = choices[0][0][2]
-    #print("question is: ", context_object1, context_object2, "\n")
     context = []
     question_data = {
             "context" : [
@@ -130,31 +120,20 @@ def run(item):
     
     response_of_receive_call = requests.put(receive_url, data=question_json, headers={"Content-Type": "application/json", "Accept": "application/json"})
     response_in_json = response_of_receive_call.json()
-    smm_list = response_in_json['smm']
 
-    #print("simulation answer", "\n")
+    smm_list = response_in_json['smm']
     smm_string_list = []
     for smm in smm_list:
-        #print(smm, "\n")
         get_relations_out_of_smm(smm, smm_string_list)
-
     simulation_response_of_task = ""
     for smm_string_in_list in smm_string_list:
-        #print(smm_string_in_list)
         if smm_string_in_list[1] == context_object1 and smm_string_in_list[2] == context_object2:
             simulation_response_of_task = [smm_string_in_list]
-    print("returning: ", simulation_response_of_task)
-    #print("Last answer")
-    #print(simulation_response_of_task[0][0])
-    #print(simulation_response_of_task[0][1])
-    #print(simulation_response_of_task[0][2])
-    #print("reset simulation -> next task", "\n")
     response_of_reset_call = requests.post(reset_url)
     return(simulation_response_of_task)
 
-
 '''
-Prefers spitze traingles (in the middle) as well as main cardinal directions
+Prefers sharp triangle (will place object close to the middle) as well as main cardinal directions
 '''
 class Model5(ccobra.CCobraModel):
 

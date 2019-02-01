@@ -306,9 +306,9 @@ class WorkingMemoryService:
             relation_for_list = {"north": smm.north, "south": smm.south, "west": smm.west, "east": smm.east, 
             "northWest": smm.north_west, "northEast": smm.north_east, "southWest": smm.south_west, "southEast": smm.south_east,
             "middle": smm.middle, "innerPart": smm.inner_part, "outerPart": smm.outer_part,
-            "outer-north": smm.outer_north, "outer-south": smm.outer_south, "outer-west": smm.outer_west, "outer-east": smm.outer_east,
-            "outer-northWest": smm.outer_north_west, "outer-northEast": smm.outer_north_east, 
-            "outer-southWest": smm.outer_south_west, "outer-southEast": smm.outer_south_east}
+            "outer_north": smm.outer_north, "outer_south": smm.outer_south, "outer_west": smm.outer_west, "outer_east": smm.outer_east,
+            "outer_northWest": smm.outer_north_west, "outer_northEast": smm.outer_north_east, 
+            "outer_southWest": smm.outer_south_west, "outer_southEast": smm.outer_south_east}
             relation_list.append(relation_for_list)
         return{
             "smm": relation_list
