@@ -36,31 +36,31 @@ def get_relation(relation_key1, relation_key2):
             return get_opposite(key2)
     key = key1 + " " + key2
     dictionary = {'north south': 'north', 'north west': 'north-east', 'north east': 'north-west', 'north middle': 'north',
-    'north northEast': 'west', 'north northWest': 'east', 'north southEast': 'north-west', 'north southWest': 'north-east',
+    'north northEast': 'north-west', 'north northWest': 'north-east', 'north southEast': 'north', 'north southWest': 'north',
 
     'south north':'south', 'south west': 'south-east', 'south east': 'south-west', 'south middle': 'south',
-    'south southEast': 'west', 'south southWest': 'east', 'south northEast': 'south-west', 'south northWest': 'south-east',
+    'south southEast': 'south-west', 'south southWest': 'south-east', 'south northEast': 'south', 'south northWest': 'south',
 
     'east west': 'east', 'east north': 'south-east', 'east south': 'north-east', 'east middle': 'east',
-    'east northEast': 'south', 'east southEast': 'north', 'east northWest': 'south-east', 'east southWest': 'north-east',
+    'east northEast': 'south-east', 'east southEast': 'north-east', 'east northWest': 'east', 'east southWest': 'east',
 
     'west east': 'west', 'west north': 'south-west', 'west south': 'north-west', 'west middle': 'west',
-    'west northWest': 'south', 'west southWest': 'north', 'west northEast': 'south-west', 'west southEast': 'north-west',
+    'west northWest': 'south-west', 'west southWest': 'north-west', 'west northEast': 'west', 'west southEast': 'west',
 
     'northEast southWest': 'north-east', 'northEast northWest': 'east', 'northEast southEast': 'north',
-    'northEast middle': 'north-east', 'northEast north': 'east', 'northEast east': 'north', 'northEast west': 'north-east', 'northEast south': 'north-east',
+    'northEast middle': 'north-east', 'northEast north': 'south-east', 'northEast east': 'north-west', 'northEast west': 'east', 'northEast south': 'north',
 
     'northWest southWest': 'north', 'northWest northEast': 'west', 'northWest southEast': 'north-west',
-    'northWest middle': 'north-west', 'northWest north': 'west', 'northWest west':'north', 'northWest east': 'north-west', 'northWest south': 'north-west',
+    'northWest middle': 'north-west', 'northWest north': 'south-west', 'northWest west':'north-east', 'northWest east': 'west', 'northWest south': 'north',
     
     'southWest northWest': 'south', 'southWest northEast': 'south-west', 'southWest southEast': 'west',
-    'southWest middle': 'south-west', 'southWest south': 'west', 'southWest west': 'south', 'southWest north': 'south-west', 'southWest east': 'south-west',
+    'southWest middle': 'south-west', 'southWest south': 'north-west', 'southWest west': 'south-east', 'southWest north': 'south', 'southWest east': 'west',
 
     'southEast northWest': 'south-east', 'southEast northEast': 'south', 'southEast southWest': 'east',
-    'southEast middle': 'south-east', 'southEast south': 'east', 'southEast east': 'south', 'southEast north': 'south-east', 'southEast west': 'south-east',
+    'southEast middle': 'south-east', 'southEast south': 'north-east', 'southEast east': 'south-west', 'southEast north': 'south', 'southEast west': 'east',
 
     'middle north': 'south', 'middle south': 'north', 'middle west': 'east', 'middle east': 'west',
-    'middle northWest': 'south-east', 'middle northEast': 'south-west', 'middle southWest': 'north-east', 'middle southEast': 'north-west'
+    'middle northWest': 'south-east', 'middle northEast': 'south-west', 'middle southWest': 'north-east', 'middle southEast': 'north-west',
     }
     return dictionary.get(key,'')
 
@@ -81,14 +81,15 @@ def run(item):
     for fragment_to_save in tasks:
         relation_in_fragment = fragment_to_save[0]
         object1_in_fragment = {"name": fragment_to_save[1], "type": "City" }
-        object2_in_fragment = {"name": fragment_to_save[2], "type": "City" } 
+        object2_in_fragment = {"name": fragment_to_save[2], "type": "City" }
+        relation = None
         fragment_to_save_data = {
             "relation": cast_relation(relation_in_fragment),
             "objects": [object1_in_fragment, object2_in_fragment]
         }
         fragment_to_save_json = json.dumps(fragment_to_save_data)
         response_of_call = requests.post(save_url, data=fragment_to_save_json, headers={"Content-Type": "application/json"})
-    
+
     context_object1 = choices[0][0][1]
     context_object2 = choices[0][0][2]
     context = []
@@ -116,7 +117,7 @@ def run(item):
             'max_amount_of_retries': 3
         }
     question_json = json.dumps(question_data)
-
+    
     response_of_receive_call = requests.put(receive_url, data=question_json, headers={"Content-Type": "application/json", "Accept": "application/json"})
     response_in_json = response_of_receive_call.json()
 
@@ -129,11 +130,10 @@ def run(item):
         if smm_string_in_list[1] == context_object1 and smm_string_in_list[2] == context_object2:
             simulation_response_of_task = [smm_string_in_list]
     response_of_reset_call = requests.post(reset_url)
-
     return(simulation_response_of_task)
 
 '''
-Prefers perfect triangles as well as not main cardinal directions
+Prefers sharp triangle (will place object close to the middle) as well as main cardinal directions
 '''
 class Model6(ccobra.CCobraModel):
 
