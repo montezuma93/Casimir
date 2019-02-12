@@ -12,16 +12,10 @@ class LongTermMemoryService:
     FRACTION_OF_ACTIVATION =  0.6
     INITIAL_ACTIVATION_VALUE = 1
     NOISE = 0.1
-    #false
     DYNAMIC_FIRING_THRESHOLD = True
     FIRING_THRESHOLD = 0.01667
-    #True
     NOISE_ON = False
     SPREAD_FULL_ACTIVATION = False
-    #BASE_ACTIVATION_DECAY = -0.2
-    #INITIAL_ACTIVATION_VALUE = 0.8
-    #BASE_ACTIVATION_DECAY = -0.86
-    #INITIAL_ACTIVATION_VALUE = 1.8
     EPSILON = 0.01
 
     """
@@ -43,16 +37,6 @@ class LongTermMemoryService:
     Reset and clean up simulation
     """
     def reset_simulation(self):
-        """
-        self.BASE_ACTIVATION_DECAY = -0.86
-        self.FRACTION_OF_ACTIVATION =  0.6
-        self.INITIAL_ACTIVATION_VALUE = 5
-        self.NOISE = 0.1
-        self.DYNAMIC_FIRING_THRESHOLD = True
-        self.FIRING_THRESHOLD = 0.01667
-        self.NOISE_ON = False
-        self.SPREAD_FULL_ACTIVATION = True
-        """
         self.activation_spreading_in_progress = False
         self.receive_knowledge_fragments_in_progress = False
         self.time_since_initialization = 0
@@ -441,7 +425,6 @@ class LongTermMemoryService:
         for stored_relations in self.stored_relations.values():
             for stored_relation in stored_relations:
                 for index in enumerate(stored_relation.objects_received):
-                    print("index", index[0])
                     stored_relation.objects_received[index[0]] = True
     """
     Check if relation not yet used in a created knowledge subnet
@@ -518,12 +501,8 @@ class LongTermMemoryService:
         for relation_type, stored_relations in knowledge_subnet.relations.items():
             for relation in stored_relations:
                 for index, object_name in enumerate(relation.objects):
-                    print(object_name)
                     if relation.objects_received[index] == True:
-                        print("True")
                         object_to_add_eventually = self.stored_objects[object_name]
-                        print(object_to_add_eventually.activation + 0.1)
-                        print(retrieval_threshold)
                         if (object_to_add_eventually.activation + self.EPSILON >= retrieval_threshold):
                             self._add_object_to_knowledge_subnet(object_to_add_eventually, knowledge_subnet, (relation_type, stored_relations.index(relation)))
                         else:

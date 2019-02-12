@@ -51,7 +51,6 @@ class WorkingMemoryService:
         if knowledge_subnet:
             for relations in knowledge_subnet.relations.values():
                 for relation in relations:
-                    print("adasdsad")
                     if self.USE_ONLY_COMPLETE_FRAGMENTS:
                         if self._relation_is_complete(relation):
                             self.add_relation_and_opposite_to_smm(relation)
